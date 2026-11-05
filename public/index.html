@@ -360,6 +360,47 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
 /* === channels === */
 .seasonal{font-family:var(--mono);font-size:13px;padding:1px 5px;margin-left:4px;border:1px solid var(--edge);background:#1f6b3a;color:#fff;text-shadow:none;letter-spacing:.06em;white-space:nowrap}
 /* === /channels === */
+/* === graphics === on-screen broadcast graphics: network bug, UP NEXT lower third, bumper card, tune flash, picture clock */
+.gfx-bug{position:absolute;right:3.5%;bottom:4.5%;z-index:6;display:flex;align-items:center;gap:.9cqw;pointer-events:none;opacity:.55;
+  font-family:var(--display);font-size:max(13px,3.6cqw);line-height:1;color:#fff;letter-spacing:.04em;white-space:nowrap;max-width:46%;
+  padding:0 0 .5cqw;border-bottom:max(2px,.45cqw) solid hsl(var(--gfx-hue,45) 95% 62%);transition:opacity .4s;
+  text-shadow:1px 0 0 #050322,-1px 0 0 #050322,0 1px 0 #050322,0 -1px 0 #050322,1px 1px 0 #050322}
+.gfx-bug i{font-style:normal;font-family:system-ui,"Apple Color Emoji","Segoe UI Emoji",sans-serif;font-size:.9em;text-shadow:none;filter:drop-shadow(1px 1px 0 #050322)}
+.gfx-bug span{overflow:hidden;text-overflow:ellipsis}
+.gfx-bug.off{opacity:0}
+.gfx-l3{position:absolute;left:0;bottom:6%;z-index:6;display:flex;align-items:stretch;max-width:88%;pointer-events:none;
+  border:2px solid var(--edge);border-left:0;box-shadow:0 3px 0 var(--edge);transform:translateX(-105%);transition:transform .45s cubic-bezier(.2,.9,.3,1.1)}
+.screen:has(#sound:not([hidden])) .gfx-l3{bottom:19%}
+.gfx-l3.on{transform:none}
+.gfx-l3 b{flex:none;display:grid;place-items:center;padding:.8cqw 2cqw .8cqw 3cqw;font-family:var(--display);font-weight:400;font-size:max(14px,3.8cqw);line-height:1;letter-spacing:.03em;
+  color:#2a1600;background:linear-gradient(180deg,#ffc76a 0%,#f08a2a 55%,var(--rust) 100%);box-shadow:inset 0 2px 0 rgba(255,255,255,.35);white-space:nowrap;
+  clip-path:polygon(0 0,100% 0,calc(100% - 1.6cqw) 100%,0 100%);padding-right:3.2cqw}
+.gfx-l3 span{min-width:0;display:grid;align-content:center;gap:.3cqw;padding:.8cqw 2.4cqw .8cqw 1.4cqw;background:linear-gradient(180deg,var(--indigo-3),var(--indigo));box-shadow:var(--bevel)}
+.gfx-l3 em{font-style:normal;font-family:var(--display);font-size:max(15px,4.2cqw);line-height:1;color:var(--gold);text-shadow:2px 2px 0 #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gfx-l3 small{font-family:var(--mono);font-size:max(13px,3cqw);line-height:1;color:var(--cyan);letter-spacing:.06em;text-shadow:1px 1px 0 #000}
+.gfx-bump{position:absolute;inset:0;z-index:7;display:grid;place-content:center;justify-items:center;gap:1.6cqw;padding:6%;text-align:center;cursor:pointer;
+  border:0;color:var(--ink);font-family:var(--mono);transition:opacity .5s,transform .5s cubic-bezier(.5,0,.8,.4);
+  background:radial-gradient(120% 70% at 50% 0%,#2a1a8a 0%,rgba(42,26,138,0) 70%),linear-gradient(180deg,var(--indigo) 0%,var(--night-2) 100%)}
+.gfx-bump.out{opacity:0;transform:translateY(-8%);pointer-events:none}
+.gfx-bump .wm{font-family:var(--display);font-size:8.5cqw;line-height:.9;color:var(--gold);letter-spacing:.03em;text-shadow:.5cqw .5cqw 0 #3a1500,0 0 3cqw rgba(255,216,74,.35)}
+.gfx-bump .nw{font-family:var(--display);font-size:max(13px,3.6cqw);line-height:1;letter-spacing:.14em;color:#2a1600;padding:.5cqw 2cqw;margin-top:1.4cqw;
+  background:linear-gradient(180deg,#ffc76a 0%,#f08a2a 55%,var(--rust) 100%);border:2px solid var(--edge);box-shadow:var(--bevel)}
+.gfx-bump .tt{font-family:var(--display);font-size:max(18px,6.4cqw);line-height:.95;color:var(--ink);text-shadow:.4cqw .4cqw 0 #000;max-width:88cqw;overflow-wrap:anywhere;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.gfx-bump .yr{font-size:max(14px,3.8cqw);color:var(--dim);letter-spacing:.08em}
+.gfx-bump .cn{position:absolute;top:4%;right:5%;font-family:var(--display);font-size:max(16px,5cqw);line-height:1;color:var(--cyan);text-shadow:.4cqw .4cqw 0 #000}
+.gfx-bump .sk{position:absolute;top:5%;left:5%;font-size:max(12px,2.8cqw);color:var(--dim);letter-spacing:.1em}
+.gfx-flash{position:absolute;inset:0;z-index:29;pointer-events:none;opacity:0;background:#fff}
+.gfx-flash.go{animation:gfxflash .35s ease-out forwards}
+@keyframes gfxflash{0%{opacity:1;background:#fff;transform:scaleY(1)}35%{opacity:1;background:#fff;transform:scaleY(.04)}60%{opacity:1;background:#000;transform:scaleY(1)}100%{opacity:0;background:#000}}
+.gfx-clock{position:absolute;top:3.5%;left:3.5%;z-index:9;display:flex;align-items:center;gap:1cqw;pointer-events:none;opacity:0;transition:opacity .3s;
+  font-family:var(--mono);font-size:max(15px,3.8cqw);line-height:1;color:#fff;font-variant-numeric:tabular-nums;padding:.5cqw 1.4cqw;
+  background:rgba(5,3,34,.62);border:1px solid rgba(255,255,255,.18);text-shadow:1px 1px 0 #000}
+.gfx-clock.on{opacity:1}
+.gfx-clock i{width:max(7px,1.6cqw);height:max(7px,1.6cqw);background:var(--live);box-shadow:0 0 6px var(--live);animation:blink 1.2s steps(1) infinite}
+.gfx-clock small{font-size:.7em;color:var(--dim)}
+@media (prefers-reduced-motion:reduce){.gfx-l3,.gfx-bump,.gfx-bug,.gfx-clock{transition:none}.gfx-bump.out{transform:none}.gfx-flash.go{animation:none}.gfx-clock i{animation:none}}
+/* === /graphics === */
 @media (max-width:430px){
   .tabs .btn{font-size:21px}
   .livebar{gap:7px}
@@ -433,6 +474,13 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
         <div class="osd" id="osd">54<small>AFTER HOURS</small></div>
         <div class="msg" id="msg">ADJUSTING THE ANTENNA…</div>
         <div class="wait" id="wait" hidden><b>ONE MOMENT PLEASE</b><span class="ws" id="waitStatus">TUNING</span><span class="wc" id="waitCh"></span><button class="btn orange" id="retune" type="button" hidden>↻ RETUNE</button></div>
+        <!-- === graphics === -->
+        <div class="gfx-bug off" id="gfxBug" aria-hidden="true"><i id="gfxBugIco"></i><span id="gfxBugName"></span></div>
+        <div class="gfx-l3" id="gfxL3" aria-hidden="true"><b>UP NEXT ▶</b><span><em id="gfxL3Title"></em><small id="gfxL3Time"></small></span></div>
+        <button class="gfx-bump out" id="gfxBump" type="button" hidden aria-label="Skip intro card"><span class="cn" id="gfxBumpCh"></span><span class="wm">VOID CABLE</span><span class="nw">NOW</span><span class="tt" id="gfxBumpTitle"></span><span class="yr" id="gfxBumpYear"></span><span class="sk">TAP TO SKIP</span></button>
+        <div class="gfx-clock" id="gfxClock" aria-hidden="true"><i></i><span id="gfxClockT">--:--</span></div>
+        <div class="gfx-flash" id="gfxFlash" aria-hidden="true"></div>
+        <!-- === /graphics === -->
         <button class="sleepcover" id="sleepCover" type="button" hidden><b>GOOD NIGHT</b><small>The sleep timer turned the TV off. Tap to turn it back on.</small></button>
         <div class="rwpill" id="rwPill" hidden><span>⏪ REWIND · tap LIVE to rejoin</span><button class="btn orange" id="rwPillLive" type="button">LIVE</button></div>
         <button class="soundbtn" id="sound" type="button">🔇 TAP FOR SOUND</button>
@@ -2120,6 +2168,73 @@ $("shareLink").onclick=async()=>{
   catch(e){toast("🔗 "+url)}
 };
 /* === /pwa === */
+/* === graphics === on-screen broadcast graphics. Overlays only; the picture itself is never filtered.
+   Reads player state (mode, now, sched, cur) and listens to the video; nothing above is modified. */
+const gfx={bugCh:null, l3For:null, l3T:null, bumpFor:null, bumpT:null, bumpT2:null, clockT:null, hover:false,
+  calm:()=>window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches};
+const gfxHue=ch=>Number.isFinite(+ch.hue)&&ch.hue!==""?+ch.hue:seedOf(ch.id)%360;
+const gfxShort=ch=>{if(ch.short)return ch.short;let out="";for(const w of String(ch.name).replace(/[,.!]/g,"").split(/\s+/)){const n=out?out+" "+w:w;if(n.length>12&&out)break;out=n}return out};
+function gfxNextShow(){
+  if(!sched||!now)return null;
+  const n=sched.segs.length;let gap=0;
+  for(let k=1;k<=n;k++){const s=sched.segs[(now.i+k)%n];if(!s.isBreak)return {seg:s,gap};gap+=s.dur}
+  return null;
+}
+function gfxTick(){
+  const ch=CHANNELS[cur];if(!ch)return;
+  if(gfx.bugCh!==ch.id){gfx.bugCh=ch.id;$("gfxBugIco").textContent=ch.icon||"";$("gfxBugName").textContent=gfxShort(ch);$("gfxBug").style.setProperty("--gfx-hue",gfxHue(ch))}
+  const covered=!$("wait").hidden||!$("sleepCover").hidden||!snow.hidden||!msg.hidden||!$("pairModal").hidden;
+  const brk=mode==="video"&&now&&now.seg&&now.seg.isBreak;
+  $("gfxBug").classList.toggle("off",covered||brk||!(mode==="video"||mode==="youtube"));
+  if((covered||brk||mode!=="video")&&$("gfxL3").classList.contains("on"))gfxL3Hide();
+  if(gfx.hover||gfx.clockT){const d=new Date(),h=d.getHours();$("gfxClockT").innerHTML=`${h%12||12}:${String(d.getMinutes()).padStart(2,"0")} <small>${h<12?"AM":"PM"}</small>`}
+}
+setInterval(gfxTick,500);
+/* UP NEXT lower third: once per show, in its last minute */
+function gfxL3Hide(){clearTimeout(gfx.l3T);$("gfxL3").classList.remove("on")}
+vid.addEventListener("timeupdate",()=>{
+  if(mode!=="video"||!now||!sched||!now.seg||now.seg.isBreak||gfx.l3For===now)return;
+  const left=(now.seg.start||0)+now.seg.dur-vid.currentTime;
+  if(left>60||left<9||vid.paused||!$("wait").hidden)return;
+  const nx=gfxNextShow();if(!nx)return;
+  gfx.l3For=now;
+  $("gfxL3Title").textContent=nx.seg.title;
+  $("gfxL3Time").textContent="STARTS "+fmtClock(new Date(Date.now()+(left+nx.gap)*1000)).toUpperCase();
+  $("gfxL3").classList.add("on");clearTimeout(gfx.l3T);gfx.l3T=setTimeout(gfxL3Hide,7000);
+});
+/* bumper card when a new show starts while you're watching (not when you tune in mid-show) */
+function gfxBumpHide(){
+  const b=$("gfxBump");clearTimeout(gfx.bumpT);clearTimeout(gfx.bumpT2);
+  if(b.hidden)return;b.classList.add("out");
+  gfx.bumpT2=setTimeout(()=>{b.hidden=true},gfx.calm()?0:520);
+}
+vid.addEventListener("playing",()=>{
+  if(mode!=="video"||!now||!now.seg||gfx.bumpFor===now)return;
+  gfx.bumpFor=now;
+  if(now.seg.isBreak||now.offset>=3)return;
+  const ch=CHANNELS[cur], b=$("gfxBump");
+  gfxL3Hide();
+  $("gfxBumpCh").textContent="CH "+ch.num;$("gfxBumpTitle").textContent=now.seg.title;$("gfxBumpYear").textContent=now.seg.year?String(now.seg.year):"";
+  clearTimeout(gfx.bumpT);clearTimeout(gfx.bumpT2);
+  b.style.transition="none";b.hidden=false;b.classList.remove("out");void b.offsetWidth;b.style.transition="";
+  gfx.bumpT=setTimeout(gfxBumpHide,2500);
+});
+$("gfxBump").addEventListener("click",gfxBumpHide);
+/* channel change: tube flash with the existing OSD (tune() rewrites the OSD; number entry uses a blank label and is skipped) */
+new MutationObserver(()=>{
+  gfxBumpHide();gfxL3Hide();gfxTick();
+  const sm=osd.querySelector("small");if(!sm||!sm.textContent.trim()||gfx.calm())return;
+  const f=$("gfxFlash");f.classList.remove("go");void f.offsetWidth;f.classList.add("go");
+}).observe(osd,{childList:true});
+/* picture clock: while the pointer is over the screen, or for 3 seconds after a tap */
+screenEl.addEventListener("pointermove",e=>{if(e.pointerType==="mouse"&&!gfx.hover){gfx.hover=true;gfxTick();$("gfxClock").classList.add("on")}});
+screenEl.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse"){gfx.hover=false;if(!gfx.clockT)$("gfxClock").classList.remove("on")}});
+screenEl.addEventListener("pointerdown",e=>{
+  if(e.pointerType==="mouse")return;
+  clearTimeout(gfx.clockT);gfx.clockT=setTimeout(()=>{gfx.clockT=null;if(!gfx.hover)$("gfxClock").classList.remove("on")},3000);
+  gfxTick();$("gfxClock").classList.add("on");
+});
+/* === /graphics === */
 
 /* ================= phone remote (Netlify Function) ================= */
 const rmt={ok:false, code:null, since:0, primed:false, timer:null};
