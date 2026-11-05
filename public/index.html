@@ -1234,15 +1234,15 @@ document.addEventListener("visibilitychange",()=>{
 
 /* ================= viewers (Netlify Function) ================= */
 const clientId=(()=>{let v=store("voidcable.cid");if(!v){v=Math.random().toString(36).slice(2)+Date.now().toString(36);store("voidcable.cid",v)}return v||Math.random().toString(36).slice(2)})();
-let viewers=null, vFails=0, hbLast=0;
+let viewers=null, vFails=0, hbLast=0, vRetryAt=0;
 async function heartbeat(){
-  if(vFails>=3||location.protocol==="file:"||Date.now()-hbLast<4000||document.body.classList.contains("remotemode"))return;
+  if((vFails>=3&&Date.now()<vRetryAt)||location.protocol==="file:"||Date.now()-hbLast<4000||document.body.classList.contains("remotemode"))return;
   hbLast=Date.now();
   try{
     const r=await fetch("/api/viewers",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({ch:CHANNELS[cur].id,id:clientId})});
     if(!r.ok||!/json/.test(r.headers.get("content-type")||""))throw new Error(r.status);
     viewers=await r.json();vFails=0;renderViewers();renderGuide();
-  }catch(e){vFails++}
+  }catch(e){vFails++;if(vFails>=3)vRetryAt=Date.now()+60000}
 }
 function renderViewers(){
   const ok=viewers&&typeof viewers.total==="number";
@@ -1256,7 +1256,7 @@ setInterval(heartbeat,25000);
 
 /* ================= emote reactions (Netlify Function) ================= */
 const EMOTES=["😂","🔥","😮","❤️","💀","👏"];
-const react={ok:false, since:0, primed:false, mine:new Set(), fails:0, busy:false, last:0, ch:null};
+const react={ok:false, since:0, primed:false, mine:new Set(), fails:0, retryAt:0, busy:false, last:0, ch:null};
 $("reactBar").innerHTML=EMOTES.map((e,i)=>`<button class="btn" type="button" data-e="${i}" aria-label="React ${e}">${e}</button>`).join("");
 $("reactBar").addEventListener("click",ev=>{const b=ev.target.closest("[data-e]");if(b)sendReact(+b.dataset.e)});
 function floatEmote(e){
@@ -1271,7 +1271,7 @@ async function sendReact(i){
   try{await fetch("/api/react",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({ch:CHANNELS[cur].id,i,id})})}catch(e){}
 }
 async function pollReacts(){
-  if(react.busy||document.hidden||react.fails>=3||location.protocol==="file:"||document.body.classList.contains("remotemode"))return;
+  if(react.busy||document.hidden||(react.fails>=3&&Date.now()<react.retryAt)||location.protocol==="file:"||document.body.classList.contains("remotemode"))return;
   const ch=CHANNELS[cur].id;
   if(react.ch!==ch){react.ch=ch;react.since=0;react.primed=false}
   react.busy=true;
@@ -1285,7 +1285,7 @@ async function pollReacts(){
       if(react.primed)(j.items||[]).slice(-20).forEach((it,k)=>{if(!react.mine.has(it.id)&&EMOTES[it.i])setTimeout(()=>floatEmote(EMOTES[it.i]),k*140)});
       react.primed=true;
     }
-  }catch(e){react.fails++}
+  }catch(e){react.fails++;if(react.fails>=3)react.retryAt=Date.now()+60000}
   finally{react.busy=false}
 }
 setInterval(pollReacts,3500);
@@ -1456,7 +1456,8 @@ $("airplay").onclick=()=>{try{vid.webkitShowPlaybackTargetPicker()}catch(e){toas
 const rmt={ok:false, code:null, since:0, primed:false, timer:null};
 async function remotePing(){
   if(location.protocol==="file:")return;
-  try{const r=await fetch("/api/remote?ping=1");if(r.ok&&/json/.test(r.headers.get("content-type")||"")){rmt.ok=true;$("remoteBtn").hidden=false}}catch(e){}
+  try{const r=await fetch("/api/remote?ping=1");if(r.ok&&/json/.test(r.headers.get("content-type")||"")){rmt.ok=true;$("remoteBtn").hidden=false;return}}catch(e){}
+  setTimeout(remotePing,60000);
 }
 function loadQR(){return window.QRCode?Promise.resolve():new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)})}
 async function openPair(){
