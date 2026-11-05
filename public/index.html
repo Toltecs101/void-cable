@@ -307,6 +307,15 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
   .side.pad{padding-left:0;padding-right:0}
   .screen{aspect-ratio:16/10}
 }
+.ch .n{gap:2px;height:auto;min-height:56px;padding:4px 0;font-size:28px}
+.ch .n i{font-style:normal;font-size:20px;line-height:1;text-shadow:none}
+.ch .fav{margin-left:auto;font-family:var(--mono);font-size:24px;color:var(--dim);padding:0 4px;cursor:pointer;text-shadow:none}
+.ch .fav.on{color:var(--gold)}
+.ch.dead{opacity:.55}
+.chicon{font-size:26px}
+#scanBtn.on,#sleepBtn.on{background:linear-gradient(180deg,#ffe98a 0%,#f4c430 52%,#c99410 100%);color:#2a1600;text-shadow:none}
+.sleepcover{position:absolute;inset:0;z-index:30;display:grid;place-content:center;gap:10px;text-align:center;background:#000;color:var(--ink);border:0;font-family:var(--mono);font-size:18px;cursor:pointer;padding:16px}
+.sleepcover b{font-family:var(--display);font-weight:400;font-size:40px;color:var(--gold)}
 @media (max-width:430px){
   .tabs .btn{font-size:21px}
   .livebar{gap:7px}
@@ -379,6 +388,7 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
         <div class="floats" id="floats" aria-hidden="true"></div>
         <div class="osd" id="osd">54<small>AFTER HOURS</small></div>
         <div class="msg" id="msg">ADJUSTING THE ANTENNA…</div>
+        <button class="sleepcover" id="sleepCover" type="button" hidden><b>GOOD NIGHT</b><small>The sleep timer turned the TV off. Tap to turn it back on.</small></button>
         <button class="soundbtn" id="sound" type="button">🔇 TAP FOR SOUND</button>
         <div class="fsbar" id="fsbar">
           <button class="btn" type="button" data-act="down">CH ▼</button>
@@ -400,6 +410,8 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
       <button class="btn sq" id="airplay" type="button" aria-label="AirPlay to a TV" hidden><svg viewBox="0 0 24 24"><path d="M2 3h20v13h-4v-2h2V5H4v9h2v2H2zM12 12l7 9H5z"/></svg></button>
       <button class="btn sq" id="remoteBtn" type="button" aria-label="Phone remote" hidden><svg viewBox="0 0 24 24"><path d="M7 1h10v22H7zm2 2v18h6V3zm2 2h2v2h-2zm0 4h2v2h-2zm-1 8h4v2h-4z"/></svg></button>
       <button class="btn sq" id="pip" type="button" aria-label="Picture in Picture" hidden><svg viewBox="0 0 24 24"><path d="M2 4h20v16H2zm2 2v12h16V6zm7 5h8v6h-8z"/></svg></button>
+      <button class="btn" id="scanBtn" type="button" title="Flip through the channels on their own">SCAN</button>
+      <button class="btn" id="sleepBtn" type="button" title="Sleep timer" aria-label="Sleep timer">💤</button>
       <button class="btn orange wide" id="nextStation" type="button" hidden>NEXT STATION ▶</button>
       <button class="btn orange wide" id="wxLoc" type="button" hidden>SET MY CITY</button>
     </div>
@@ -508,14 +520,14 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
    type: archive (archive.org search) · nasa (NASA video library) · youtube (playlist)
          radio (Radio Browser tag) · weather (Open-Meteo + jazz from archive.org)       */
 const CHANNELS = [
-  {id:"void-prime", num:"7", name:"VOID PRIME", type:"prime", blurb:"Programmed like real TV on Eastern time: Saturday-morning cartoons, after-school blocks, late-night anime, and holiday specials in season."},
-  {id:"after-hours", num:"54", name:"AFTER HOURS", type:"archive", breaks:"cn00s", blurb:"Past midnight. The cartoons got weird.",
+  {id:"void-prime", num:"7", name:"VOID PRIME", type:"prime", icon:"⭐", blurb:"Real TV hours, Eastern time. Cartoons at dawn, anime after midnight."},
+  {id:"after-hours", num:"54", name:"AFTER HOURS", type:"archive", breaks:"cn00s", icon:"🌙", blurb:"Past midnight. The cartoons got weird.",
    q:'(title:("adult swim") OR subject:("adult swim") OR title:("[adult swim]")) AND mediatype:movies'},
-  {id:"toon-time", num:"2", name:"TOON TIME", type:"archive", blurb:"Old-school theatrical cartoons: Popeye, Betty Boop, Felix and friends.",
+  {id:"toon-time", num:"2", name:"TOON TIME", type:"archive", icon:"🥫", blurb:"Popeye, Betty Boop and the rubber-hose gang.",
    q:'(collection:(animationandcartoons) OR mediatype:movies) AND (title:(Popeye) OR title:("Betty Boop") OR title:(Fleischer) OR title:("Felix the Cat") OR title:("Merrie Melodies") OR title:("Looney Tunes") OR title:(Superman))'},
-  {id:"kids-club", num:"4", name:"KIDS CLUB", type:"archive", blurb:"Network kids' blocks taped off broadcast TV.",
+  {id:"kids-club", num:"4", name:"KIDS CLUB", type:"archive", icon:"🧃", blurb:"Saturday mornings, taped off the network.",
    q:'(title:("Fox Kids") OR title:("Kids WB") OR title:("Kids\' WB") OR title:("One Saturday Morning") OR title:("Disney Afternoon") OR title:("ABC Saturday")) AND mediatype:movies'},
-  {id:"action-block", num:"24", name:"ACTION BLOCK", type:"archive", maxYear:2008, breaks:"toonami", blurb:"Toonami taped off Cartoon Network, 1997–2008: DBZ, Gundam Wing, Yu Yu Hakusho, Outlaw Star, Sailor Moon and more, original commercials included.",
+  {id:"action-block", num:"24", name:"ACTION BLOCK", type:"archive", maxYear:2008, breaks:"toonami", icon:"⚡", blurb:"Toonami, 1997–2008. Real tapes, real commercials.",
    // off-air Toonami broadcast tapes (English, with original commercials) + a filtered search for more
    ids:[{id:"toonami1999",all:true},{id:"1999-fall-toonami-tape-o.-converted",all:true},{id:"2000-fall-toonami-tape-c.-converted",all:true},
         {id:"2001-summer-toonami-midnight-run.-converted",all:true},{id:"toonami_202204",all:true},{id:"YuYuHakusho1",all:true},
@@ -523,40 +535,67 @@ const CHANNELS = [
         {id:"ToonamiDBZTenchiCardcaptor",all:true},{id:"dbz-cell",all:true},{id:"outlaw-star-toonami",all:true},
         {id:"sailormoontape1",all:true},{id:"toonami-vhs-recording-circa-2001-reupload",all:true}],
    limit:16, q:'(title:(Toonami) OR subject:(Toonami)) AND (title:(WOC) OR title:(VHS) OR title:(broadcast) OR title:(airing) OR title:(recording)) AND mediatype:movies'},
-  {id:"cartoon-2000s", num:"25", name:"CARTOON BLOCK '00s", type:"archive", breaks:"cn00s", blurb:"Cartoon Network in the 2000s: Cartoon Cartoon Fridays, Billy & Mandy, Courage, commercials and all.",
+  {id:"cartoon-2000s", num:"25", name:"CARTOON BLOCK '00s", type:"archive", breaks:"cn00s", icon:"📺", blurb:"Cartoon Network after school, 2000s.",
    ids:["CCF-2000","blank-vhs-cn-2000s"],
    q:'title:("Cartoon Network") AND (year:[2000 TO 2009] OR title:(2000 OR 2001 OR 2002 OR 2003 OR 2004 OR 2005 OR 2006 OR 2007 OR 2008 OR 2009)) AND mediatype:movies',
    exclude:/(adult swim|\[as\]|commercial)/i},
-  {id:"slime-time", num:"31", name:"SLIME TIME", type:"archive", blurb:"90s and 2000s kids' cable, commercials included.",
+  {id:"slime-time", num:"31", name:"SLIME TIME", type:"archive", icon:"🟢", blurb:"Nick in the 90s. Get slimed.",
    q:'(title:(Nickelodeon) OR title:(Nicktoons) OR title:(SNICK)) AND mediatype:movies'},
-  {id:"anime-04", num:"56", name:"ANIME NIGHT", type:"archive", breaks:"toonami", blurb:"English-dub anime taped off Toonami and Adult Swim: Inuyasha, DBZ, Sailor Moon, Outlaw Star, Tenchi, Witch Hunter Robin and more.",
+  {id:"anime-04", num:"56", name:"ANIME NIGHT", type:"archive", breaks:"toonami", icon:"🌸", blurb:"English dubs off Toonami and Adult Swim. Stay up late.",
    // Only tapes recorded off US Toonami / Adult Swim broadcasts, so every episode is the English dub. No open search here.
    ids:[{id:"2004-adult-swim-witch-hunter-robin",all:true},{id:"inuyasha-on-adult-swim",all:true},"zzAdultSwimBroadcasts",
         {id:"ToonamiDBZTenchiCardcaptor",all:true},{id:"outlaw-star-toonami",all:true},{id:"sailormoontape1",all:true},
         {id:"toonami-vhs-recording-circa-2001-reupload",all:true},{id:"dbz-cell",all:true},{id:"inuyasha-sept-2003",all:true}],
    match:/(inuyasha|witch hunter|fullmetal|ghost in the shell|bebop|lupin|case closed|trigun|big o\b|s-cry-ed|scryed|rurouni|kenshin|blue gender|gundam|wolf'?s rain|paranoia agent|samurai champloo|evangelion|outlaw star|hellsing|gantz|ergo proxy|eureka seven|kikaider|golden boy|tenchi|yu ?yu hakusho)/i,
    exclude:/(futurama|family guy|aqua teen|athf|sealab|brak|home movies|space ghost|harvey birdman|robot chicken|venture bros|squidbillies|king of the hill|simpsons|tom goes|perfect hair|code geass|death note|promo|bump|next -)/i},
-  {id:"swim-uploads", num:"55", name:"SWIM UPLOADS", type:"youtube", blurb:"Clips from the official Adult Swim YouTube.",
+  {id:"swim-uploads", num:"55", name:"SWIM UPLOADS", type:"youtube", icon:"🐟", blurb:"Straight off Adult Swim's YouTube.",
    playlist:"UUgPClNr5VSYC3syrDUIlzLw", slot:600},
-  {id:"cable-access", num:"11", name:"CABLE ACCESS", type:"archive", blurb:"2 AM public access. Someone is doing… something.",
+  {id:"cable-access", num:"11", name:"CABLE ACCESS", type:"archive", icon:"📼", blurb:"2 AM public access. Someone is doing… something.",
    q:'(title:("public access") OR subject:("public access")) AND mediatype:movies'},
-  {id:"creature-feature", num:"202", name:"CREATURE FEATURE", type:"archive", blurb:"Horror hosts, the movie, and the wisecracks.",
+  {id:"creature-feature", num:"202", name:"CREATURE FEATURE", type:"archive", icon:"🧛", blurb:"A horror host, a monster movie, and the wisecracks.",
    q:'(subject:("horror host") OR title:("Commander USA") OR title:("Joe Bob") OR title:("Svengoolie") OR title:("Elvira") OR title:("Creature Feature")) AND mediatype:movies'},
-  {id:"weather", num:"8", name:"WEATHER ON THE 8s", type:"weather", blurb:"Forecasts from cities across America and smooth jazz, all day. Set your own city anytime.",
+  {id:"weather", num:"8", name:"WEATHER ON THE 8s", type:"weather", icon:"⛅", blurb:"The local forecast and smooth jazz, forever.",
    music:['(title:("weather channel") AND (music OR jazz)) AND mediatype:audio','(title:("weatherstar") OR title:("weatherscan")) AND mediatype:audio','subject:("smooth jazz") AND mediatype:audio']},
-  {id:"mission-control", num:"62", name:"MISSION CONTROL", type:"nasa", blurb:"NASA launches, spacewalks and mission footage.",
+  {id:"mission-control", num:"62", name:"MISSION CONTROL", type:"nasa", icon:"🚀", blurb:"Liftoffs, spacewalks and mission footage.",
    q:["launch","spacewalk","apollo","mars rover"]},
-  {id:"cereal-hours", num:"5", name:"CEREAL HOURS", type:"archive", blurb:"Saturday morning taped off the TV, ads included.",
+  {id:"cereal-hours", num:"5", name:"CEREAL HOURS", type:"archive", icon:"🥣", blurb:"Saturday morning off the TV, ads and all.",
    q:'(title:("saturday morning") AND (cartoons OR commercials)) AND mediatype:movies'},
-  {id:"video-hits", num:"30", name:"VIDEO HITS", type:"archive", blurb:"Late-night music video blocks off VHS.",
+  {id:"video-hits", num:"30", name:"VIDEO HITS", type:"archive", icon:"🎸", blurb:"Late-night music videos off worn-out VHS.",
    q:'(title:("Friday Night Videos") OR title:("120 Minutes") OR title:("Headbangers Ball") OR title:("Night Flight")) AND mediatype:movies'},
-  {id:"commercial-break", num:"77", name:"COMMERCIAL BREAK", type:"archive", blurb:"Nothing but ads and station IDs.",
+  {id:"commercial-break", num:"77", name:"COMMERCIAL BREAK", type:"archive", icon:"💰", blurb:"Nothing but ads and station IDs.",
    q:'(title:("commercials") AND (vhs OR 1980s OR 1990s OR "commercial break")) AND mediatype:movies'},
-  {id:"homeroom", num:"95", name:"HOMEROOM", type:"archive", maxYear:1985, blurb:"Mid-century classroom films.",
+  {id:"homeroom", num:"95", name:"HOMEROOM", type:"archive", maxYear:1985, icon:"✏️", blurb:"Mid-century classroom films. Sit up straight.",
    q:'collection:(prelinger) AND (subject:(education) OR subject:(etiquette) OR subject:(social guidance))'},
-  {id:"smooth-fm", num:"88.1", name:"SMOOTH FM", type:"radio", blurb:"Live smooth jazz stations from around the world.", tag:"smooth jazz"},
-  {id:"retro-fm", num:"98.7", name:"RETRO FM", type:"radio", blurb:"Live 80s stations, wherever they're still on air.", tag:"80s"},
-  {id:"night-drive-fm", num:"106.1", name:"NIGHT DRIVE FM", type:"radio", blurb:"Live chillout radio for late hours.", tag:"chillout"},
+  {id:"smooth-fm", num:"88.1", name:"SMOOTH FM", type:"radio", icon:"🎷", blurb:"Live smooth jazz from around the world.", tag:"smooth jazz"},
+  {id:"retro-fm", num:"98.7", name:"RETRO FM", type:"radio", icon:"📻", blurb:"Live 80s stations, still on the air.", tag:"80s"},
+  {id:"night-drive-fm", num:"106.1", name:"NIGHT DRIVE FM", type:"radio", icon:"🌃", blurb:"Live chillout radio for the drive home.", tag:"chillout"},
+  /* ---- added Nov 2026 ---- */
+  {id:"happy-accidents", num:"12", name:"HAPPY ACCIDENTS", icon:"🎨", type:"archive", blurb:"Soft voice, big trees. No mistakes, just happy accidents.",
+   q:'(title:("joy of painting") OR title:("bob ross")) AND mediatype:movies'},
+  {id:"satellite", num:"13", name:"SATELLITE OF LOVE", icon:"🤖", type:"archive", blurb:"Terrible movies. Three wisecracking silhouettes.",
+   q:'(title:("Mystery Science Theater") OR title:(MST3K) OR subject:(MST3K)) AND mediatype:movies'},
+  {id:"rerun-city", num:"3", name:"RERUN CITY", icon:"🛋️", type:"archive", blurb:"Black-and-white sitcoms and westerns. Laugh track included.",
+   q:'collection:(classic_tv) AND mediatype:movies'},
+  {id:"midnight-noir", num:"40", name:"MIDNIGHT NOIR", icon:"🕵️", type:"archive", maxYear:1965, blurb:"Rain, cigarette smoke and a dame in trouble.",
+   q:'collection:(film_noir) AND mediatype:movies'},
+  {id:"static-zone", num:"47", name:"THE STATIC ZONE", icon:"👽", type:"archive", maxYear:1975, blurb:"Flying saucers on strings and 1950s panic.",
+   q:'collection:(SciFi_Horror) AND mediatype:movies'},
+  {id:"silent-hour", num:"19", name:"SILENT HOUR", icon:"🎩", type:"archive", maxYear:1935, blurb:"No talking. Just piano and pratfalls.",
+   q:'(collection:(silent_films) OR subject:("silent film")) AND mediatype:movies'},
+  {id:"kung-fu", num:"36", name:"KUNG FU THEATER", icon:"🥋", type:"archive", blurb:"Dubbed punches, Saturday afternoon.",
+   q:'(subject:("kung fu") OR subject:("martial arts") OR title:("kung fu")) AND collection:(feature_films) AND mediatype:movies'},
+  {id:"monday-night", num:"66", name:"MONDAY NIGHT WAR", icon:"🤼", type:"archive", blurb:"Steel chairs, mean promos, real VHS.",
+   q:'(title:(WCW) OR title:("WWF") OR title:(Nitro) OR title:("Monday Night Raw") OR title:("Saturday Night\'s Main Event")) AND mediatype:movies'},
+  {id:"sweat-tape", num:"33", name:"SWEAT TAPE", icon:"🤸", type:"archive", blurb:"Leg warmers on. Feel the burn.",
+   q:'(title:(aerobics) OR title:(aerobic) OR (title:(workout) AND (title:(vhs) OR title:(1980s) OR title:(1990s) OR title:(80s)))) AND mediatype:movies'},
+  {id:"but-wait", num:"99", name:"BUT WAIT, THERE'S MORE", icon:"📞", type:"archive", blurb:"Operators are standing by.",
+   q:'(title:(infomercial) OR subject:(infomercial)) AND mediatype:movies'},
+  {id:"game-den", num:"64", name:"GAME DEN", icon:"🎮", type:"archive", blurb:"Console hype, tip lines and game ads.",
+   q:'(((title:("video game") OR title:(nintendo) OR title:(sega) OR title:(playstation)) AND (title:(commercial) OR title:(commercials) OR title:(ad) OR title:(ads))) OR title:("Nick Arcade") OR title:(GamePro)) AND mediatype:movies'},
+  {id:"coming-attractions", num:"70", name:"COMING ATTRACTIONS", icon:"🍿", type:"archive", maxDur:600, minDur:30, blurb:"Only the trailers. In a world…",
+   q:'(title:(trailer) AND (subject:(trailer) OR collection:(movie_trailers) OR title:(theatrical))) AND mediatype:movies'},
+  {id:"session", num:"43", name:"SESSION", icon:"🛹", type:"archive", blurb:"Skate videos dubbed off a friend's VHS.",
+   q:'(title:("skate video") OR title:(skateboarding) OR subject:(skateboarding)) AND mediatype:movies'},
 ].sort((a,b)=>parseFloat(a.num)-parseFloat(b.num));
 const DEFAULT_CH = "after-hours";
 /* English only: skip items tagged with another language or dubbed/subbed for another market */
@@ -848,7 +887,9 @@ function contextButtons(type){
   $("nextPanel").hidden=!tv;
   $("barwrap").hidden=!tv;
 }
-async function tune(idx){
+async function tune(idx,opt={}){
+  if(!opt.scan)stopScan();
+  if(sleepState.off){sleepState.off=false;$("sleepCover").hidden=true}
   cur=(idx+CHANNELS.length)%CHANNELS.length;
   const ch=CHANNELS[cur], tk=++token;
   store("voidcable.ch",ch.id);
@@ -856,7 +897,7 @@ async function tune(idx){
   osd.innerHTML=esc(ch.num)+"<small>"+esc(ch.name)+"</small>";showOSD();
   $("chname").textContent=`CH ${ch.num} · ${ch.name}`;
   $("barnum").textContent=`CH ${ch.num}`;
-  $("chicon").textContent=KIND[ch.type]||"TV";
+  $("chicon").textContent=ch.icon||KIND[ch.type]||"TV";
   descBase=ch.blurb||"";$("desc").textContent=descBase;
   stopAll();setSnow(true);showMsg("ADJUSTING THE ANTENNA…");
   if(chatOn&&!$("chatPanel").hidden)chatOpen();
@@ -875,7 +916,9 @@ async function tune(idx){
     else if(ch.type==="weather") await wxTune(ch,tk);
   }catch(e){
     if(tk!==token)return;
+    gridFail.add(ch.id);
     setSnow(true);showMsg("NO SIGNAL");
+    if(opt.dir||opt.scan)setTimeout(()=>{if(tk===token)chStep(opt.dir||1,opt.scan)},1200);   // surfing: don't stop on a dead channel
     setNow({title:"No signal on this channel right now", sub:"The source didn't answer. Try another channel or come back in a bit."});
   }
   if(tk===token)renderGuide();
@@ -1315,7 +1358,7 @@ let fsT;function pokeFsBar(){const b=$("fsbar");b.classList.remove("fade");clear
 screenEl.addEventListener("click",()=>{if(fsElement()||document.body.classList.contains("tvmode"))pokeFsBar()});
 $("fsbar").addEventListener("click",e=>{
   const a=e.target.closest("[data-act]");if(!a)return;e.stopPropagation();pokeFsBar();
-  ({down:()=>tune(cur-1),up:()=>tune(cur+1),sound:()=>setSound(!soundOn),exit:exitFS})[a.dataset.act]();
+  ({down:()=>chStep(-1),up:()=>chStep(1),sound:()=>setSound(!soundOn),exit:exitFS})[a.dataset.act]();
 });
 $("fs").onclick=enterFS;
 function pipSupported(){return (document.pictureInPictureEnabled&&!!vid.requestPictureInPicture)||(typeof vid.webkitSupportsPresentationMode==="function"&&vid.webkitSupportsPresentationMode("picture-in-picture"))}
@@ -1335,7 +1378,7 @@ function updateMediaSession(title,artist){
 }
 if("mediaSession" in navigator){
   const set=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch(e){}};
-  set("nexttrack",()=>tune(cur+1));set("previoustrack",()=>tune(cur-1));
+  set("nexttrack",()=>chStep(1));set("previoustrack",()=>chStep(-1));
   set("play",()=>{if(mode==="video"){userPaused=false;resyncVideo()}else if(mode==="youtube")yt.player.playVideo();else safePlay(aud)});
   set("pause",()=>{if(mode==="video"){userPaused=true;vid.pause()}else if(mode==="youtube")yt.player.pauseVideo();else aud.pause()});
 }
@@ -1424,18 +1467,56 @@ function guideNow(c){
   return "";
 }
 let guideSched={};
+/* favorites: starred channels sit at the top of the guide (saved on this device only) */
+let favs=new Set();try{favs=new Set(JSON.parse(store("voidcable.favs")||"[]"))}catch(e){}
 function renderGuide(){
-  $("guide").innerHTML=CHANNELS.map((c,i)=>{
+  const order=CHANNELS.map((c,i)=>i).sort((a,b)=>(favs.has(CHANNELS[b].id)-favs.has(CHANNELS[a].id))||a-b);
+  $("guide").innerHTML=order.map(i=>{
+    const c=CHANNELS[i];
     let on=guideNow(c);
     const sc=guideSched[c.id];if(sc){const w=whereNow(sc);on=w.seg.isBreak?"Commercial break":w.seg.title}
-    const vw=viewers&&viewers.channels&&viewers.channels[c.id];
-    return `<button class="ch" type="button" data-i="${i}" aria-current="${i===cur}">
-      <span class="n">${esc(c.num)}</span>
-      <span><b>${esc(c.name)}<span class="kind">${KIND[c.type]}</span>${vw?`<span class="vw">● ${vw}</span>`:""}</b><em>${esc(c.blurb)}</em>${on?`<span class="on">NOW: ${esc(on)}</span>`:""}</span></button>`;
+    if(!sc&&gridFail.has(c.id))on="Off the air right now";
+    const vw=viewers&&viewers.channels&&viewers.channels[c.id], fav=favs.has(c.id);
+    return `<button class="ch${gridFail.has(c.id)&&!sc?" dead":""}" type="button" data-i="${i}" aria-current="${i===cur}">
+      <span class="n"><i>${c.icon||""}</i>${esc(c.num)}</span>
+      <span><b>${esc(c.name)}<span class="kind">${KIND[c.type]}</span>${vw?`<span class="vw">● ${vw}</span>`:""}<span class="fav${fav?" on":""}" data-fav="${esc(c.id)}" role="button" aria-label="${fav?"Remove from":"Add to"} favorites">${fav?"★":"☆"}</span></b><em>${esc(c.blurb)}</em>${on?`<span class="on">NOW: ${esc(on)}</span>`:""}</span></button>`;
   }).join("");
 }
-$("guide").addEventListener("click",e=>{const b=e.target.closest(".ch");if(b){tune(+b.dataset.i);if(innerWidth<920)screenEl.scrollIntoView({behavior:"smooth",block:"start"})}});
-$("up").onclick=()=>tune(cur+1);
+$("guide").addEventListener("click",e=>{
+  const f=e.target.closest("[data-fav]");
+  if(f){e.stopPropagation();const id=f.dataset.fav;favs.has(id)?favs.delete(id):favs.add(id);store("voidcable.favs",JSON.stringify([...favs]));renderGuide();toast(favs.has(id)?"Added to favorites.":"Removed from favorites.");return}
+  const b=e.target.closest(".ch");if(b){tune(+b.dataset.i);if(innerWidth<920)screenEl.scrollIntoView({behavior:"smooth",block:"start"})}});
+/* channel up/down skips channels that are off the air */
+function chStep(dir,scan){
+  for(let k=1;k<=CHANNELS.length;k++){const j=(cur+dir*k+CHANNELS.length*2)%CHANNELS.length;if(!gridFail.has(CHANNELS[j].id)||k===CHANNELS.length)return tune(j,{dir,scan})}
+}
+/* SCAN: flips through the channels on its own, like the scan button on an old TV. Any channel change stops it. */
+const scan={timer:null};
+function stopScan(){if(!scan.timer)return;clearInterval(scan.timer);scan.timer=null;$("scanBtn").classList.remove("on");$("scanBtn").textContent="SCAN"}
+$("scanBtn").onclick=()=>{
+  if(scan.timer){stopScan();toast("Scan stopped. Staying on this channel.");return}
+  chStep(1,true);scan.timer=setInterval(()=>chStep(1,true),9000);
+  $("scanBtn").classList.add("on");$("scanBtn").textContent="STOP";toast("Scanning channels. Tap STOP to stay on one.");
+};
+/* SLEEP timer: 30 / 60 / 90 minutes, then the sound fades and the TV switches off */
+const sleepState={at:0,timer:null,off:false};
+const SLEEP_STEPS=[0,30,60,90];
+function sleepLabel(){const m=sleepState.at?Math.max(1,Math.ceil((sleepState.at-Date.now())/60000)):0;$("sleepBtn").textContent=m?`💤 ${m}m`:"💤";$("sleepBtn").classList.toggle("on",!!m)}
+$("sleepBtn").onclick=()=>{
+  const left=sleepState.at?Math.ceil((sleepState.at-Date.now())/60000):0;
+  const next=SLEEP_STEPS.find(x=>x>left+1)||0;
+  sleepState.at=next?Date.now()+next*60000:0;sleepLabel();
+  toast(next?`Sleep timer: TV turns off in ${next} minutes.`:"Sleep timer off.");
+};
+setInterval(()=>{
+  if(!sleepState.at)return;sleepLabel();
+  if(Date.now()<sleepState.at)return;
+  sleepState.at=0;sleepLabel();stopScan();
+  let v=1;const fade=setInterval(()=>{v=Math.max(0,v-0.1);try{vid.volume=v;aud.volume=v;if(yt.player&&yt.player.setVolume)yt.player.setVolume(v*100)}catch(e){}
+    if(v<=0){clearInterval(fade);stopAll();setSnow(false);hideMsg();sleepState.off=true;$("sleepCover").hidden=false;try{vid.volume=1;aud.volume=1;if(yt.player&&yt.player.setVolume)yt.player.setVolume(100)}catch(e){}}},500);
+},15000);
+$("sleepCover").onclick=()=>tune(cur);
+$("up").onclick=()=>chStep(1);
 $("snd").onclick=()=>setSound(!soundOn);
 /* CHANNELS / LISTINGS / CHAT tabs. Chat appears once the chat service answers. */
 let chatOn=false;
@@ -1454,15 +1535,20 @@ $("tabGrid").onclick=()=>showTab("grid");
 $("chatBtn").onclick=()=>{showTab("chat");$("side").scrollIntoView({behavior:"smooth",block:"start"})};
 $("guideBtn").onclick=()=>{showTab("grid");$("side").scrollIntoView({behavior:"smooth",block:"start"})};
 $("logoLink").onclick=e=>{e.preventDefault();scrollTo({top:0,behavior:"smooth"})};
-$("down").onclick=()=>tune(cur-1);
+$("down").onclick=()=>chStep(-1);
 $("nextStation").onclick=nextStation;
 $("wxLoc").onclick=openCity;
 document.addEventListener("keydown",e=>{
   if(e.target.closest&&e.target.closest("input,textarea"))return;
-  if(e.key==="ArrowUp"){e.preventDefault();tune(cur+1)}
-  if(e.key==="ArrowDown"){e.preventDefault();tune(cur-1)}
+  if(e.key==="ArrowUp"){e.preventDefault();chStep(1)}
+  if(e.key==="ArrowDown"){e.preventDefault();chStep(-1)}
   if(e.key==="Escape"&&document.body.classList.contains("tvmode"))exitFS();
+  if(/^[0-9.]$/.test(e.key)&&!e.metaKey&&!e.ctrlKey){
+    numEntry.v=(numEntry.v+e.key).slice(0,5);osd.innerHTML=esc(numEntry.v)+"<small>&nbsp;</small>";showOSD();
+    clearTimeout(numEntry.t);numEntry.t=setTimeout(()=>{const i=CHANNELS.findIndex(c=>c.num===numEntry.v||parseFloat(c.num)===parseFloat(numEntry.v));numEntry.v="";if(i>=0)tune(i);else toast("No channel with that number.")},1300);
+  }
 });
+const numEntry={v:"",t:null};
 
 setInterval(()=>{
   const d=new Date();
@@ -1700,7 +1786,7 @@ async function pollRemote(){
 }
 function runRemote(c){
   $("pairModal").hidden=true;
-  const acts={up:()=>tune(cur+1),down:()=>tune(cur-1),sound:()=>setSound(!soundOn),
+  const acts={up:()=>chStep(1),down:()=>chStep(-1),sound:()=>setSound(!soundOn),
     full:()=>{if(document.body.classList.toggle("tvmode"))pokeFsBar()},
     tune:()=>{const i=byId(String(c.arg));if(i>=0)tune(i)},
     react:()=>{if(EMOTES[c.arg])sendReact(+c.arg)}};
