@@ -883,12 +883,7 @@ async function tune(idx){
 
 /* ---- video channels (archive.org + NASA) ---- */
 /* Tune in at the live point; after that, each clip plays to its real end before the next starts. */
-/* Tuning in during a commercial break would mean loading several tiny files in a row, so jump to the next show instead. */
-function playCurrent(tk){
-  const w=whereNow(sched);
-  if(w.seg.isBreak){for(let k=1;k<sched.segs.length;k++){const j=(w.i+k)%sched.segs.length;if(!sched.segs[j].isBreak)return playIndex(tk,j,0)}}
-  playIndex(tk,w.i,w.offset);
-}
+function playCurrent(tk){const w=whereNow(sched);playIndex(tk,w.i,w.offset)}
 /* Point the player straight at the right spot in the file (#t=) so it doesn't load from the start and then seek. */
 function setSrc(seg,at,useDirect){
   const base=useDirect&&seg.direct?seg.direct:seg.src, t=(seg.start||0)+at;
