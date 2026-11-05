@@ -600,13 +600,13 @@ const CHANNELS = [
 const DEFAULT_CH = "after-hours";
 /* English only: skip items tagged with another language or dubbed/subbed for another market */
 const EN_FILTER = ' AND NOT language:(spa OR spanish OR jpn OR japanese OR por OR portuguese OR fre OR french OR ger OR german OR ita OR italian OR rus OR russian OR chi OR chinese OR kor OR korean OR dut OR dutch OR pol OR polish)'+
-  ' AND NOT title:("dual audio" OR "dual-audio" OR español OR espanol OR latino OR latinoamerica OR castellano OR doblaje OR dublado OR brasil OR deutsch OR deutschland OR français OR francais OR italiano OR vostfr OR subbed OR japanese OR polski OR russian)';
+  ' AND NOT title:("dual audio" OR "dual-audio" OR español OR espanol OR latino OR latinoamerica OR castellano OR doblaje OR dublado OR brasil OR deutsch OR deutschland OR français OR francais OR italiano OR vostfr OR subbed OR japanese OR polski OR russian OR vose OR subtitulado OR subtitulada OR legendado)';
 /* Quality + source rules for search results:
    - clean disc/web rips of whole series are pirated copies, not broadcast history, so they're skipped
    - phone/camera recordings of a TV screen are skipped */
 const RIP_RE = /(blu-?ray|bdrip|brrip|dvdrip|dvd rip|web-?dl|webrip|\b(720|1080|2160)p\b|\b4k\b|complete series|full series|all episodes|season \d+ complete|\bremastered\b)/i;
 const FILMED_RE = /(filmed|recorded (it )?(on|with) (my|a|an) (phone|camera|iphone|android)|phone recording|camera recording|off (of )?(my|the) (tv )?screen|screen ?recording|\bcam ?rip\b)/i;
-const NON_EN_FILE = /(dual[ -]?audio|\bjpn\b|\bjap\b|español|espanol|latino|castellano|doblaje|dublado|deutsch|français|francais|italiano|vostfr|subbed|\bsub(titled)?\b|\braw\b|japanese)/i;
+const NON_EN_FILE = /(dual[ -]?audio|\bjpn\b|\bjap\b|español|espanol|latino|castellano|doblaje|dublado|deutsch|français|francais|italiano|vostfr|\bvose\b|subtitulad|legendado|subbed|\bsub(titled)?\b|\braw\b|japanese)/i;
 const EPOCH = Date.UTC(2026,0,1);
 const ITEMS_PER_CHANNEL = 12;
 const MAX_MBPS = 12; // only skip files far too heavy for any home connection
@@ -685,7 +685,7 @@ function toast(t){let el=document.querySelector(".toast");if(!el){el=document.cr
 
 /* ================= schedules (archive.org + NASA) ================= */
 const schedCache = {};
-const SCHED_VER="v9";
+const SCHED_VER="v10";
 function getSchedule(ch){
   if(!schedCache[ch.id]) schedCache[ch.id]=(async()=>{
     const key=`voidcable.sched.${SCHED_VER}.${ch.id}`;
@@ -931,7 +931,7 @@ function playCurrent(tk){const w=whereNow(sched);playIndex(tk,w.i,w.offset)}
 function setSrc(seg,at,useDirect){
   const base=useDirect&&seg.direct?seg.direct:seg.src, t=(seg.start||0)+at;
   now.direct=base===seg.direct;now.target=t;
-  vid.src=t>1?base+"#t="+t.toFixed(1):base;
+  vid.src=base;
   vid.onloadedmetadata=()=>{if(now.seg!==seg)return;if(Math.abs(vid.currentTime-t)>2){try{vid.currentTime=t}catch(e){}}safePlay(vid)};
   safePlay(vid);
 }
@@ -980,7 +980,11 @@ vid.addEventListener("playing",()=>{if(mode==="video"){setSnow(false);hideMsg()}
    If this browser stops loading while paused (common on iPhone), we never do that again this visit. */
 let holding=false, holdTimer=null, holdWorks=true, segPlayed=false, stalls=[];
 function bufferedAhead(){const t=vid.currentTime,b=vid.buffered;for(let i=0;i<b.length;i++){if(b.start(i)<=t+0.5&&b.end(i)>t)return b.end(i)-t}return 0}
-vid.addEventListener("playing",()=>{if(mode==="video"&&now&&!segPlayed){diag("ok");dropRun=0}segPlayed=true});
+vid.addEventListener("playing",()=>{
+  if(mode==="video"&&now&&!segPlayed){diag("ok");dropRun=0;const seg=now.seg;
+    /* playing with sound but no picture means the phone can't decode this tape's video: log it and skip it */
+    setTimeout(()=>{if(mode==="video"&&now.seg===seg&&!vid.paused&&vid.readyState>=2&&!vid.videoWidth){diag("no-picture");dropSeg(seg)}},4000)}
+  segPlayed=true});
 vid.addEventListener("waiting",()=>{
   if(mode!=="video")return;
   showMsg("BUFFERING…");
