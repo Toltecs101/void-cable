@@ -131,6 +131,8 @@ body.tvmode .screen{position:fixed;inset:0;z-index:100;aspect-ratio:auto;width:a
 /* ---------- reactions ---------- */
 .react{display:flex;gap:6px;flex-wrap:wrap;padding-block:0 12px}
 .react .btn{font-family:system-ui,"Apple Color Emoji","Segoe UI Emoji",sans-serif;font-size:22px;min-width:48px;min-height:42px;padding:4px 8px;text-shadow:none}
+.react .rhide{margin-left:auto;font-family:var(--mono);font-size:17px;min-width:0}
+.react .rhide.on{background:linear-gradient(180deg,#ffe98a 0%,#f4c430 52%,#c99410 100%);color:#2a1600}
 .floats{position:absolute;inset:0;z-index:9;pointer-events:none;overflow:hidden}
 .float{position:absolute;bottom:5%;font-family:system-ui,"Apple Color Emoji","Segoe UI Emoji",sans-serif;font-size:8cqw;line-height:1;animation:rise 2.6s ease-out forwards}
 @keyframes rise{0%{transform:translate(0,0) scale(.5);opacity:0}12%{transform:translate(0,-6cqw) scale(1.15);opacity:1}100%{transform:translate(var(--dx,0),-58cqw) scale(1);opacity:0}}
@@ -1448,8 +1450,16 @@ setInterval(heartbeat,25000);
 /* ================= emote reactions (Netlify Function) ================= */
 const EMOTES=["😂","🔥","😮","❤️","💀","👏"];
 const react={ok:false, since:0, primed:false, mine:new Set(), fails:0, retryAt:0, busy:false, last:0, ch:null};
-$("reactBar").innerHTML=EMOTES.map((e,i)=>`<button class="btn" type="button" data-e="${i}" aria-label="React ${e}">${e}</button>`).join("");
-$("reactBar").addEventListener("click",ev=>{const b=ev.target.closest("[data-e]");if(b)sendReact(+b.dataset.e)});
+/* viewers can hide everyone else's floating reactions (saved on this device) */
+let hideReacts=store("voidcable.hideReacts")==="1";
+$("reactBar").innerHTML=EMOTES.map((e,i)=>`<button class="btn" type="button" data-e="${i}" aria-label="React ${e}">${e}</button>`).join("")+
+  `<button class="btn rhide" type="button" id="reactHide"></button>`;
+function reactHideLabel(){const b=$("reactHide");b.textContent=hideReacts?"🙈 OFF":"👀 ON";b.title=hideReacts?"Other people's reactions are hidden. Tap to show them.":"Tap to hide other people's reactions.";b.setAttribute("aria-label",b.title);b.classList.toggle("on",hideReacts)}
+reactHideLabel();
+$("reactBar").addEventListener("click",ev=>{
+  if(ev.target.closest("#reactHide")){hideReacts=!hideReacts;store("voidcable.hideReacts",hideReacts?"1":"0");reactHideLabel();
+    if(hideReacts)$("floats").innerHTML="";toast(hideReacts?"Other people's reactions hidden.":"Showing everyone's reactions.");return}
+  const b=ev.target.closest("[data-e]");if(b)sendReact(+b.dataset.e)});
 function floatEmote(e){
   const el=document.createElement("span");el.className="float";el.textContent=e;
   el.style.left=(58+Math.random()*34)+"%";el.style.setProperty("--dx",(Math.random()*18-9).toFixed(1)+"cqw");
@@ -1473,7 +1483,7 @@ async function pollReacts(){
     if(!react.ok){react.ok=true;$("reactBar").hidden=false}
     if(react.ch===ch){
       react.since=j.now||react.since;
-      if(react.primed)(j.items||[]).slice(-20).forEach((it,k)=>{if(!react.mine.has(it.id)&&EMOTES[it.i])setTimeout(()=>floatEmote(EMOTES[it.i]),k*140)});
+      if(react.primed&&!hideReacts)(j.items||[]).slice(-20).forEach((it,k)=>{if(!react.mine.has(it.id)&&EMOTES[it.i])setTimeout(()=>floatEmote(EMOTES[it.i]),k*140)});
       react.primed=true;
     }
   }catch(e){react.fails++;if(react.fails>=3)react.retryAt=Date.now()+60000}
