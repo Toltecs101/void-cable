@@ -143,7 +143,9 @@ body.tvmode .screen{position:fixed;inset:0;z-index:100;aspect-ratio:auto;width:a
   text-shadow:3px 3px 0 #000,0 0 14px rgba(255,216,74,.3);text-wrap:balance;overflow-wrap:anywhere}
 .np-src{font-size:20px;color:var(--ink);text-decoration:underline dotted;text-underline-offset:4px;white-space:nowrap}
 .np-sub{font-size:22px;color:var(--dim)}
-.np-desc{font-size:21px;line-height:1.2;color:var(--ink);max-width:60ch}
+.np-desc{font-size:21px;line-height:1.2;color:var(--ink);max-width:60ch;overflow-wrap:anywhere}
+.np-desc.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.descmore{justify-self:start;background:none;border:0;padding:2px 0;cursor:pointer;font-family:var(--display);font-size:20px;color:var(--cyan);text-shadow:2px 2px 0 #000}
 .prog{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;margin-top:6px;font-size:22px;font-variant-numeric:tabular-nums}
 .bar{position:relative;height:16px;background:#07053a;border:2px solid var(--edge);box-shadow:inset 2px 2px 0 rgba(0,0,0,.6),inset -1px -1px 0 rgba(120,110,255,.25)}
 .bar::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 2px),rgba(98,240,255,.35) calc(10% - 2px) 10%)}
@@ -385,7 +387,8 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
       <div class="chlabel" id="chname">CH 54 · AFTER HOURS</div>
       <div class="np-row"><h1 class="np-title" id="title">Tuning…</h1><a class="np-src" id="src" href="https://archive.org" target="_blank" rel="noopener">via archive.org</a></div>
       <div class="np-sub" id="sub"></div>
-      <div class="np-desc" id="desc"></div>
+      <div class="np-desc clamp" id="desc"></div>
+      <button class="descmore" id="descMore" type="button" hidden>MORE ▾</button>
       <div class="prog" id="barwrap"><span id="elapsed">0:00</span><div class="bar"><i id="prog"></i></div><span id="total">0:00</span></div>
       <div class="np-meta"><span id="remain"></span><a href="https://archive.org/donate" target="_blank" rel="noopener">♥ Donate to the Archive</a></div>
     </section>
@@ -480,7 +483,7 @@ const CHANNELS = [
         {id:"Toonami_SD_Gundam_Force",all:true},{id:"2007-cartoon-network-one-piece-broadcast-bad-girls",all:true},
         {id:"ToonamiDBZTenchiCardcaptor",all:true},{id:"dbz-cell",all:true},{id:"outlaw-star-toonami",all:true},
         {id:"sailormoontape1",all:true},{id:"toonami-vhs-recording-circa-2001-reupload",all:true}],
-   limit:22, q:'(title:(Toonami) OR subject:(Toonami)) AND (title:(WOC) OR title:(VHS) OR title:(broadcast) OR title:(airing) OR title:(recording)) AND mediatype:movies'},
+   limit:16, q:'(title:(Toonami) OR subject:(Toonami)) AND (title:(WOC) OR title:(VHS) OR title:(broadcast) OR title:(airing) OR title:(recording)) AND mediatype:movies'},
   {id:"cartoon-2000s", num:"25", name:"CARTOON BLOCK '00s", type:"archive", breaks:"cn00s", blurb:"Cartoon Network in the 2000s: Cartoon Cartoon Fridays, Billy & Mandy, Courage, commercials and all.",
    ids:["CCF-2000","blank-vhs-cn-2000s"],
    q:'title:("Cartoon Network") AND (year:[2000 TO 2009] OR title:(2000 OR 2001 OR 2002 OR 2003 OR 2004 OR 2005 OR 2006 OR 2007 OR 2008 OR 2009)) AND mediatype:movies',
@@ -529,7 +532,7 @@ const RIP_RE = /(blu-?ray|bdrip|brrip|dvdrip|dvd rip|web-?dl|webrip|\b(720|1080|
 const FILMED_RE = /(filmed|recorded (it )?(on|with) (my|a|an) (phone|camera|iphone|android)|phone recording|camera recording|off (of )?(my|the) (tv )?screen|screen ?recording|\bcam ?rip\b)/i;
 const NON_EN_FILE = /(dual[ -]?audio|\bjpn\b|\bjap\b|español|espanol|latino|castellano|doblaje|dublado|deutsch|français|francais|italiano|vostfr|subbed|\bsub(titled)?\b|\braw\b|japanese)/i;
 const EPOCH = Date.UTC(2026,0,1);
-const ITEMS_PER_CHANNEL = 16;
+const ITEMS_PER_CHANNEL = 12;
 const MAX_MBPS = 12; // only skip files far too heavy for any home connection
 /* Weather Across America: shown until a viewer picks their own city (saved only on their device) */
 const WX_CITIES = [
@@ -542,10 +545,9 @@ const US_ST={Alabama:"AL",Alaska:"AK",Arizona:"AZ",Arkansas:"AR",California:"CA"
 /* Commercial breaks: built only from WHOLE short clips (single bumpers, promos, ads), never slices of a long reel.
    If a pool can't find at least 4 whole clips, that channel just runs without breaks. */
 const BREAK_POOLS = {
-  toonami:{id:"breakpool-toonami", type:"archive", limit:40, minDur:3, maxDur:180,
-    ids:[{id:"adult-swim-action",all:true}],
-    q:'(title:(toonami) OR title:("adult swim")) AND (title:(bumper) OR title:(bumpers) OR title:(bump) OR title:(promo) OR title:(commercial) OR title:(intro)) AND mediatype:movies'},
-  cn00s:{id:"breakpool-cn00s", type:"archive", limit:40, minDur:3, maxDur:180,
+  toonami:{id:"breakpool-toonami", type:"archive", limit:1, minDur:3, maxDur:180,
+    ids:[{id:"adult-swim-action",all:true}]},
+  cn00s:{id:"breakpool-cn00s", type:"archive", limit:12, minDur:3, maxDur:180,
     q:'title:("Cartoon Network") AND (title:(bumper) OR title:(bumpers) OR title:(promo) OR title:(commercial) OR title:(ident)) AND (year:[2000 TO 2009] OR title:(2000 OR 2001 OR 2002 OR 2003 OR 2004 OR 2005 OR 2006 OR 2007 OR 2008 OR 2009)) AND mediatype:movies'},
 };
 /* VOID PRIME: one channel that follows a real TV schedule on Eastern time */
@@ -607,21 +609,21 @@ function toast(t){let el=document.querySelector(".toast");if(!el){el=document.cr
 
 /* ================= schedules (archive.org + NASA) ================= */
 const schedCache = {};
-const SCHED_VER="v7";
+const SCHED_VER="v8";
 function getSchedule(ch){
   if(!schedCache[ch.id]) schedCache[ch.id]=(async()=>{
     const key=`voidcable.sched.${SCHED_VER}.${ch.id}`;
-    try{const c=JSON.parse(store(key)||"null");if(c&&Date.now()-c.at<6*3600e3&&c.segs&&c.segs.length)return finish(c.segs)}catch(e){}
+    try{const c=JSON.parse(store(key)||"null");if(c&&Date.now()-c.at<24*3600e3&&c.segs&&c.segs.length)return finish(c.segs.map(x=>{delete x.direct;return x}))}catch(e){}
+    const poolP=ch.breaks?getSchedule(BREAK_POOLS[ch.breaks]).catch(()=>null):null;   // look up ads while the shows load
     let s=await (ch.type==="nasa"?buildNasa(ch):buildArchive(ch));
-    if(ch.breaks)s=await withBreaks(s,ch);
-    try{store(key,JSON.stringify({at:Date.now(),segs:s.segs}))}catch(e){}
+    if(ch.breaks)s=await withBreaks(s,ch,await poolP);
+    try{store(key,JSON.stringify({at:Date.now(),segs:s.segs.map(({direct,...x})=>x)}))}catch(e){}
     return s;
   })().catch(e=>{delete schedCache[ch.id];throw e});
   return schedCache[ch.id];
 }
-async function withBreaks(s,ch){
-  let pool;
-  try{pool=await getSchedule(BREAK_POOLS[ch.breaks])}catch(e){return s}
+async function withBreaks(s,ch,pool){
+  if(!pool)return s;
   const clips=pool.segs.filter(c=>!c.start&&c.dur<=180);
   if(clips.length<4)return s;
   const isOut=c=>/will return|we'll be right back|be right back/i.test(c.title), isIn=c=>/now continues|back to|and now/i.test(c.title);
@@ -639,11 +641,14 @@ async function withBreaks(s,ch){
   }
   return finish(out);
 }
+const DESC_JUNK=/(download|video player|does ?n[o']t (work|play)|upload|please|donat|subscribe|thank|if you (like|enjoy)|my (channel|collection)|patreon|youtube|follow|credit|ripped|digiti[sz]ed|transferred|captured|converted|found on a blank|blank vhs|enjoy|comment|let me know|copyright|fair use|no copyright|all rights|reserved|for archiv|preserv)/i;
 function cleanDesc(h){
   if(!h)return "";
   const t=document.createElement("textarea");
   t.innerHTML=String([].concat(h).join(" ")).replace(/<(br|\/p|\/div|\/li)\s*\/?>/gi," · ").replace(/<[^>]+>/g,"");
-  return t.value.replace(/https?:\/\/\S+/g,"").replace(/\s+/g," ").trim().slice(0,300);
+  const parts=t.value.replace(/https?:\/\/\S+/g,"").split(/\s*·\s*|\s*[\r\n]+\s*|(?<=[.!?])\s+(?=[A-Z])/)
+    .map(x=>x.replace(/\s+/g," ").trim()).filter(x=>x&&x.length>1&&!DESC_JUNK.test(x));
+  return parts.join(" · ").replace(/^this tape contains:?\s*·?\s*/i,"On this tape: ").replace(/this tape contains:?\s*·?\s*/ig,"On this tape: ").slice(0,320);
 }
 function finish(segs){
   segs=segs.filter(Boolean);
@@ -843,7 +848,7 @@ function driftSec(){
   let d=mine-wall;if(d>loop/2)d-=loop;if(d<-loop/2)d+=loop;return d;
 }
 function playIndex(tk,i,offset){
-  clearInterval(holdTimer);holding=false;
+  clearInterval(holdTimer);holding=false;segPlayed=false;stalls=[];
   now={i,offset,seg:sched.segs[i]};const s=now.seg;
   const nextShow=sched.segs.slice(now.i+1).concat(sched.segs).find(x=>!x.isBreak);
   setNow({title:s.isBreak?"Commercial Break":s.title, sub:s.isBreak?(nextShow?`Up next: ${nextShow.title}`:""):(s.year?String(s.year):""),
@@ -851,7 +856,7 @@ function playIndex(tk,i,offset){
   $("desc").textContent=s.isBreak?"We'll be right back after these messages.":(s.notes||descBase);
   renderNext();
   vid.muted=!soundOn;
-  vid.src=s.src;
+  vid.src=s.direct||s.src;
   vid.onloadedmetadata=()=>{
     if(tk!==token||now.seg!==s)return;
     try{vid.currentTime=(s.start||0)+offset}catch(e){}
@@ -866,34 +871,56 @@ function resyncVideo(){
   if(vid.paused)safePlay(vid);
 }
 vid.addEventListener("playing",()=>{if(mode==="video"){setSnow(false);hideMsg()}});
-/* Smooth playback: when a tape runs dry, wait for a solid cushion instead of play-stall-play.
-   If this browser doesn't keep loading while paused (some iPhones), fall back to its own buffering. */
-let holding=false, holdTimer=null, holdWorks=true;
+/* Smooth playback. Normal tune-ins and single hiccups use the browser's own buffering.
+   Only when a show stalls twice within 45 seconds (choppy) do we pause briefly to build a cushion.
+   If this browser stops loading while paused (common on iPhone), we never do that again this visit. */
+let holding=false, holdTimer=null, holdWorks=true, segPlayed=false, stalls=[];
 function bufferedAhead(){const t=vid.currentTime,b=vid.buffered;for(let i=0;i<b.length;i++){if(b.start(i)<=t+0.5&&b.end(i)>t)return b.end(i)-t}return 0}
+vid.addEventListener("playing",()=>{segPlayed=true});
 vid.addEventListener("waiting",()=>{
   if(mode!=="video")return;
   showMsg("BUFFERING…");
-  if(holding||!holdWorks)return;
+  if(holding||!holdWorks||!segPlayed)return;
+  const nowT=Date.now();stalls=stalls.filter(x=>nowT-x<45000);stalls.push(nowT);
+  if(stalls.length<2)return;
   holding=true;vid.pause();
-  const tk=token,start=Date.now(),target=(now&&now.seg&&now.seg.mbps>2.5)?30:12;
-  let lastAhead=bufferedAhead(),lastGrow=Date.now();
+  const tk=token,start=nowT,target=(now&&now.seg&&now.seg.mbps>2.5)?15:8;
+  let lastAhead=bufferedAhead(),lastGrow=nowT;
   clearInterval(holdTimer);
   holdTimer=setInterval(()=>{
     if(tk!==token||mode!=="video"){clearInterval(holdTimer);holding=false;return}
     const ahead=bufferedAhead();
     if(ahead>lastAhead+0.2){lastAhead=ahead;lastGrow=Date.now()}
-    const stuck=Date.now()-lastGrow>4000;           // not loading while paused
-    if(ahead>=target||stuck||Date.now()-start>60000){
-      if(stuck&&ahead<2)holdWorks=false;
-      clearInterval(holdTimer);holding=false;hideMsg();safePlay(vid);
+    const stuck=Date.now()-lastGrow>2500;
+    if(ahead>=target||stuck||Date.now()-start>15000){
+      if(stuck)holdWorks=false;
+      stalls=[];clearInterval(holdTimer);holding=false;hideMsg();safePlay(vid);
     }
-  },400);
+  },300);
 });
 vid.addEventListener("ended",()=>{if(mode==="video")advance()});
+/* archive.org links bounce to a storage server first; look that up early so the next clip starts faster */
+const warmed=new Set();
+vid.addEventListener("timeupdate",()=>{
+  if(mode!=="video"||!now||!sched)return;
+  const left=(now.seg.start||0)+now.seg.dur-vid.currentTime;
+  if(left>25)return;
+  for(let k=1;k<=3;k++){
+    const nx=sched.segs[(now.i+k)%sched.segs.length];
+    if(!nx||nx.direct||warmed.has(nx.src))continue;
+    warmed.add(nx.src);
+    fetch(nx.src,{headers:{Range:"bytes=0-1"}}).then(r=>{if(r.ok&&r.url&&r.url!==nx.src&&/^https:/.test(r.url))nx.direct=r.url}).catch(()=>{});
+    if(!nx.isBreak)break;
+  }
+});
 /* a segment that's only part of a file ends at its own mark */
 vid.addEventListener("timeupdate",()=>{if(mode==="video"&&now&&!holding&&vid.currentTime>=(now.seg.start||0)+now.seg.dur+0.25)advance()});
 vid.addEventListener("error",()=>{
   if(mode!=="video"||!vid.getAttribute("src"))return;
+  if(now&&now.seg&&now.seg.direct&&vid.getAttribute("src")===now.seg.direct){
+    const seg=now.seg;delete seg.direct;const at=localElapsed();vid.src=seg.src;
+    vid.onloadedmetadata=()=>{try{vid.currentTime=(seg.start||0)+at}catch(e){}safePlay(vid)};return;
+  }
   const bad=now&&now.seg;setSnow(true);showMsg("SIGNAL LOST");
   if(bad&&sched.segs.length>1){
     sched.segs=tidyBreaks(sched.segs.filter(s=>s!==bad));reindex(sched);
@@ -1167,6 +1194,11 @@ aud.addEventListener("error",()=>{
   if(mode==="radio"){if(++radio.fails>=radio.list.length){showMsg("NO SIGNAL");return}radio.idx=(radio.idx+1)%radio.list.length;radioPlay()}
   if(mode==="weather"&&wx.tracks.length&&++wx.musicFails<wx.tracks.length){wx.track++;wxPlayTrack()}
 });
+
+/* description: two lines, More to expand */
+function fitDesc(){const d=$("desc");d.classList.add("clamp");requestAnimationFrame(()=>{$("descMore").hidden=d.scrollHeight<=d.clientHeight+2;$("descMore").textContent="MORE ▾"})}
+new MutationObserver(fitDesc).observe($("desc"),{childList:true,characterData:true,subtree:true});
+$("descMore").onclick=()=>{const d=$("desc"),open=d.classList.toggle("clamp");$("descMore").textContent=open?"MORE ▾":"LESS ▴"};
 
 /* ================= sound ================= */
 function setSound(on){
