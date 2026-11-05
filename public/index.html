@@ -581,6 +581,10 @@ const CHANNELS = [
   {id:"retro-fm", num:"98.7", name:"RETRO FM", type:"radio", icon:"📻", blurb:"Live 80s stations, still on the air.", tag:"80s"},
   {id:"night-drive-fm", num:"106.1", name:"NIGHT DRIVE FM", type:"radio", icon:"🌃", blurb:"Live chillout radio for the drive home.", tag:"chillout"},
   /* ---- added Nov 2026 ---- */
+  {id:"nature-hour", num:"38", name:"NATURE HOUR", icon:"🦁", type:"archive", blurb:"Lions, whales and a narrator who's seen it all.",
+   q:'(title:("wild kingdom") OR title:("national geographic") OR title:(wildlife) OR subject:(wildlife) OR (subject:(nature) AND subject:(documentary)) OR (title:(nature) AND title:(documentary))) AND mediatype:movies'},
+  {id:"bird-up", num:"58", name:"BIRD UP", icon:"🐦", type:"archive", maxYear:2030, blurb:"A talk show falling apart on purpose. Nobody is safe.",
+   q:'(title:("eric andre") OR subject:("eric andre") OR title:("eric andré")) AND mediatype:movies'},
   {id:"swim-action-05", num:"57", name:"SATURDAY ACTION '05", icon:"🗡️", type:"archive", maxYear:2008, breaks:"toonami", blurb:"Adult Swim's anime action block, mid-2000s. FMA, FLCL, Champloo, Inuyasha.",
    q:'(title:("adult swim") OR subject:("adult swim") OR title:("[as]")) AND (title:(anime) OR title:(action) OR title:(block) OR title:(Inuyasha) OR title:(FMA) OR title:("Fullmetal") OR title:(FLCL) OR title:(Champloo) OR title:(Bebop)) AND (year:[2002 TO 2008] OR title:(2002 OR 2003 OR 2004 OR 2005 OR 2006 OR 2007 OR 2008 OR "\'03" OR "\'04" OR "\'05" OR "\'06")) AND mediatype:movies',
    match:/(anime|action block|inuyasha|fullmetal|\bfma\b|flcl|champloo|bebop|s-?cry-?ed|ghost in the shell|wolf'?s rain|blue gender|trigun|big o\b|lupin|case closed|rurouni|kenshin|hellsing|eureka|ergo proxy|gantz|paranoia agent|witch hunter)/i,
