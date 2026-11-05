@@ -316,6 +316,14 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
 #scanBtn.on,#sleepBtn.on{background:linear-gradient(180deg,#ffe98a 0%,#f4c430 52%,#c99410 100%);color:#2a1600;text-shadow:none}
 .sleepcover{position:absolute;inset:0;z-index:30;display:grid;place-content:center;gap:10px;text-align:center;background:#000;color:var(--ink);border:0;font-family:var(--mono);font-size:18px;cursor:pointer;padding:16px}
 .sleepcover b{font-family:var(--display);font-weight:400;font-size:40px;color:var(--gold)}
+.wait{position:absolute;inset:0;z-index:7;display:grid;place-content:center;justify-items:center;gap:1.4cqw;text-align:center;padding:4%;
+  background:rgba(12,8,70,.6);-webkit-backdrop-filter:blur(7px) saturate(.8);backdrop-filter:blur(7px) saturate(.8);color:#fff;font-family:var(--mono)}
+.wait b{font-family:var(--display);font-weight:400;font-size:9.5cqw;line-height:1;color:var(--gold);text-shadow:3px 3px 0 #000;letter-spacing:.02em}
+.wait .ws{font-size:3.6cqw;letter-spacing:.12em;text-shadow:2px 2px 0 #000}
+.wait .ws::after{content:"";display:inline-block;width:3ch;text-align:left;animation:wdots 1.2s steps(4) infinite}
+@keyframes wdots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+.wait .wc{font-family:var(--display);font-size:5cqw;color:#cfd3ff;text-shadow:2px 2px 0 #000}
+.wait .btn{margin-top:1cqw;font-size:max(16px,3.4cqw);pointer-events:auto}
 @media (max-width:430px){
   .tabs .btn{font-size:21px}
   .livebar{gap:7px}
@@ -388,6 +396,7 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
         <div class="floats" id="floats" aria-hidden="true"></div>
         <div class="osd" id="osd">54<small>AFTER HOURS</small></div>
         <div class="msg" id="msg">ADJUSTING THE ANTENNA…</div>
+        <div class="wait" id="wait" hidden><b>ONE MOMENT PLEASE</b><span class="ws" id="waitStatus">TUNING</span><span class="wc" id="waitCh"></span><button class="btn orange" id="retune" type="button" hidden>↻ RETUNE</button></div>
         <button class="sleepcover" id="sleepCover" type="button" hidden><b>GOOD NIGHT</b><small>The sleep timer turned the TV off. Tap to turn it back on.</small></button>
         <button class="soundbtn" id="sound" type="button">🔇 TAP FOR SOUND</button>
         <div class="fsbar" id="fsbar">
@@ -570,6 +579,10 @@ const CHANNELS = [
   {id:"retro-fm", num:"98.7", name:"RETRO FM", type:"radio", icon:"📻", blurb:"Live 80s stations, still on the air.", tag:"80s"},
   {id:"night-drive-fm", num:"106.1", name:"NIGHT DRIVE FM", type:"radio", icon:"🌃", blurb:"Live chillout radio for the drive home.", tag:"chillout"},
   /* ---- added Nov 2026 ---- */
+  {id:"swim-action-05", num:"57", name:"SATURDAY ACTION '05", icon:"🗡️", type:"archive", maxYear:2008, breaks:"toonami", blurb:"Adult Swim's anime action block, mid-2000s. FMA, FLCL, Champloo, Inuyasha.",
+   q:'(title:("adult swim") OR subject:("adult swim") OR title:("[as]")) AND (title:(anime) OR title:(action) OR title:(block) OR title:(Inuyasha) OR title:(FMA) OR title:("Fullmetal") OR title:(FLCL) OR title:(Champloo) OR title:(Bebop)) AND (year:[2002 TO 2008] OR title:(2002 OR 2003 OR 2004 OR 2005 OR 2006 OR 2007 OR 2008 OR "\'03" OR "\'04" OR "\'05" OR "\'06")) AND mediatype:movies',
+   match:/(anime|action block|inuyasha|fullmetal|\bfma\b|flcl|champloo|bebop|s-?cry-?ed|ghost in the shell|wolf'?s rain|blue gender|trigun|big o\b|lupin|case closed|rurouni|kenshin|hellsing|eureka|ergo proxy|gantz|paranoia agent|witch hunter)/i,
+   exclude:/(futurama|family guy|aqua teen|athf|sealab|harvey birdman|robot chicken|venture bros|squidbillies|king of the hill|simpsons|tom goes|code geass|death note|dual|japanese|raw)/i},
   {id:"happy-accidents", num:"12", name:"HAPPY ACCIDENTS", icon:"🎨", type:"archive", blurb:"Soft voice, big trees. No mistakes, just happy accidents.",
    q:'(title:("joy of painting") OR title:("bob ross")) AND mediatype:movies'},
   {id:"satellite", num:"13", name:"SATELLITE OF LOVE", icon:"🤖", type:"archive", blurb:"Terrible movies. Three wisecracking silhouettes.",
@@ -854,8 +867,22 @@ let snowOn=true;
   requestAnimationFrame(drawSnow);
 })();
 function setSnow(on){snowOn=on;snow.hidden=!on}
-function showMsg(t){msg.hidden=false;msg.textContent=t}
-function hideMsg(){msg.hidden=true}
+/* While a channel is loading, show a "ONE MOMENT PLEASE" card instead of a bare message. Hard failures stay as plain text over static. */
+const WAIT_MAP={"ADJUSTING THE ANTENNA…":"TUNING","TUNING IN…":"TUNING","BUFFERING…":"BUFFERING","RE-TUNING…":"RE-TUNING","WEAK SIGNAL · STILL TRYING…":"WEAK SIGNAL · STILL TRYING"};
+const waitState={since:0,base:""};
+function showMsg(t){
+  if(WAIT_MAP[t]){msg.hidden=true;if(t==="BUFFERING…"&&!segPlayed)t="TUNING IN…";if($("wait").hidden||waitState.base!==WAIT_MAP[t]){if($("wait").hidden)waitState.since=Date.now();waitState.base=WAIT_MAP[t]}
+    const ch=CHANNELS[cur];$("waitCh").textContent=`CH ${ch.num} · ${ch.name}`;waitTick();$("wait").hidden=false;return}
+  $("wait").hidden=true;msg.hidden=false;msg.textContent=t;
+}
+function hideMsg(){msg.hidden=true;$("wait").hidden=true}
+function waitTick(){
+  if($("wait").hidden&&waitState.since&&!waitState.base)return;
+  const long=Date.now()-waitState.since>8000, big=typeof now!=="undefined"&&now&&now.seg&&now.seg.mbps>2.5;
+  $("waitStatus").textContent=long&&waitState.base==="TUNING"?(big?"BIG TAPE · STILL TUNING":"STILL TUNING"):waitState.base;
+  $("retune").hidden=!long||typeof mode==="undefined"||mode!=="video";
+}
+setInterval(()=>{if(!$("wait").hidden)waitTick()},1000);
 
 /* ================= tuning ================= */
 let cur=0, token=0, mode=null, sched=null, now=null, soundOn=false, pausedAt=0, osdTimer, ytTitles={}, descBase="", primeKey=null;
@@ -899,7 +926,7 @@ async function tune(idx,opt={}){
   $("barnum").textContent=`CH ${ch.num}`;
   $("chicon").textContent=ch.icon||KIND[ch.type]||"TV";
   descBase=ch.blurb||"";$("desc").textContent=descBase;
-  stopAll();setSnow(true);showMsg("ADJUSTING THE ANTENNA…");
+  stopAll();setSnow(true);$("wait").hidden=true;showMsg("ADJUSTING THE ANTENNA…");
   if(chatOn&&!$("chatPanel").hidden)chatOpen();
   setNow({title:"Tuning…"});contextButtons(ch.type);renderGuide();renderViewers();heartbeat();
   try{
@@ -1520,6 +1547,11 @@ setInterval(()=>{
     if(v<=0){clearInterval(fade);stopAll();setSnow(false);hideMsg();sleepState.off=true;$("sleepCover").hidden=false;try{vid.volume=1;aud.volume=1;if(yt.player&&yt.player.setVolume)yt.player.setVolume(100)}catch(e){}}},500);
 },15000);
 $("sleepCover").onclick=()=>tune(cur);
+$("retune").onclick=e=>{
+  e.stopPropagation();waitState.since=Date.now();waitTick();
+  if(mode==="video"&&now&&now.seg){const seg=now.seg;delete seg.direct;stuckTries=0;lastAdv=Date.now();now.t0=Date.now();diag("retune-tap");setSrc(seg,segPlayed?localElapsed():now.offset,false)}
+  else tune(cur);
+};
 $("up").onclick=()=>chStep(1);
 $("snd").onclick=()=>setSound(!soundOn);
 /* CHANNELS / LISTINGS / CHAT tabs. Chat appears once the chat service answers. */
