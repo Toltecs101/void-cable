@@ -1,0 +1,1531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VOID CABLE</title>
+<meta name="description" content="Synced channels of forgotten tapes, live radio and Weather on the 8s.">
+<meta name="theme-color" content="#120a3e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="VOID CABLE">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
+<style>
+/* Layout: a 1999 cable guide channel, rebuilt. Amber masthead, indigo live bar, edge-to-edge picture on phones,
+   chunky beveled controls, then now playing, up next, and a GUIDE / CHAT tab panel. Wide screens put the guide on the right. */
+:root{
+  --night:#120a3e; --night-2:#0b0626; --indigo:#1d1266; --indigo-2:#170e55; --indigo-3:#24177d; --line:#3a2c9a; --edge:#050322;
+  --royal-hi:#5a66ff; --royal:#2f3bd8; --royal-lo:#1a1fa8;
+  --gold:#ffd84a; --gold-lo:#e0a400; --amber:#ffb347; --rust:#b8471c;
+  --cyan:#62f0ff; --live:#ff3d3d; --ink:#f4efff; --dim:#a99ad6;
+  --display:"Jersey 10","VT323","Courier New",monospace;
+  --mono:"VT323","Courier New",monospace;
+  --gutter-l:max(14px, env(safe-area-inset-left, 0px));
+  --gutter-r:max(14px, env(safe-area-inset-right, 0px));
+  --bevel:inset 2px 2px 0 rgba(255,255,255,.32), inset -2px -2px 0 rgba(0,0,0,.45);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--night-2)}
+html,body{margin:0;min-height:100%}
+body{
+  color:var(--ink);font-family:var(--mono);font-size:20px;line-height:1.15;-webkit-text-size-adjust:100%;
+  padding-block:env(safe-area-inset-top, 0px) calc(24px + env(safe-area-inset-bottom, 0px));
+  background:
+    radial-gradient(1.2px 1.2px at 23px 41px, rgba(255,255,255,.55) 50%, transparent 52%) 0 0/137px 151px,
+    radial-gradient(1px 1px at 91px 17px, rgba(160,200,255,.45) 50%, transparent 52%) 0 0/173px 127px,
+    radial-gradient(120% 50% at 50% 0%, #2a1a8a 0%, rgba(42,26,138,0) 70%),
+    linear-gradient(180deg,var(--night) 0%,var(--night-2) 75%);
+  background-attachment:scroll;
+}
+a{color:var(--cyan)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
+.pad{padding-left:var(--gutter-l);padding-right:var(--gutter-r)}
+
+/* ---------- buttons ---------- */
+.btn{appearance:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  border:2px solid var(--edge);padding:8px 14px;min-height:44px;
+  font-family:var(--display);font-size:24px;line-height:1;letter-spacing:.02em;color:var(--ink);
+  text-shadow:2px 2px 0 rgba(0,0,0,.55);
+  background:linear-gradient(180deg,var(--royal-hi) 0%,var(--royal) 52%,var(--royal-lo) 100%);
+  box-shadow:var(--bevel),0 3px 0 var(--edge);-webkit-tap-highlight-color:transparent}
+.btn:active{transform:translateY(2px);box-shadow:inset 2px 2px 0 rgba(0,0,0,.45),inset -2px -2px 0 rgba(255,255,255,.18),0 1px 0 var(--edge)}
+.btn svg{width:24px;height:24px;fill:currentColor;filter:drop-shadow(2px 2px 0 rgba(0,0,0,.5))}
+.btn.orange{background:linear-gradient(180deg,#ffc06a 0%,#e8801f 52%,var(--rust) 100%);color:#fff6d0}
+.btn.gold{background:linear-gradient(180deg,#fff0a0 0%,var(--gold) 50%,var(--gold-lo) 100%);color:#2a1600;text-shadow:none}
+.btn.gold svg{filter:none}
+.btn.sq{width:52px;padding:0}
+.btn.wide{flex:1 1 auto}
+#snd .i-on{display:none}#snd.on .i-on{display:block}#snd.on .i-off{display:none}
+
+/* ---------- masthead ---------- */
+.mast{position:relative;overflow:hidden;background:linear-gradient(180deg,#22157a,#170e55);border-bottom:2px solid var(--edge)}
+.mast::before{content:"";position:absolute;top:0;bottom:0;left:0;width:min(66%,560px);
+  background:linear-gradient(180deg,#ffc76a 0%,#f08a2a 55%,var(--rust) 100%);
+  clip-path:polygon(0 0,100% 0,calc(100% - 34px) 100%,0 100%);box-shadow:inset 0 2px 0 rgba(255,255,255,.35)}
+.mast-in{position:relative;display:flex;align-items:center;gap:10px;padding-block:8px;max-width:1280px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;min-width:0;flex:1 1 auto}
+.logo svg{width:44px;height:44px;flex:none;filter:drop-shadow(2px 2px 0 rgba(0,0,0,.45))}
+.logo .led{animation:blink 1.4s steps(1) infinite}
+.logo-t{display:grid;line-height:.9;min-width:0;overflow:hidden}
+.logo-t b{font-family:var(--display);font-weight:400;font-size:32px;color:var(--gold);letter-spacing:.03em;
+  text-shadow:2px 2px 0 #3a1500,0 0 10px rgba(255,216,74,.35);white-space:nowrap}
+.logo-t small{font-size:15px;color:#fff1cc;letter-spacing:.08em;text-shadow:1px 1px 0 #5a2400;white-space:nowrap}
+.mast .sp{flex:0 0 4px}
+#guideBtn{flex:none;font-size:22px;padding:6px 12px;min-height:40px}
+.clock{font-family:var(--mono);font-size:26px;line-height:1;color:var(--ink);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;text-shadow:2px 2px 0 #000}
+.clock small{display:block;font-size:15px;color:var(--cyan);margin-top:2px}
+
+/* ---------- live bar ---------- */
+.livebar{display:flex;align-items:center;gap:10px;padding-block:8px;background:linear-gradient(180deg,var(--indigo-3),var(--indigo));border-bottom:2px solid var(--edge)}
+.chicon{flex:none;width:46px;height:44px;display:grid;place-items:center;font-family:var(--display);font-size:22px;color:var(--gold);
+  border:2px solid var(--edge);background:linear-gradient(180deg,#3b2cb5,#22157a);box-shadow:var(--bevel);text-shadow:2px 2px 0 #000}
+.livetag{display:inline-flex;align-items:center;gap:7px;font-family:var(--display);font-size:28px;line-height:1;text-shadow:2px 2px 0 #000;white-space:nowrap}
+.livetag i{width:13px;height:13px;background:var(--live);box-shadow:0 0 10px var(--live);animation:blink 1.2s steps(1) infinite}
+.eye{display:inline-flex;align-items:center;gap:5px;font-size:20px;color:var(--dim);white-space:nowrap}
+.eye::before{content:"";width:18px;height:12px;background:currentColor;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 12'%3E%3Cpath d='M9 0C5 0 1.7 2.5 0 6c1.7 3.5 5 6 9 6s7.3-2.5 9-6c-1.7-3.5-5-6-9-6zm0 10a4 4 0 110-8 4 4 0 010 8zm0-6a2 2 0 100 4 2 2 0 000-4z'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 12'%3E%3Cpath d='M9 0C5 0 1.7 2.5 0 6c1.7 3.5 5 6 9 6s7.3-2.5 9-6c-1.7-3.5-5-6-9-6zm0 10a4 4 0 110-8 4 4 0 010 8zm0-6a2 2 0 100 4 2 2 0 000-4z'/%3E%3C/svg%3E") center/contain no-repeat}
+.livebar .sp{flex:1}
+.chnum{flex:none;min-width:3.6em;text-align:center;font-family:var(--display);font-size:40px;line-height:1;white-space:nowrap;text-shadow:3px 3px 0 #000}
+
+/* ---------- player ---------- */
+.player{background:#000;border-bottom:2px solid var(--edge)}
+.screen{position:relative;aspect-ratio:4/3;width:100%;max-width:100%;background:#000;overflow:hidden;container-type:inline-size;-webkit-tap-highlight-color:transparent}
+.screen video,.screen canvas,#ytbox,#ytbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.screen video{object-fit:contain;background:#000}
+.screen canvas{image-rendering:pixelated;z-index:5}
+#ytbox{z-index:2;background:#000}
+.osd{position:absolute;top:4%;right:5%;z-index:8;font-family:var(--mono);font-size:10cqw;color:#7dff8a;text-align:right;
+  text-shadow:0 0 6px rgba(125,255,138,.7),2px 2px 0 #000;line-height:1;pointer-events:none;transition:opacity .5s}
+.osd small{display:block;font-size:.42em;letter-spacing:.08em}
+.msg{position:absolute;left:0;right:0;bottom:24%;z-index:8;text-align:center;font-family:var(--mono);font-size:5cqw;color:#fff;text-shadow:2px 2px 0 #000;pointer-events:none;letter-spacing:.06em;padding:0 4%}
+.soundbtn{position:absolute;left:4%;bottom:5%;z-index:9;cursor:pointer;font-family:var(--mono);font-size:max(18px,3.8cqw);color:#fff;
+  background:rgba(5,3,34,.82);border:2px solid var(--gold);padding:.6cqw 2cqw;box-shadow:0 0 0 2px #000}
+.tapcatch{position:absolute;inset:0;z-index:4;display:none}
+.fsbar{position:absolute;left:0;right:0;top:0;z-index:10;display:none;gap:8px;justify-content:flex-end;flex-wrap:wrap;
+  padding:calc(10px + env(safe-area-inset-top,0px)) calc(12px + env(safe-area-inset-right,0px)) 10px calc(12px + env(safe-area-inset-left,0px));
+  background:linear-gradient(rgba(5,3,34,.8),rgba(5,3,34,0));transition:background .4s}
+.fsbar .btn{font-size:20px;min-height:40px}
+.fsbar.fade{background:none}
+.fsbar.fade [data-act]:not([data-act="exit"]){opacity:0;pointer-events:none}
+.fsbar.fade [data-act="exit"]{opacity:.6}
+.fsbar [data-act]{transition:opacity .4s}
+.screen:fullscreen .fsbar,.screen:-webkit-full-screen .fsbar,body.tvmode .fsbar{display:flex}
+.screen:fullscreen .tapcatch,.screen:-webkit-full-screen .tapcatch,body.tvmode .tapcatch{display:block}
+.screen:fullscreen,.screen:-webkit-full-screen{aspect-ratio:auto;width:100%;height:100%}
+body.tvmode{overflow:hidden}
+body.tvmode .screen{position:fixed;inset:0;z-index:100;aspect-ratio:auto;width:auto;height:auto;max-width:none}
+.ticker{overflow:hidden;white-space:nowrap;background:linear-gradient(180deg,#0b0626,#05031a);border-top:2px solid #2a1d8a}
+.ticker span{display:inline-block;padding:4px 0 4px 100%;font-family:var(--mono);font-size:21px;color:var(--gold);animation:tick 42s linear infinite;text-shadow:0 0 8px rgba(255,216,74,.4)}
+@keyframes tick{to{transform:translateX(-100%)}}
+@keyframes blink{50%{opacity:.2}}
+
+/* ---------- controls ---------- */
+.controls{display:flex;gap:8px;flex-wrap:wrap;padding-block:12px;background:linear-gradient(180deg,var(--indigo-2),transparent)}
+
+/* ---------- reactions ---------- */
+.react{display:flex;gap:6px;flex-wrap:wrap;padding-block:0 12px}
+.react .btn{font-family:system-ui,"Apple Color Emoji","Segoe UI Emoji",sans-serif;font-size:22px;min-width:48px;min-height:42px;padding:4px 8px;text-shadow:none}
+.floats{position:absolute;inset:0;z-index:9;pointer-events:none;overflow:hidden}
+.float{position:absolute;bottom:5%;font-family:system-ui,"Apple Color Emoji","Segoe UI Emoji",sans-serif;font-size:8cqw;line-height:1;animation:rise 2.6s ease-out forwards}
+@keyframes rise{0%{transform:translate(0,0) scale(.5);opacity:0}12%{transform:translate(0,-6cqw) scale(1.15);opacity:1}100%{transform:translate(var(--dx,0),-58cqw) scale(1);opacity:0}}
+
+/* ---------- now playing ---------- */
+.now{display:grid;gap:6px;padding-block:6px 14px;border-bottom:2px solid var(--line)}
+.chlabel{font-family:var(--display);font-size:22px;color:var(--cyan);letter-spacing:.04em;text-shadow:2px 2px 0 #000}
+.np-row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.np-title{margin:0;font-family:var(--display);font-weight:400;font-size:38px;line-height:.95;color:var(--gold);
+  text-shadow:3px 3px 0 #000,0 0 14px rgba(255,216,74,.3);text-wrap:balance;overflow-wrap:anywhere}
+.np-src{font-size:20px;color:var(--ink);text-decoration:underline dotted;text-underline-offset:4px;white-space:nowrap}
+.np-sub{font-size:22px;color:var(--dim)}
+.np-desc{font-size:21px;line-height:1.2;color:var(--ink);max-width:60ch}
+.prog{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;margin-top:6px;font-size:22px;font-variant-numeric:tabular-nums}
+.bar{position:relative;height:16px;background:#07053a;border:2px solid var(--edge);box-shadow:inset 2px 2px 0 rgba(0,0,0,.6),inset -1px -1px 0 rgba(120,110,255,.25)}
+.bar::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 2px),rgba(98,240,255,.35) calc(10% - 2px) 10%)}
+.bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(180deg,#fff2a8,var(--gold) 45%,var(--gold-lo));box-shadow:2px 0 0 #fff,4px 0 0 #000}
+.np-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:18px;color:var(--dim)}
+.np-meta a{color:var(--dim)}
+
+/* ---------- up next ---------- */
+.upnext{padding-block:12px;display:grid;gap:4px;border-bottom:2px solid var(--line)}
+.h2{margin:0 0 4px;font-family:var(--display);font-weight:400;font-size:34px;line-height:1;color:var(--gold);text-shadow:3px 3px 0 #000}
+.row{display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;font-size:22px;line-height:1.15}
+.row time{color:var(--gold);font-variant-numeric:tabular-nums}
+.row span{min-width:0;overflow-wrap:anywhere}
+
+/* ---------- guide / chat ---------- */
+.side{padding-block:14px;display:grid;gap:12px;align-content:start}
+.tabs{display:grid;grid-template-columns:repeat(var(--tabs,2),1fr);gap:0;border:2px solid var(--edge);box-shadow:0 3px 0 var(--edge)}
+.tabs .btn{border:0;box-shadow:var(--bevel);min-height:50px;font-size:26px}
+.tabs .btn+.btn{border-left:2px solid var(--edge)}
+.tabs .btn[aria-selected="true"]{background:linear-gradient(180deg,#fff0a0 0%,var(--gold) 50%,var(--gold-lo) 100%);color:#2a1600;text-shadow:none}
+.guide{display:grid;gap:8px}
+.ch{width:100%;display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:start;text-align:left;cursor:pointer;
+  border:2px solid var(--edge);padding:8px;background:linear-gradient(180deg,#22157a,#190f5c);box-shadow:var(--bevel);color:var(--ink)}
+.ch:active{transform:translateY(1px)}
+.ch[aria-current="true"]{background:linear-gradient(180deg,#2c1fa0,#1d1270);outline:2px solid var(--gold);outline-offset:-4px;box-shadow:var(--bevel),0 0 16px rgba(255,216,74,.25)}
+.ch .n{display:grid;place-items:center;height:56px;font-family:var(--display);font-size:32px;line-height:1;color:var(--gold);text-shadow:2px 2px 0 #000;
+  border:2px solid var(--edge);background:linear-gradient(180deg,var(--royal-hi),var(--royal) 52%,var(--royal-lo));box-shadow:var(--bevel)}
+.ch b{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-family:var(--display);font-weight:400;font-size:26px;line-height:1;text-shadow:2px 2px 0 #000}
+.ch em{display:block;font-style:normal;font-size:18px;line-height:1.15;color:var(--dim);margin-top:3px}
+.ch .on{display:block;font-size:18px;color:var(--cyan);margin-top:3px;overflow-wrap:anywhere}
+.ch .vw{font-family:var(--mono);font-size:17px;color:#7dff8a}
+.kind{font-family:var(--mono);font-size:15px;padding:1px 5px;border:1px solid var(--edge);background:var(--gold);color:#2a1600;text-shadow:none;letter-spacing:.06em}
+.chat{display:grid;gap:8px}
+.chat p{margin:0;font-size:18px;color:var(--dim)}
+.chat iframe{display:block;width:100%;height:min(72vh,640px);border:2px solid var(--edge);background:#0b0626;box-shadow:var(--bevel)}
+
+/* ---------- listings grid ---------- */
+.listings{display:grid;gap:8px}
+.hint{margin:0;font-size:18px;color:var(--dim)}
+.gridwrap{overflow-x:auto;border:2px solid var(--edge);background:var(--indigo-2);box-shadow:var(--bevel);-webkit-overflow-scrolling:touch}
+.g{position:relative;width:calc(96px + var(--w))}
+.g-row{display:grid;grid-template-columns:96px var(--w);border-bottom:2px solid var(--edge)}
+.g-ch{position:sticky;left:0;z-index:3;display:grid;align-content:center;gap:2px;padding:6px;text-align:left;cursor:pointer;border:0;border-right:2px solid var(--edge);
+  background:linear-gradient(180deg,#2c1fa0,#1d1270);color:var(--ink);font-family:var(--display);font-size:20px;line-height:1;text-shadow:2px 2px 0 #000}
+.g-ch b{font-weight:400;color:var(--gold);font-size:26px}
+.g-ch span{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-line{position:relative;height:68px}
+.g-cell{position:absolute;top:4px;bottom:4px;display:block;overflow:hidden;cursor:pointer;text-align:left;padding:5px 7px;border:2px solid var(--edge);
+  background:linear-gradient(180deg,#3442e6,#1f27b8);box-shadow:var(--bevel);color:var(--ink);font-family:var(--mono);font-size:17px;line-height:1.05}
+.g-cell.on{background:linear-gradient(180deg,#fff0a0,var(--gold) 55%,var(--gold-lo));color:#2a1600}
+.g-cell.wait{background:#1a1060;color:var(--dim)}
+.g-cell.past{background:#1a1060;color:var(--dim);cursor:default}
+.g-cell .gt,.g-cell .t{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-cell .gt{font-size:18px}
+.g-cell .t{font-size:14px;opacity:.85;margin-top:3px}
+.g-cell .bell{position:absolute;right:4px;top:3px}
+.g-head{display:grid;grid-template-columns:96px var(--w);position:sticky;top:0;z-index:4;background:var(--edge)}
+.g-corner{position:sticky;left:0;z-index:5;background:var(--edge);color:var(--gold);font-family:var(--display);font-size:20px;display:grid;place-items:center}
+.g-times{position:relative;height:30px}
+.g-times span{position:absolute;top:4px;font-size:18px;color:var(--cyan);padding-left:6px;border-left:2px solid var(--line)}
+.g-nowline{position:absolute;top:0;bottom:0;width:2px;background:var(--live);box-shadow:0 0 8px var(--live);z-index:2;pointer-events:none}
+
+/* ---------- reminder + remote ---------- */
+.remind{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:210;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  width:min(560px,calc(100% - 24px));padding:10px;background:var(--edge);border:2px solid var(--gold);box-shadow:0 0 24px rgba(255,216,74,.3);font-size:20px}
+.remind span{flex:1 1 200px;min-width:0}
+.modal{position:fixed;inset:0;z-index:220;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:16px;background:rgba(5,3,34,.82)}
+.modal-card>*{min-width:0}
+.modal-card{width:min(420px,100%);max-height:100%;overflow:auto;display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding:16px;background:linear-gradient(180deg,#22157a,#170e55);border:2px solid var(--edge);box-shadow:var(--bevel),0 10px 40px rgba(0,0,0,.6)}
+.modal-card p{margin:0;font-size:19px;color:var(--ink)}
+.qr{justify-self:center;background:#fff;padding:10px;min-height:40px;border:2px solid var(--edge)}
+.qr img,.qr canvas{display:block}
+.paircode{text-align:center;font-size:22px;color:var(--dim)}
+.paircode b{font-family:var(--display);font-weight:400;font-size:44px;color:var(--gold);letter-spacing:.12em;text-shadow:3px 3px 0 #000}
+.pairlink{text-align:center;font-size:16px;color:var(--cyan);overflow-wrap:anywhere}
+.divider{height:2px;background:var(--line)}
+.joinform{display:flex;gap:8px}
+.joinform input{flex:1;min-width:0;width:100%;font-family:var(--display);font-size:30px;letter-spacing:.12em;text-align:center;padding:6px;border:2px solid var(--edge);background:#07053a;color:var(--gold)}
+.cityres{display:grid;gap:6px}
+.cityres:empty{display:none}
+.cityres .btn{justify-content:flex-start;text-align:left;font-size:21px;min-height:46px}
+.cityres p{font-size:18px;color:var(--dim)}
+#cityQ{font-family:var(--mono);letter-spacing:0;text-align:left;font-size:24px;color:var(--ink)}
+body.remotemode .mast,body.remotemode .app,body.remotemode footer{display:none}
+.remote-ui{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;padding-block:12px;max-width:560px;margin:0 auto}
+.remote-ui>*{min-width:0}
+.r-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.r-top .btn{font-size:20px;padding:6px 10px;flex:none}
+.r-now{display:grid;gap:4px}
+.r-pad{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.r-pad .btn{min-height:56px;font-size:26px}
+.r-pad .r-big{min-height:92px;font-size:36px}
+.r-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.r-list .btn{justify-content:flex-start;text-align:left;gap:10px;font-size:20px;min-height:48px}
+.r-list .btn b{font-weight:400;color:var(--gold);min-width:2.6em;text-align:left}
+
+/* ---------- radio + weather screens (inside the TV) ---------- */
+.radioview,.wxview{position:absolute;inset:0;z-index:3;font-family:var(--mono);color:#fff}
+.radioview{display:grid;place-items:center;align-content:center;gap:2cqw;text-align:center;padding:6cqw;
+  background:radial-gradient(circle at 50% 30%,#3a2ab8 0%,#160d55 55%,#05031a 100%)}
+.rv-dial{font-size:6cqw;color:var(--gold);letter-spacing:.1em}
+.rv-dial b{font-size:1.6em;font-weight:400}
+.radioview img{width:16cqw;height:16cqw;object-fit:contain;background:#fff;padding:1cqw;border:.6cqw solid var(--edge)}
+.rv-name{font-family:var(--display);font-size:8cqw;line-height:1;max-width:90cqw;overflow-wrap:anywhere;text-shadow:.4cqw .4cqw 0 #000}
+.rv-where{font-size:3.6cqw;color:var(--cyan);letter-spacing:.08em;text-transform:uppercase}
+.eq{display:flex;gap:1cqw;align-items:flex-end;height:10cqw}
+.eq i{display:block;width:2.4cqw;background:linear-gradient(#ff5a3c,var(--gold) 40%,#5dff8a);height:30%;animation:eq 1s ease-in-out infinite alternate}
+@keyframes eq{to{height:100%}}
+.wxview{display:grid;grid-template-rows:auto 1fr auto;background:linear-gradient(180deg,#2a3fb0 0%,#1a2680 45%,#0c1450 100%)}
+.wx-top{display:flex;justify-content:space-between;align-items:flex-end;gap:2cqw;padding:3cqw 4cqw 1.6cqw;background:linear-gradient(180deg,#ffc76a,#e2771f);border-bottom:.6cqw solid var(--edge)}
+.wx-top .city{font-size:3.8cqw;color:#3a1500;letter-spacing:.06em;text-transform:uppercase}
+.wx-top .ttl{font-family:var(--display);font-size:7cqw;line-height:1;color:#fff;text-shadow:.4cqw .4cqw 0 #5a2400}
+.wx-top .ttl.eights{color:var(--gold);animation:blink 1.2s steps(1) infinite}
+.wx-body{padding:3cqw 5cqw;min-height:0;overflow:hidden;display:grid;align-content:center;text-shadow:.3cqw .3cqw 0 #050322}
+.wx-foot{display:flex;justify-content:space-between;gap:2cqw;padding:1.4cqw 4cqw;background:var(--edge);font-size:4.2cqw;color:var(--gold)}
+.wx-cc{display:grid;grid-template-columns:1fr 1fr;gap:3cqw;align-items:center}
+.wx-big{display:grid;justify-items:center;gap:.5cqw;text-align:center}
+.wx-big .ico{font-size:14cqw;line-height:1}
+.wx-big .temp{font-family:var(--display);font-size:16cqw;line-height:.9}
+.wx-big .cond{font-size:4.6cqw}
+.wx-dl{display:grid;grid-template-columns:auto auto;gap:1.2cqw 3cqw;font-size:4.8cqw;margin:0}
+.wx-dl dt{color:var(--gold)}.wx-dl dd{margin:0;text-align:right}
+.wx-text{font-size:4.8cqw;line-height:1.2;display:grid;gap:2cqw}
+.wx-text b{color:var(--gold);font-weight:400}
+.wx-days{display:grid;grid-template-columns:repeat(5,1fr);gap:1.6cqw;text-align:center}
+.wx-days div{background:rgba(255,255,255,.08);border:.4cqw solid rgba(255,255,255,.25);padding:2cqw .5cqw;display:grid;gap:1cqw}
+.wx-days .d{color:var(--gold);font-size:4.4cqw}
+.wx-days .i{font-size:7cqw;line-height:1}
+.wx-days .c{font-size:3.2cqw;min-height:6cqw}
+.wx-days .t{font-size:4.4cqw}
+.wx-days .t span{color:#9fc0ff}
+
+footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:200;background:var(--edge);border:2px solid var(--gold);color:#fff;padding:8px 14px;font-size:19px;max-width:calc(100% - 32px)}
+
+/* ---------- wide screens ---------- */
+@media (min-width:960px){
+  .app{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:22px;max-width:1280px;margin:0 auto;padding:18px 24px 0;align-items:start}
+  .main{border:2px solid var(--edge);box-shadow:0 6px 0 var(--edge),0 18px 40px rgba(0,0,0,.45);background:var(--indigo-2)}
+  .side{position:sticky;top:12px;padding:0;max-height:calc(100vh - 24px);overflow:auto}
+  .side.pad{padding-left:0;padding-right:0}
+  .screen{aspect-ratio:16/10}
+}
+@media (max-width:430px){
+  .logo svg{width:38px;height:38px}.logo-t b{font-size:27px}.logo-t small{font-size:13px}.clock{font-size:21px}.clock small{font-size:13px}
+  #guideBtn{font-size:20px;padding:5px 9px}
+}
+@media (max-width:400px){
+  .logo-t b{font-size:27px}.clock{font-size:21px}.chnum{font-size:34px;min-width:3.2em}.livetag{font-size:24px}
+  .np-title{font-size:33px}
+}
+@media (prefers-reduced-motion:reduce){.float{animation:fadeout 2s forwards}@keyframes fadeout{to{opacity:0}}.ticker span,.eq i,.livetag i,.logo .led,.wx-top .ttl.eights{animation:none}}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="mast-in pad">
+    <a class="logo" href="#" id="logoLink" aria-label="VOID CABLE home">
+      <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+        <rect x="4" y="0" width="1" height="1" fill="#fff1cc"/><rect x="5" y="1" width="1" height="1" fill="#fff1cc"/><rect x="6" y="2" width="1" height="1" fill="#fff1cc"/>
+        <rect x="11" y="0" width="1" height="1" fill="#fff1cc"/><rect x="10" y="1" width="1" height="1" fill="#fff1cc"/><rect x="9" y="2" width="1" height="1" fill="#fff1cc"/>
+        <rect x="1" y="3" width="14" height="11" fill="#050322"/><rect x="2" y="4" width="12" height="9" fill="#ffd84a"/>
+        <rect x="3" y="5" width="8" height="7" fill="#62f0ff"/>
+        <rect x="4" y="6" width="1" height="2" fill="#1d1266"/><rect x="5" y="8" width="1" height="2" fill="#1d1266"/><rect x="6" y="10" width="1" height="1" fill="#1d1266"/>
+        <rect x="7" y="8" width="1" height="2" fill="#1d1266"/><rect x="8" y="6" width="1" height="2" fill="#1d1266"/>
+        <rect x="12" y="5" width="1" height="1" fill="#b8471c"/><rect x="12" y="7" width="1" height="1" fill="#b8471c"/>
+        <rect class="led" x="12" y="10" width="1" height="1" fill="#ff3d3d"/>
+        <rect x="3" y="14" width="2" height="1" fill="#050322"/><rect x="11" y="14" width="2" height="1" fill="#050322"/>
+      </svg>
+      <span class="logo-t"><b>VOID CABLE</b><small>DIGITAL CABLE GUIDE</small></span>
+    </a>
+    <span class="sp"></span>
+    <button class="btn" id="guideBtn" type="button">GUIDE</button>
+    <div class="clock"><span id="boxtime">--:--</span><small id="boxwatch" hidden></small></div>
+  </div>
+</header>
+
+<div class="app">
+  <main class="main">
+    <div class="livebar pad">
+      <span class="chicon" id="chicon">TV</span>
+      <span class="livetag"><i></i>LIVE</span>
+      <span class="eye" id="chwatch" hidden>1</span>
+      <span class="sp"></span>
+      <button class="btn sq" id="down" type="button" aria-label="Channel down"><svg viewBox="0 0 24 24"><path d="M3 8h4l5 5 5-5h4l-9 9z"/></svg></button>
+      <span class="chnum" id="barnum">CH 54</span>
+      <button class="btn sq" id="up" type="button" aria-label="Channel up"><svg viewBox="0 0 24 24"><path d="M3 16h4l5-5 5 5h4l-9-9z"/></svg></button>
+    </div>
+
+    <section class="player" aria-label="Television">
+      <div class="screen" id="screen">
+        <video id="vid" playsinline webkit-playsinline muted autoplay preload="auto" autopictureinpicture x-webkit-airplay="allow"></video>
+        <div id="ytbox" hidden><div id="ytmount"></div></div>
+        <div class="radioview" id="radioview" hidden>
+          <div class="rv-dial">FM <b id="rvFreq">88.1</b></div>
+          <img id="rvLogo" alt="" hidden>
+          <div class="rv-name" id="rvName">Tuning…</div>
+          <div class="rv-where" id="rvWhere"></div>
+          <div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="wxview" id="wxview" hidden>
+          <div class="wx-top"><div><div class="city" id="wxCity">Weather Across America</div><div class="ttl" id="wxTitle">Current Conditions</div></div></div>
+          <div class="wx-body" id="wxBody"></div>
+          <div class="wx-foot"><span id="wxTime">--:--</span><span id="wxMusic">♪ smooth jazz</span></div>
+        </div>
+        <div class="tapcatch" aria-hidden="true"></div>
+        <canvas id="snow" width="160" height="120"></canvas>
+        <div class="floats" id="floats" aria-hidden="true"></div>
+        <div class="osd" id="osd">54<small>AFTER HOURS</small></div>
+        <div class="msg" id="msg">ADJUSTING THE ANTENNA…</div>
+        <button class="soundbtn" id="sound" type="button">🔇 TAP FOR SOUND</button>
+        <div class="fsbar" id="fsbar">
+          <button class="btn" type="button" data-act="down">CH ▼</button>
+          <button class="btn" type="button" data-act="up">CH ▲</button>
+          <button class="btn" type="button" data-act="sound" id="fsSound">SOUND</button>
+          <button class="btn orange" type="button" data-act="exit">EXIT</button>
+        </div>
+      </div>
+      <div class="ticker" aria-hidden="true"><span id="ticker">★ VOID CABLE ★</span></div>
+    </section>
+
+    <div class="controls pad">
+      <button class="btn sq" id="snd" type="button" aria-label="Sound">
+        <svg class="i-off" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3zM15 9l2 2 2-2 2 2-2 2 2 2-2 2-2-2-2 2-2-2 2-2-2-2z"/></svg>
+        <svg class="i-on" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3zM15 9h2v6h-2zM18 6h2v12h-2z"/></svg>
+      </button>
+      <button class="btn sq" id="chatBtn" type="button" aria-label="Chat" hidden><svg viewBox="0 0 24 24"><path d="M3 4h18v12H9l-5 4v-4H3zM7 9v2h2V9zm4 0v2h2V9zm4 0v2h2V9z"/></svg></button>
+      <button class="btn sq" id="fs" type="button" aria-label="Fullscreen"><svg viewBox="0 0 24 24"><path d="M3 3h7v3H6v4H3zM14 3h7v7h-3V6h-4zM3 14h3v4h4v3H3zM18 14h3v7h-7v-3h4z"/></svg></button>
+      <button class="btn sq" id="airplay" type="button" aria-label="AirPlay to a TV" hidden><svg viewBox="0 0 24 24"><path d="M2 3h20v13h-4v-2h2V5H4v9h2v2H2zM12 12l7 9H5z"/></svg></button>
+      <button class="btn sq" id="remoteBtn" type="button" aria-label="Phone remote" hidden><svg viewBox="0 0 24 24"><path d="M7 1h10v22H7zm2 2v18h6V3zm2 2h2v2h-2zm0 4h2v2h-2zm-1 8h4v2h-4z"/></svg></button>
+      <button class="btn sq" id="pip" type="button" aria-label="Picture in Picture" hidden><svg viewBox="0 0 24 24"><path d="M2 4h20v16H2zm2 2v12h16V6zm7 5h8v6h-8z"/></svg></button>
+      <button class="btn orange wide" id="nextStation" type="button" hidden>NEXT STATION ▶</button>
+      <button class="btn orange wide" id="wxLoc" type="button" hidden>SET MY CITY</button>
+    </div>
+
+    <div class="react pad" id="reactBar" aria-label="Reactions" hidden></div>
+
+    <section class="now pad" aria-label="Now playing">
+      <div class="chlabel" id="chname">CH 54 · AFTER HOURS</div>
+      <div class="np-row"><h1 class="np-title" id="title">Tuning…</h1><a class="np-src" id="src" href="https://archive.org" target="_blank" rel="noopener">via archive.org</a></div>
+      <div class="np-sub" id="sub"></div>
+      <div class="np-desc" id="desc"></div>
+      <div class="prog" id="barwrap"><span id="elapsed">0:00</span><div class="bar"><i id="prog"></i></div><span id="total">0:00</span></div>
+      <div class="np-meta"><span id="remain"></span><a href="https://archive.org/donate" target="_blank" rel="noopener">♥ Donate to the Archive</a></div>
+    </section>
+
+    <section class="upnext pad" id="nextPanel" aria-label="Up next">
+      <h2 class="h2">UP NEXT</h2>
+      <div id="nextlist"><div class="row"><time>--:--</time><span>Loading the schedule…</span></div></div>
+    </section>
+  </main>
+
+  <aside class="side pad" id="side">
+    <div class="tabs" id="tabs" role="tablist">
+      <button class="btn" id="tabGuide" type="button" role="tab" aria-selected="true">CHANNELS</button>
+      <button class="btn" id="tabGrid" type="button" role="tab" aria-selected="false">LISTINGS</button>
+      <button class="btn" id="tabChat" type="button" role="tab" aria-selected="false" hidden>CHAT</button>
+    </div>
+    <section class="guide" id="guidePanel" aria-label="Channel guide"><div class="guide" id="guide"></div></section>
+    <section class="listings" id="gridPanel" aria-label="TV listings" hidden>
+      <p class="hint">Next 3 hours on every channel. Tap what's on now to watch, or tap a later show to get a reminder.</p>
+      <div class="gridwrap" id="gridwrap"><div id="grid"></div></div>
+    </section>
+    <section class="chat" id="chatPanel" aria-label="Chat" hidden>
+      <p>Chat with everyone watching. Sign in with Discord or join as a guest.</p>
+      <div id="chatMount"></div>
+    </section>
+  </aside>
+</div>
+
+<div class="remind" id="remind" hidden role="status">
+  <span id="remindText"></span>
+  <button class="btn gold" id="remindGo" type="button">TUNE IN</button>
+  <button class="btn" id="remindX" type="button" aria-label="Dismiss">✕</button>
+</div>
+
+<div class="modal" id="pairModal" hidden role="dialog" aria-modal="true" aria-label="Phone remote">
+  <div class="modal-card">
+    <h2 class="h2">PHONE REMOTE</h2>
+    <p>Scan this with your phone camera. Your phone becomes the remote for this screen.</p>
+    <div class="qr" id="qr"></div>
+    <div class="paircode">CODE <b id="pairCode">-----</b></div>
+    <div class="pairlink" id="pairLink"></div>
+    <div class="divider"></div>
+    <p>Using this device as the remote? Enter the code showing on your TV.</p>
+    <form class="joinform" id="joinForm"><input id="joinCode" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" placeholder="12345" aria-label="Remote code"><button class="btn gold" type="submit">CONNECT</button></form>
+    <button class="btn" id="pairClose" type="button">CLOSE</button>
+  </div>
+</div>
+
+<div class="modal" id="cityModal" hidden role="dialog" aria-modal="true" aria-label="Set your city">
+  <div class="modal-card">
+    <h2 class="h2">YOUR WEATHER</h2>
+    <p>Type a city to get its forecast on CH 8. It's saved only on this device and never shared with other viewers.</p>
+    <form class="joinform" id="cityForm"><input id="cityQ" type="search" autocomplete="off" enterkeyhint="search" placeholder="City name" aria-label="City name"><button class="btn gold" type="submit">SEARCH</button></form>
+    <div class="cityres" id="cityRes"></div>
+    <button class="btn" id="cityGeo" type="button">USE MY LOCATION</button>
+    <button class="btn" id="cityTour" type="button">SHOW CITIES ACROSS AMERICA</button>
+    <button class="btn" id="cityClose" type="button">CLOSE</button>
+  </div>
+</div>
+
+<section class="remote-ui" id="remoteUI" hidden aria-label="VOID CABLE remote">
+  <div class="r-top pad"><span class="logo-t"><b>VOID REMOTE</b><small id="rCode">PAIRED</small></span><button class="btn orange" id="rLeave" type="button">DISCONNECT</button></div>
+  <div class="r-now pad"><div class="chlabel" id="rCh">Waiting for your TV…</div><div class="np-title" id="rTitle">Open VOID CABLE on your TV</div></div>
+  <div class="r-pad pad">
+    <button class="btn r-big" data-cmd="up" type="button">CH ▲</button>
+    <button class="btn r-big" data-cmd="down" type="button">CH ▼</button>
+    <button class="btn" data-cmd="sound" type="button" id="rSound">SOUND</button>
+    <button class="btn" data-cmd="full" type="button">FULL SCREEN</button>
+  </div>
+  <div class="react pad" id="rReact"></div>
+  <div class="r-list pad" id="rList"></div>
+</section>
+
+<footer class="pad">Tapes stream from archive.org, NASA and YouTube · Radio via Radio Browser · Weather data by Open-Meteo.com</footer>
+
+<script>
+/* ================= CHANNELS — edit to make your own =================
+   type: archive (archive.org search) · nasa (NASA video library) · youtube (playlist)
+         radio (Radio Browser tag) · weather (Open-Meteo + jazz from archive.org)       */
+const CHANNELS = [
+  {id:"void-prime", num:"7", name:"VOID PRIME", type:"prime", blurb:"Programmed like real TV on Eastern time: Saturday-morning cartoons, after-school blocks, late-night anime, and holiday specials in season."},
+  {id:"after-hours", num:"54", name:"AFTER HOURS", type:"archive", breaks:"cn00s", blurb:"Past midnight. The cartoons got weird.",
+   q:'(title:("adult swim") OR subject:("adult swim") OR title:("[adult swim]")) AND mediatype:movies'},
+  {id:"toon-time", num:"2", name:"TOON TIME", type:"archive", blurb:"Old-school theatrical cartoons: Popeye, Betty Boop, Felix and friends.",
+   q:'(collection:(animationandcartoons) OR mediatype:movies) AND (title:(Popeye) OR title:("Betty Boop") OR title:(Fleischer) OR title:("Felix the Cat") OR title:("Merrie Melodies") OR title:("Looney Tunes") OR title:(Superman))'},
+  {id:"kids-club", num:"4", name:"KIDS CLUB", type:"archive", blurb:"Network kids' blocks taped off broadcast TV.",
+   q:'(title:("Fox Kids") OR title:("Kids WB") OR title:("Kids\' WB") OR title:("One Saturday Morning") OR title:("Disney Afternoon") OR title:("ABC Saturday")) AND mediatype:movies'},
+  {id:"action-block", num:"24", name:"ACTION BLOCK", type:"archive", maxYear:2008, breaks:"toonami", blurb:"Toonami taped off Cartoon Network, 1997–2008: DBZ, Gundam Wing, Yu Yu Hakusho, Outlaw Star, Sailor Moon and more, original commercials included.",
+   // off-air Toonami broadcast tapes (English, with original commercials) + a filtered search for more
+   ids:[{id:"toonami1999",all:true},{id:"1999-fall-toonami-tape-o.-converted",all:true},{id:"2000-fall-toonami-tape-c.-converted",all:true},
+        {id:"2001-summer-toonami-midnight-run.-converted",all:true},{id:"toonami_202204",all:true},{id:"YuYuHakusho1",all:true},
+        {id:"Toonami_SD_Gundam_Force",all:true},{id:"2007-cartoon-network-one-piece-broadcast-bad-girls",all:true},
+        {id:"ToonamiDBZTenchiCardcaptor",all:true},{id:"dbz-cell",all:true},{id:"outlaw-star-toonami",all:true},
+        {id:"sailormoontape1",all:true},{id:"toonami-vhs-recording-circa-2001-reupload",all:true}],
+   limit:22, q:'(title:(Toonami) OR subject:(Toonami)) AND (title:(WOC) OR title:(VHS) OR title:(broadcast) OR title:(airing) OR title:(recording)) AND mediatype:movies'},
+  {id:"cartoon-2000s", num:"25", name:"CARTOON BLOCK '00s", type:"archive", breaks:"cn00s", blurb:"Cartoon Network in the 2000s: Cartoon Cartoon Fridays, Billy & Mandy, Courage, commercials and all.",
+   ids:["CCF-2000","blank-vhs-cn-2000s"],
+   q:'title:("Cartoon Network") AND (year:[2000 TO 2009] OR title:(2000 OR 2001 OR 2002 OR 2003 OR 2004 OR 2005 OR 2006 OR 2007 OR 2008 OR 2009)) AND mediatype:movies',
+   exclude:/(adult swim|\[as\]|commercial)/i},
+  {id:"slime-time", num:"31", name:"SLIME TIME", type:"archive", blurb:"90s and 2000s kids' cable, commercials included.",
+   q:'(title:(Nickelodeon) OR title:(Nicktoons) OR title:(SNICK)) AND mediatype:movies'},
+  {id:"anime-04", num:"56", name:"ANIME NIGHT", type:"archive", breaks:"toonami", blurb:"English-dub anime taped off Toonami and Adult Swim: Inuyasha, DBZ, Sailor Moon, Outlaw Star, Tenchi, Witch Hunter Robin and more.",
+   // Only tapes recorded off US Toonami / Adult Swim broadcasts, so every episode is the English dub. No open search here.
+   ids:[{id:"2004-adult-swim-witch-hunter-robin",all:true},{id:"inuyasha-on-adult-swim",all:true},"zzAdultSwimBroadcasts",
+        {id:"ToonamiDBZTenchiCardcaptor",all:true},{id:"outlaw-star-toonami",all:true},{id:"sailormoontape1",all:true},
+        {id:"toonami-vhs-recording-circa-2001-reupload",all:true},{id:"dbz-cell",all:true},{id:"inuyasha-sept-2003",all:true}],
+   match:/(inuyasha|witch hunter|fullmetal|ghost in the shell|bebop|lupin|case closed|trigun|big o\b|s-cry-ed|scryed|rurouni|kenshin|blue gender|gundam|wolf'?s rain|paranoia agent|samurai champloo|evangelion|outlaw star|hellsing|gantz|ergo proxy|eureka seven|kikaider|golden boy|tenchi|yu ?yu hakusho)/i,
+   exclude:/(futurama|family guy|aqua teen|athf|sealab|brak|home movies|space ghost|harvey birdman|robot chicken|venture bros|squidbillies|king of the hill|simpsons|tom goes|perfect hair|code geass|death note|promo|bump|next -)/i},
+  {id:"swim-uploads", num:"55", name:"SWIM UPLOADS", type:"youtube", blurb:"Clips from the official Adult Swim YouTube.",
+   playlist:"UUgPClNr5VSYC3syrDUIlzLw", slot:600},
+  {id:"cable-access", num:"11", name:"CABLE ACCESS", type:"archive", blurb:"2 AM public access. Someone is doing… something.",
+   q:'(title:("public access") OR subject:("public access")) AND mediatype:movies'},
+  {id:"creature-feature", num:"202", name:"CREATURE FEATURE", type:"archive", blurb:"Horror hosts, the movie, and the wisecracks.",
+   q:'(subject:("horror host") OR title:("Commander USA") OR title:("Joe Bob") OR title:("Svengoolie") OR title:("Elvira") OR title:("Creature Feature")) AND mediatype:movies'},
+  {id:"weather", num:"8", name:"WEATHER ON THE 8s", type:"weather", blurb:"Forecasts from cities across America and smooth jazz, all day. Set your own city anytime.",
+   music:['(title:("weather channel") AND (music OR jazz)) AND mediatype:audio','(title:("weatherstar") OR title:("weatherscan")) AND mediatype:audio','subject:("smooth jazz") AND mediatype:audio']},
+  {id:"mission-control", num:"62", name:"MISSION CONTROL", type:"nasa", blurb:"NASA launches, spacewalks and mission footage.",
+   q:["launch","spacewalk","apollo","mars rover"]},
+  {id:"cereal-hours", num:"5", name:"CEREAL HOURS", type:"archive", blurb:"Saturday morning taped off the TV, ads included.",
+   q:'(title:("saturday morning") AND (cartoons OR commercials)) AND mediatype:movies'},
+  {id:"video-hits", num:"30", name:"VIDEO HITS", type:"archive", blurb:"Late-night music video blocks off VHS.",
+   q:'(title:("Friday Night Videos") OR title:("120 Minutes") OR title:("Headbangers Ball") OR title:("Night Flight")) AND mediatype:movies'},
+  {id:"commercial-break", num:"77", name:"COMMERCIAL BREAK", type:"archive", blurb:"Nothing but ads and station IDs.",
+   q:'(title:("commercials") AND (vhs OR 1980s OR 1990s OR "commercial break")) AND mediatype:movies'},
+  {id:"homeroom", num:"95", name:"HOMEROOM", type:"archive", maxYear:1985, blurb:"Mid-century classroom films.",
+   q:'collection:(prelinger) AND (subject:(education) OR subject:(etiquette) OR subject:(social guidance))'},
+  {id:"smooth-fm", num:"88.1", name:"SMOOTH FM", type:"radio", blurb:"Live smooth jazz stations from around the world.", tag:"smooth jazz"},
+  {id:"retro-fm", num:"98.7", name:"RETRO FM", type:"radio", blurb:"Live 80s stations, wherever they're still on air.", tag:"80s"},
+  {id:"night-drive-fm", num:"106.1", name:"NIGHT DRIVE FM", type:"radio", blurb:"Live chillout radio for late hours.", tag:"chillout"},
+].sort((a,b)=>parseFloat(a.num)-parseFloat(b.num));
+const DEFAULT_CH = "after-hours";
+/* Discord chat (WidgetBot). Paste your server + channel IDs to switch chat on. */
+const DISCORD = {server:"", channel:""};
+/* English only: skip items tagged with another language or dubbed/subbed for another market */
+const EN_FILTER = ' AND NOT language:(spa OR spanish OR jpn OR japanese OR por OR portuguese OR fre OR french OR ger OR german OR ita OR italian OR rus OR russian OR chi OR chinese OR kor OR korean OR dut OR dutch OR pol OR polish)'+
+  ' AND NOT title:("dual audio" OR "dual-audio" OR español OR espanol OR latino OR latinoamerica OR castellano OR doblaje OR dublado OR brasil OR deutsch OR deutschland OR français OR francais OR italiano OR vostfr OR subbed OR japanese OR polski OR russian)';
+/* Quality + source rules for search results:
+   - clean disc/web rips of whole series are pirated copies, not broadcast history, so they're skipped
+   - phone/camera recordings of a TV screen are skipped */
+const RIP_RE = /(blu-?ray|bdrip|brrip|dvdrip|dvd rip|web-?dl|webrip|\b(720|1080|2160)p\b|\b4k\b|complete series|full series|all episodes|season \d+ complete|\bremastered\b)/i;
+const FILMED_RE = /(filmed|recorded (it )?(on|with) (my|a|an) (phone|camera|iphone|android)|phone recording|camera recording|off (of )?(my|the) (tv )?screen|screen ?recording|\bcam ?rip\b)/i;
+const NON_EN_FILE = /(dual[ -]?audio|\bjpn\b|\bjap\b|español|espanol|latino|castellano|doblaje|dublado|deutsch|français|francais|italiano|vostfr|subbed|\bsub(titled)?\b|\braw\b|japanese)/i;
+const EPOCH = Date.UTC(2026,0,1);
+const ITEMS_PER_CHANNEL = 16;
+const MAX_MBPS = 12; // only skip files far too heavy for any home connection
+/* Weather Across America: shown until a viewer picks their own city (saved only on their device) */
+const WX_CITIES = [
+  {lat:40.7128,lon:-74.0060,name:"New York, NY"},{lat:34.0522,lon:-118.2437,name:"Los Angeles, CA"},
+  {lat:41.8781,lon:-87.6298,name:"Chicago, IL"},{lat:29.7604,lon:-95.3698,name:"Houston, TX"},
+  {lat:33.4484,lon:-112.0740,name:"Phoenix, AZ"},{lat:25.7617,lon:-80.1918,name:"Miami, FL"},
+  {lat:47.6062,lon:-122.3321,name:"Seattle, WA"},{lat:39.7392,lon:-104.9903,name:"Denver, CO"},
+  {lat:33.7490,lon:-84.3880,name:"Atlanta, GA"},{lat:42.3601,lon:-71.0589,name:"Boston, MA"}];
+const US_ST={Alabama:"AL",Alaska:"AK",Arizona:"AZ",Arkansas:"AR",California:"CA",Colorado:"CO",Connecticut:"CT",Delaware:"DE",Florida:"FL",Georgia:"GA",Hawaii:"HI",Idaho:"ID",Illinois:"IL",Indiana:"IN",Iowa:"IA",Kansas:"KS",Kentucky:"KY",Louisiana:"LA",Maine:"ME",Maryland:"MD",Massachusetts:"MA",Michigan:"MI",Minnesota:"MN",Mississippi:"MS",Missouri:"MO",Montana:"MT",Nebraska:"NE",Nevada:"NV","New Hampshire":"NH","New Jersey":"NJ","New Mexico":"NM","New York":"NY","North Carolina":"NC","North Dakota":"ND",Ohio:"OH",Oklahoma:"OK",Oregon:"OR",Pennsylvania:"PA","Rhode Island":"RI","South Carolina":"SC","South Dakota":"SD",Tennessee:"TN",Texas:"TX",Utah:"UT",Vermont:"VT",Virginia:"VA",Washington:"WA","West Virginia":"WV",Wisconsin:"WI",Wyoming:"WY","District of Columbia":"DC"};
+/* Commercial breaks: built only from WHOLE short clips (single bumpers, promos, ads), never slices of a long reel.
+   If a pool can't find at least 4 whole clips, that channel just runs without breaks. */
+const BREAK_POOLS = {
+  toonami:{id:"breakpool-toonami", type:"archive", limit:40, minDur:3, maxDur:180,
+    ids:[{id:"adult-swim-action",all:true}],
+    q:'(title:(toonami) OR title:("adult swim")) AND (title:(bumper) OR title:(bumpers) OR title:(bump) OR title:(promo) OR title:(commercial) OR title:(intro)) AND mediatype:movies'},
+  cn00s:{id:"breakpool-cn00s", type:"archive", limit:40, minDur:3, maxDur:180,
+    q:'title:("Cartoon Network") AND (title:(bumper) OR title:(bumpers) OR title:(promo) OR title:(commercial) OR title:(ident)) AND (year:[2000 TO 2009] OR title:(2000 OR 2001 OR 2002 OR 2003 OR 2004 OR 2005 OR 2006 OR 2007 OR 2008 OR 2009)) AND mediatype:movies'},
+};
+/* VOID PRIME: one channel that follows a real TV schedule on Eastern time */
+const PRIME_INLINE = {
+  halloween:{id:"prime-halloween", name:"SPOOKY SPECIALS", type:"archive", breaks:"cn00s", blurb:"Halloween cartoons and TV specials.",
+    q:'title:(halloween) AND (title:(special) OR title:(cartoon) OR subject:(cartoon) OR subject:(animation)) AND mediatype:movies'},
+  holiday:{id:"prime-holiday", name:"HOLIDAY SPECIALS", type:"archive", breaks:"cn00s", blurb:"Christmas cartoons and TV specials.",
+    q:'title:(christmas) AND (title:(special) OR title:(cartoon) OR subject:(cartoon) OR subject:(animation)) AND mediatype:movies'},
+};
+function etParts(d=new Date()){
+  const p=Object.fromEntries(new Intl.DateTimeFormat("en-US",{timeZone:"America/New_York",weekday:"short",month:"numeric",day:"numeric",hour:"numeric",minute:"numeric",hourCycle:"h23"}).formatToParts(d).map(x=>[x.type,x.value]));
+  return {wd:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(p.weekday), month:+p.month, day:+p.day, h:(+p.hour)%24, m:+p.minute};
+}
+function primeBlock(d=new Date()){
+  const t=etParts(d), hm=t.h*60+t.m;
+  if(t.month===10&&hm>=17*60) return {key:"halloween", label:"Spooky Specials · October evenings", target:PRIME_INLINE.halloween};
+  if(t.month===12&&t.day<=25) return {key:"holiday", label:"Holiday Specials · December 1–25", target:PRIME_INLINE.holiday};
+  if(hm>=23*60||hm<4*60) return {key:"late", label:"Late-night anime · 11 PM–4 AM ET", ref:"anime-04"};
+  if(t.wd===6&&hm>=6*60&&hm<12*60) return {key:"saturday", label:"Saturday morning cartoons · 6 AM–noon ET", ref:"cereal-hours"};
+  if(t.wd>=1&&t.wd<=5&&hm>=15*60&&hm<18*60) return {key:"afterschool", label:"After-school block · 3–6 PM ET", ref:"cartoon-2000s"};
+  return {key:"classic", label:"Classic cartoons", ref:"toon-time"};
+}
+const primeTarget = b => b.target||CHANNELS.find(c=>c.id===b.ref);
+
+/* ================= helpers ================= */
+const $ = id => document.getElementById(id);
+const vid=$("vid"), aud=new Audio(), snow=$("snow"), msg=$("msg"), osd=$("osd"), screenEl=$("screen");
+aud.preload="none";
+function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function seedOf(s){let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function shuffleSeeded(arr,seed){const r=mulberry(seed);for(let i=arr.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+function parseLen(v){if(v==null)return 0;if(typeof v==="number")return v;const s=String(v);let m;
+  if((m=s.match(/(\d+):(\d+):(\d+(?:\.\d+)?)/)))return +m[1]*3600+ +m[2]*60+ +m[3];
+  if((m=s.match(/(\d+):(\d+(?:\.\d+)?)/)))return +m[1]*60+ +m[2];
+  if((m=s.match(/([\d.]+)\s*s\b/)))return +m[1];
+  return parseFloat(s)||0}
+const fmtClock = d => d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+const fmtLeft = s => {s=Math.max(0,Math.round(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h}h ${m}m left`:`${m}m left`};
+const fmtHMS = s => {s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0")};
+const encPath = p => p.split("/").map(encodeURIComponent).join("/");
+const https = u => String(u).replace(/^http:/,"https:").replace(/ /g,"%20");
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+async function getJSON(url, ms=12000){const ac=new AbortController();const t=setTimeout(()=>ac.abort(),ms);
+  try{const r=await fetch(url,{signal:ac.signal});if(!r.ok)throw new Error(r.status);return await r.json()}finally{clearTimeout(t)}}
+async function waitFor(fn, ms){const end=Date.now()+ms;while(Date.now()<end){const v=fn();if(v)return v;await sleep(300)}return null}
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+let toastT;/* play with sound if allowed; if the browser blocks it, fall back to muted and ask for a tap */
+function safePlay(el){
+  return el.play().catch(err=>{
+    if(err&&err.name==="NotAllowedError"&&!el.muted){
+      el.muted=true;el.play().catch(()=>{});
+      if(soundOn){soundOn=false;$("sound").hidden=false;$("sound").textContent="🔇 TAP FOR SOUND";$("fsSound").textContent="SOUND";$("snd").classList.remove("on")}
+    }
+  });
+}
+function toast(t){let el=document.querySelector(".toast");if(!el){el=document.createElement("div");el.className="toast";document.body.appendChild(el)}
+  el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3500)}
+
+/* ================= schedules (archive.org + NASA) ================= */
+const schedCache = {};
+const SCHED_VER="v7";
+function getSchedule(ch){
+  if(!schedCache[ch.id]) schedCache[ch.id]=(async()=>{
+    const key=`voidcable.sched.${SCHED_VER}.${ch.id}`;
+    try{const c=JSON.parse(store(key)||"null");if(c&&Date.now()-c.at<6*3600e3&&c.segs&&c.segs.length)return finish(c.segs)}catch(e){}
+    let s=await (ch.type==="nasa"?buildNasa(ch):buildArchive(ch));
+    if(ch.breaks)s=await withBreaks(s,ch);
+    try{store(key,JSON.stringify({at:Date.now(),segs:s.segs}))}catch(e){}
+    return s;
+  })().catch(e=>{delete schedCache[ch.id];throw e});
+  return schedCache[ch.id];
+}
+async function withBreaks(s,ch){
+  let pool;
+  try{pool=await getSchedule(BREAK_POOLS[ch.breaks])}catch(e){return s}
+  const clips=pool.segs.filter(c=>!c.start&&c.dur<=180);
+  if(clips.length<4)return s;
+  const isOut=c=>/will return|we'll be right back|be right back/i.test(c.title), isIn=c=>/now continues|back to|and now/i.test(c.title);
+  const outs=clips.filter(isOut), ins=clips.filter(isIn), mid=clips.filter(c=>!isOut(c)&&!isIn(c));
+  const r=mulberry(seedOf(ch.id+"/breaks")), pick=a=>a[Math.floor(r()*a.length)];
+  const out=[];let grp=0;
+  for(const seg of s.segs){
+    out.push(seg);grp++;
+    const brk=[];
+    if(outs.length)brk.push(pick(outs));
+    const n=1+Math.floor(r()*2), pool2=mid.length?mid:clips;
+    for(let k=0;k<n;k++){const c=pick(pool2);if(!brk.includes(c))brk.push(c)}
+    if(ins.length)brk.push(pick(ins));
+    for(const c of brk)out.push({...c,title:"Commercial Break",clip:c.title,isBreak:true,grp,start:0,notes:""});
+  }
+  return finish(out);
+}
+function cleanDesc(h){
+  if(!h)return "";
+  const t=document.createElement("textarea");
+  t.innerHTML=String([].concat(h).join(" ")).replace(/<(br|\/p|\/div|\/li)\s*\/?>/gi," · ").replace(/<[^>]+>/g,"");
+  return t.value.replace(/https?:\/\/\S+/g,"").replace(/\s+/g," ").trim().slice(0,300);
+}
+function finish(segs){
+  segs=segs.filter(Boolean);
+  if(!segs.length) throw new Error("no playable tapes");
+  return reindex({segs});
+}
+/* never two commercial breaks in a row (can happen if a show's file fails and gets dropped) */
+function tidyBreaks(segs){const out=[];for(const x of segs){const p=out[out.length-1];if(x.isBreak&&p&&p.isBreak&&p.grp!==x.grp)continue;if(x.isBreak&&!p)continue;out.push(x)}return out.length?out:segs}
+function reindex(sc){let t=0;sc.starts=sc.segs.map(x=>{const a=t;t+=x.dur;return a});sc.total=t;return sc}
+async function archiveSearch(q, rows=300){
+  const url="https://archive.org/advancedsearch.php?q="+encodeURIComponent("("+q+")"+EN_FILTER)+"&fl%5B%5D=identifier&fl%5B%5D=title&fl%5B%5D=year&rows="+rows+"&sort%5B%5D=identifier+asc&output=json";
+  return (await getJSON(url)).response.docs;
+}
+async function buildArchive(ch){
+  const fixed=(ch.ids||[]).map(x=>typeof x==="string"?{identifier:x}:{identifier:x.id,all:!!x.all});
+  let found=[];
+  if(ch.q){try{found=(await archiveSearch(ch.q)).filter(d=>!fixed.some(f=>f.identifier===d.identifier))}catch(e){if(!fixed.length)throw e}}
+  if(!fixed.length&&!found.length) throw new Error("no tapes");
+  const pick=shuffleSeeded(fixed.concat(shuffleSeeded(found,seedOf(ch.id))).slice(0,ch.limit||ITEMS_PER_CHANNEL),seedOf(ch.id+"/order"));
+  const metas=await Promise.all(pick.map(d=>getJSON("https://archive.org/metadata/"+encodeURIComponent(d.identifier)).catch(()=>null)));
+  const segs=[];
+  pick.forEach((d,i)=>{
+    const m=metas[i];
+    if(!m||!m.files||m.is_dark||(m.metadata&&m.metadata["access-restricted-item"]==="true"))return;
+    const md=m.metadata||{};
+    const lang=[].concat(md.language||[]).join(" ").toLowerCase();
+    if(lang&&!/eng/.test(lang))return;
+    if(!d.title)d.title=md.title;
+    if(!d.year)d.year=md.year||String(md.date||"").slice(0,4);
+    const notes=cleanDesc(md.description);
+    /* era check: the earliest year named in the title or description must be within the channel's era.
+       Catches modern uploads like a 2026 phone video of a TV. Items that name no year are kept. */
+    if(!d.all&&(RIP_RE.test((Array.isArray(d.title)?d.title[0]:d.title||"")+" "+notes)||FILMED_RE.test((Array.isArray(d.title)?d.title[0]:d.title||"")+" "+notes)))return;
+    if(!d.all){
+      const yrs=((Array.isArray(d.title)?d.title[0]:d.title||"")+" "+notes).match(/\b(19[3-9]\d|20[0-3]\d)\b/g);
+      if(yrs&&Math.min(...yrs.map(Number))>(ch.maxYear||2009))return;
+    }
+    const groups={};
+    for(const f of m.files){
+      if(!/\.mp4$/i.test(f.name)||f.private==="true"||NON_EN_FILE.test(f.name)||(+f.height&&+f.height<200)||(!d.all&&(RIP_RE.test(f.name)||FILMED_RE.test(f.name))))continue;
+      if(!d.all){const hay=(d.title||"")+" "+f.name;if(ch.match&&!ch.match.test(hay))continue;if(ch.exclude&&ch.exclude.test(hay))continue}
+      const base=f.name.replace(/(\.ia)?\.mp4$/i,"").replace(/_512kb$/i,"");
+      (groups[base]||=[]).push(f);
+    }
+    const bases=Object.keys(groups).sort();
+    for(const base of bases){
+      const fs=groups[base];
+      const dur=Math.max(...fs.map(f=>parseLen(f.length)));
+      if(dur<(ch.minDur||20)||dur>(ch.maxDur||Infinity))continue;
+      fs.sort((a,b)=>(+a.size||9e12)-(+b.size||9e12));
+      if(+fs[0].size&&(+fs[0].size*8)/(dur*1e6)>MAX_MBPS)continue;
+      if(+fs[0].size&&dur>60&&(+fs[0].size*8)/(dur*1e6)<0.18)continue; // too low-bitrate to watch
+      const t=Array.isArray(d.title)?d.title[0]:d.title;
+      segs.push({title:(t||d.identifier)+(bases.length>1?" · "+base.split("/").pop():""), year:d.year||"", dur,
+        mbps:+fs[0].size?(+fs[0].size*8)/(dur*1e6):0, notes,
+        src:"https://archive.org/download/"+encodeURIComponent(d.identifier)+"/"+encPath(fs[0].name),
+        link:"https://archive.org/details/"+d.identifier, via:"via archive.org"});
+    }
+  });
+  return finish(segs);
+}
+function nasaDuration(meta){
+  let best=0,fallback=0;
+  for(const [k,v] of Object.entries(meta||{})){
+    if(!/duration/i.test(k))continue;
+    const s=parseLen(v);
+    if(!(s>0&&s<6*3600))continue;
+    if(/(^|:)Duration$/.test(k))best=Math.max(best,s);else fallback=Math.max(fallback,s);
+  }
+  return best||fallback;
+}
+function probeDuration(url){
+  return new Promise(res=>{
+    const v=document.createElement("video");let done=false;
+    const end=d=>{if(done)return;done=true;v.removeAttribute("src");try{v.load()}catch(e){}res(isFinite(d)?d:0)};
+    v.preload="metadata";v.muted=true;v.playsInline=true;
+    v.onloadedmetadata=()=>end(v.duration);v.onerror=()=>end(0);setTimeout(()=>end(0),9000);
+    v.src=url;
+  });
+}
+async function buildNasa(ch){
+  let items=[];
+  for(const q of [].concat(ch.q)){
+    try{const j=await getJSON("https://images-api.nasa.gov/search?media_type=video&page_size=100&q="+encodeURIComponent(q));items.push(...j.collection.items)}catch(e){}
+  }
+  const seen=new Set();
+  items=items.filter(it=>{const id=it.data&&it.data[0]&&it.data[0].nasa_id;if(!id||seen.has(id))return false;seen.add(id);return true})
+             .sort((a,b)=>a.data[0].nasa_id<b.data[0].nasa_id?-1:1);
+  if(!items.length) throw new Error("no NASA video");
+  const pick=shuffleSeeded(items,seedOf(ch.id)).slice(0,14);
+  const segs=await Promise.all(pick.map(async it=>{
+    const d=it.data[0], id=d.nasa_id;
+    let files=null;try{files=await getJSON(https(it.href))}catch(e){}
+    let mp4=null;
+    if(Array.isArray(files)){
+      for(const p of ["~medium.mp4","~large.mp4","~mobile.mp4","~small.mp4","~preview.mp4","~orig.mp4"]){mp4=files.find(f=>f.endsWith(p));if(mp4)break}
+      mp4=mp4||files.find(f=>/\.mp4$/i.test(f));
+    }
+    mp4=mp4?https(mp4):`https://images-assets.nasa.gov/video/${encodeURIComponent(id)}/${encodeURIComponent(id)}~medium.mp4`;
+    let dur=0;
+    const metaUrl=Array.isArray(files)&&files.find(f=>/metadata\.json$/i.test(f));
+    if(metaUrl){try{dur=nasaDuration(await getJSON(https(metaUrl)))}catch(e){}}
+    if(!dur)dur=await probeDuration(mp4);
+    if(!dur||dur<10)return null;
+    return {title:d.title||id, year:(d.date_created||"").slice(0,4), dur, src:mp4,
+      link:"https://images.nasa.gov/details/"+encodeURIComponent(id), via:"via NASA"};
+  }));
+  return finish(segs);
+}
+function whereNow(sched,t=Date.now()){
+  let pos=((t-EPOCH)/1000)%sched.total, i=0;
+  while(i<sched.segs.length-1&&pos>=sched.segs[i].dur){pos-=sched.segs[i].dur;i++}
+  return {i, offset:pos, seg:sched.segs[i]};
+}
+
+/* ================= static ================= */
+const sctx=snow.getContext("2d"), simg=sctx.createImageData(160,120);
+let snowOn=true;
+(function drawSnow(){
+  if(snowOn){const d=simg.data;for(let p=0;p<d.length;p+=4){const v=Math.random()*255|0;d[p]=d[p+1]=d[p+2]=v;d[p+3]=255}sctx.putImageData(simg,0,0)}
+  requestAnimationFrame(drawSnow);
+})();
+function setSnow(on){snowOn=on;snow.hidden=!on}
+function showMsg(t){msg.hidden=false;msg.textContent=t}
+function hideMsg(){msg.hidden=true}
+
+/* ================= tuning ================= */
+let cur=0, token=0, mode=null, sched=null, now=null, soundOn=false, pausedAt=0, osdTimer, ytTitles={}, descBase="", primeKey=null;
+function showOSD(){osd.style.opacity=1;clearTimeout(osdTimer);osdTimer=setTimeout(()=>osd.style.opacity=0,4000)}
+function setNow({title, sub="", link, via, remain=""}){
+  $("title").textContent=title;
+  $("sub").textContent=sub;
+  $("remain").textContent=remain;
+  if(link){$("src").href=link;$("src").textContent=via||"source";$("src").hidden=false}else $("src").hidden=true;
+  const ch=CHANNELS[cur];
+  $("ticker").textContent=`★ NOW ON CH ${ch.num} ${ch.name}: ${title}   ★ LOCAL ON THE 8s, CH 8   ★ LIVE RADIO ON 88.1, 98.7 AND 106.1   ★ MISSION CONTROL, CH 62   ★ VOID CABLE · A VOIDMONKX BROADCAST   ★`;
+  updateMediaSession(title, `CH ${ch.num} · ${ch.name}`);
+  if(rmt.code)pushRemoteState();
+}
+function stopAll(){
+  mode=null;
+  vid.pause();vid.removeAttribute("src");vid.load();
+  aud.pause();aud.removeAttribute("src");aud.load();
+  $("ytbox").hidden=true;if(yt.player&&yt.player.stopVideo){try{yt.player.stopVideo()}catch(e){}}
+  $("radioview").hidden=true;$("wxview").hidden=true;
+  clearInterval(wx.timer);
+}
+function contextButtons(type){
+  $("nextStation").hidden=type!=="radio";
+  $("wxLoc").hidden=type!=="weather";
+  const tv=type==="archive"||type==="nasa"||type==="prime";
+  $("pip").hidden=!(pipSupported()&&tv);
+  $("airplay").hidden=!(airplayAvailable&&tv);
+  $("nextPanel").hidden=!tv;
+  $("barwrap").hidden=!tv;
+}
+async function tune(idx){
+  cur=(idx+CHANNELS.length)%CHANNELS.length;
+  const ch=CHANNELS[cur], tk=++token;
+  store("voidcable.ch",ch.id);
+  try{history.replaceState(null,"","#"+ch.id)}catch(e){}
+  osd.innerHTML=esc(ch.num)+"<small>"+esc(ch.name)+"</small>";showOSD();
+  $("chname").textContent=`CH ${ch.num} · ${ch.name}`;
+  $("barnum").textContent=`CH ${ch.num}`;
+  $("chicon").textContent=KIND[ch.type]||"TV";
+  descBase=ch.blurb||"";$("desc").textContent=descBase;
+  stopAll();setSnow(true);showMsg("ADJUSTING THE ANTENNA…");
+  setNow({title:"Tuning…"});contextButtons(ch.type);renderGuide();renderViewers();heartbeat();
+  try{
+    if(ch.type==="archive"||ch.type==="nasa"){
+      const s=await getSchedule(ch);guideSched[ch.id]=s;if(tk!==token)return;
+      sched=s;mode="video";playCurrent(tk);
+    }else if(ch.type==="prime"){
+      const b=primeBlock(), target=primeTarget(b);
+      primeKey=b.key;descBase=`${b.label}. ${target.blurb||""}`;$("desc").textContent=descBase;
+      const s=await getSchedule(target);guideSched[ch.id]=s;if(tk!==token)return;
+      sched=s;mode="video";playCurrent(tk);
+    }else if(ch.type==="youtube") await ytTune(ch,tk);
+    else if(ch.type==="radio") await radioTune(ch,tk);
+    else if(ch.type==="weather") await wxTune(ch,tk);
+  }catch(e){
+    if(tk!==token)return;
+    setSnow(true);showMsg("NO SIGNAL");
+    setNow({title:"No signal on this channel right now", sub:"The source didn't answer. Try another channel or come back in a bit."});
+  }
+  if(tk===token)renderGuide();
+}
+
+/* ---- video channels (archive.org + NASA) ---- */
+/* Tune in at the live point; after that, each clip plays to its real end before the next starts. */
+function playCurrent(tk){const w=whereNow(sched);playIndex(tk,w.i,w.offset)}
+function advance(){if(mode!=="video"||!sched||!now)return;playIndex(token,(now.i+1)%sched.segs.length,0)}
+function localElapsed(){return now?Math.max(0,vid.currentTime-(now.seg.start||0)):0}
+function driftSec(){
+  if(!sched||!now)return 0;
+  const loop=sched.total, wall=((Date.now()-EPOCH)/1000)%loop, mine=((sched.starts[now.i]||0)+localElapsed())%loop;
+  let d=mine-wall;if(d>loop/2)d-=loop;if(d<-loop/2)d+=loop;return d;
+}
+function playIndex(tk,i,offset){
+  clearInterval(holdTimer);holding=false;
+  now={i,offset,seg:sched.segs[i]};const s=now.seg;
+  const nextShow=sched.segs.slice(now.i+1).concat(sched.segs).find(x=>!x.isBreak);
+  setNow({title:s.isBreak?"Commercial Break":s.title, sub:s.isBreak?(nextShow?`Up next: ${nextShow.title}`:""):(s.year?String(s.year):""),
+    link:s.link, via:s.via, remain:fmtLeft(s.dur-now.offset)});
+  $("desc").textContent=s.isBreak?"We'll be right back after these messages.":(s.notes||descBase);
+  renderNext();
+  vid.muted=!soundOn;
+  vid.src=s.src;
+  vid.onloadedmetadata=()=>{
+    if(tk!==token||now.seg!==s)return;
+    try{vid.currentTime=(s.start||0)+offset}catch(e){}
+    safePlay(vid);
+  };
+  safePlay(vid);
+}
+function inPiP(){return document.pictureInPictureElement===vid||vid.webkitPresentationMode==="picture-in-picture"}
+function resyncVideo(){
+  if(mode!=="video"||!sched||!now)return;
+  if(Math.abs(driftSec())>(now.seg.mbps>2.5?120:30))return playCurrent(token);
+  if(vid.paused)safePlay(vid);
+}
+vid.addEventListener("playing",()=>{if(mode==="video"){setSnow(false);hideMsg()}});
+/* Smooth playback: when a tape runs dry, wait for a solid cushion instead of play-stall-play.
+   If this browser doesn't keep loading while paused (some iPhones), fall back to its own buffering. */
+let holding=false, holdTimer=null, holdWorks=true;
+function bufferedAhead(){const t=vid.currentTime,b=vid.buffered;for(let i=0;i<b.length;i++){if(b.start(i)<=t+0.5&&b.end(i)>t)return b.end(i)-t}return 0}
+vid.addEventListener("waiting",()=>{
+  if(mode!=="video")return;
+  showMsg("BUFFERING…");
+  if(holding||!holdWorks)return;
+  holding=true;vid.pause();
+  const tk=token,start=Date.now(),target=(now&&now.seg&&now.seg.mbps>2.5)?30:12;
+  let lastAhead=bufferedAhead(),lastGrow=Date.now();
+  clearInterval(holdTimer);
+  holdTimer=setInterval(()=>{
+    if(tk!==token||mode!=="video"){clearInterval(holdTimer);holding=false;return}
+    const ahead=bufferedAhead();
+    if(ahead>lastAhead+0.2){lastAhead=ahead;lastGrow=Date.now()}
+    const stuck=Date.now()-lastGrow>4000;           // not loading while paused
+    if(ahead>=target||stuck||Date.now()-start>60000){
+      if(stuck&&ahead<2)holdWorks=false;
+      clearInterval(holdTimer);holding=false;hideMsg();safePlay(vid);
+    }
+  },400);
+});
+vid.addEventListener("ended",()=>{if(mode==="video")advance()});
+/* a segment that's only part of a file ends at its own mark */
+vid.addEventListener("timeupdate",()=>{if(mode==="video"&&now&&!holding&&vid.currentTime>=(now.seg.start||0)+now.seg.dur+0.25)advance()});
+vid.addEventListener("error",()=>{
+  if(mode!=="video"||!vid.getAttribute("src"))return;
+  const bad=now&&now.seg;setSnow(true);showMsg("SIGNAL LOST");
+  if(bad&&sched.segs.length>1){
+    sched.segs=tidyBreaks(sched.segs.filter(s=>s!==bad));reindex(sched);
+    const tk=token;setTimeout(()=>{if(tk===token)playCurrent(tk)},900);
+  }
+});
+/* live TV never sits paused on the page: resume and jump back to "now" */
+vid.addEventListener("pause",()=>{
+  if(mode!=="video"||!vid.getAttribute("src")||holding)return;
+  pausedAt=Date.now();
+  if(!document.hidden&&!inPiP())setTimeout(()=>{if(mode==="video"&&vid.paused&&!document.hidden&&!inPiP())resyncVideo()},500);
+});
+vid.addEventListener("play",()=>{if(mode==="video"&&!holding&&pausedAt&&Date.now()-pausedAt>3000){pausedAt=0;setTimeout(resyncVideo,200)}});
+vid.addEventListener("webkitendfullscreen",()=>setTimeout(resyncVideo,300));
+vid.addEventListener("leavepictureinpicture",()=>setTimeout(resyncVideo,300));
+vid.addEventListener("webkitpresentationmodechanged",()=>{if(vid.webkitPresentationMode==="inline")setTimeout(resyncVideo,300)});
+
+/* ---- YouTube channels: synced time slots ---- */
+const yt={player:null, ready:null, ids:{}, ch:null, slotK:-1, filler:0, cur:null};
+function loadYT(){
+  if(yt.ready)return yt.ready;
+  yt.ready=new Promise((res,rej)=>{
+    window.onYouTubeIframeAPIReady=res;
+    const s=document.createElement("script");s.src="https://www.youtube.com/iframe_api";
+    s.onerror=()=>{yt.ready=null;rej(new Error("YouTube didn't load"))};
+    document.head.appendChild(s);
+  });
+  return yt.ready;
+}
+function ytMake(){
+  return new Promise(res=>{
+    yt.player=new YT.Player("ytmount",{width:"100%",height:"100%",
+      playerVars:{playsinline:1,mute:1,autoplay:1,controls:0,rel:0,modestbranding:1,iv_load_policy:3,fs:0,disablekb:1},
+      events:{onReady:()=>res(),onStateChange:ytState,onError:()=>{if(mode==="youtube")ytFiller()}}});
+  });
+}
+async function ytTune(ch,tk){
+  await loadYT();if(tk!==token)return;
+  $("ytbox").hidden=false;
+  if(!yt.player)await ytMake();
+  if(tk!==token)return;
+  if(!yt.ids[ch.id]){
+    yt.player.cuePlaylist({listType:"playlist",list:ch.playlist});
+    const ids=await waitFor(()=>{try{const p=yt.player.getPlaylist();return p&&p.length?p:null}catch(e){return null}},10000);
+    if(!ids)throw new Error("playlist empty");
+    yt.ids[ch.id]=shuffleSeeded(ids.slice(),seedOf(ch.id));
+  }
+  if(tk!==token)return;
+  mode="youtube";yt.ch=ch;ytPlaySlot();
+}
+function ytPlaySlot(){
+  const ch=yt.ch, ids=yt.ids[ch.id], t=(Date.now()-EPOCH)/1000, k=Math.floor(t/ch.slot);
+  yt.slotK=k;yt.filler=0;yt.cur=ids[k%ids.length];
+  yt.player.loadVideoById({videoId:yt.cur,startSeconds:Math.floor(t-k*ch.slot)});
+  ytSound();
+}
+function ytFiller(){
+  const ids=yt.ids[yt.ch.id];
+  if(++yt.filler>ids.length){showMsg("NO SIGNAL");return}
+  yt.cur=ids[(yt.slotK+yt.filler)%ids.length];
+  yt.player.loadVideoById({videoId:yt.cur,startSeconds:0});ytSound();
+}
+function ytSound(){try{if(soundOn){yt.player.unMute();yt.player.setVolume(100)}else yt.player.mute()}catch(e){}}
+function ytState(e){
+  if(mode!=="youtube")return;
+  if(e.data===1){
+    setSnow(false);hideMsg();
+    const d=yt.player.getVideoData()||{};const title=d.title||"Adult Swim";ytTitles[yt.ch.id]=title;
+    const next=new Date(EPOCH+(yt.slotK+1)*yt.ch.slot*1000);
+    setNow({title, sub:yt.filler?`Filler until the next program at ${fmtClock(next)}`:`Next program at ${fmtClock(next)}`, link:"https://www.youtube.com/watch?v="+yt.cur, via:"via YouTube"});
+    renderGuide();
+  }
+  if(e.data===3)showMsg("TRACKING…");
+  if(e.data===0)ytFiller();
+}
+
+/* ---- radio channels (Radio Browser) ---- */
+const radio={servers:null, server:null, lists:{}, list:null, idx:0, fails:0, ch:null};
+async function rbServers(){
+  if(radio.servers)return radio.servers;
+  let names=[];
+  try{const r=await getJSON("https://all.api.radio-browser.info/json/servers",6000);names=r.map(s=>s.name).filter(Boolean)}catch(e){}
+  if(!names.length)names=["de1.api.radio-browser.info","nl1.api.radio-browser.info","at1.api.radio-browser.info","de2.api.radio-browser.info","fi1.api.radio-browser.info"];
+  names=[...new Set(names)].sort(()=>Math.random()-.5);
+  return radio.servers=names.map(n=>"https://"+n);
+}
+async function rbGet(path){
+  for(const s of await rbServers()){try{const j=await getJSON(s+path,8000);radio.server=s;return j}catch(e){}}
+  throw new Error("Radio Browser didn't answer");
+}
+async function radioTune(ch,tk){
+  if(!radio.lists[ch.id]){
+    const base=`/json/stations/search?tag=${encodeURIComponent(ch.tag)}&hidebroken=true&is_https=true&order=clickcount&reverse=true&limit=60`;
+    let j=await rbGet(base+"&language=english");
+    if(!j.length)j=await rbGet(base);
+    const hls=!!aud.canPlayType("application/vnd.apple.mpegurl");
+    const ok=j.filter(s=>/^https:/i.test(s.url_resolved||"")&&(hls||!(/\.m3u8/i.test(s.url_resolved)||s.hls===1)));
+    if(!ok.length)throw new Error("no stations");
+    radio.lists[ch.id]=ok.slice(0,25);
+  }
+  if(tk!==token)return;
+  mode="radio";radio.ch=ch;radio.list=radio.lists[ch.id];radio.fails=0;
+  const top=Math.min(10,radio.list.length);
+  radio.idx=Math.floor((Date.now()-EPOCH)/1800000)%top; // same station for everyone, rotates every 30 min
+  radioPlay();
+}
+function radioPlay(){
+  const s=radio.list[radio.idx], ch=radio.ch;
+  $("radioview").hidden=false;
+  $("rvFreq").textContent=ch.num;$("rvName").textContent=(s.name||"Live radio").trim();
+  $("rvWhere").textContent=["Live",s.country,s.codec&&s.bitrate?`${s.codec} ${s.bitrate}k`:s.codec].filter(Boolean).join(" · ");
+  const logo=$("rvLogo");logo.hidden=true;
+  if(/^https:/i.test(s.favicon||"")){logo.onload=()=>logo.hidden=false;logo.onerror=()=>logo.hidden=true;logo.src=s.favicon}
+  setNow({title:(s.name||"Live radio").trim(), sub:[s.country,(s.tags||"").split(",").slice(0,3).join(", ")].filter(Boolean).join(" · "),
+    link:s.homepage&&/^https?:/.test(s.homepage)?s.homepage:"https://www.radio-browser.info", via:"via Radio Browser"});
+  aud.muted=!soundOn;aud.src=s.url_resolved;safePlay(aud);
+  if(radio.server&&s.stationuuid)fetch(radio.server+"/json/url/"+s.stationuuid).catch(()=>{});
+}
+function nextStation(){if(mode!=="radio")return;radio.idx=(radio.idx+1)%radio.list.length;setSnow(true);showMsg("SEARCHING…");radioPlay()}
+
+/* ---- Weather on the 8s (Open-Meteo + jazz) ---- */
+const wx={loc:null, data:null, fetched:0, page:0, step:0, city:0, timer:null, cache:{}, tracks:[], track:0, musicFails:0};
+const WMO={0:["Clear","☀️","🌙"],1:["Mostly Clear","🌤️","🌙"],2:["Partly Cloudy","⛅","☁️"],3:["Cloudy","☁️","☁️"],45:["Fog","🌫️"],48:["Freezing Fog","🌫️"],
+  51:["Light Drizzle","🌦️"],53:["Drizzle","🌦️"],55:["Heavy Drizzle","🌧️"],56:["Freezing Drizzle","🌧️"],57:["Freezing Drizzle","🌧️"],
+  61:["Light Rain","🌦️"],63:["Rain","🌧️"],65:["Heavy Rain","🌧️"],66:["Freezing Rain","🌧️"],67:["Freezing Rain","🌧️"],
+  71:["Light Snow","🌨️"],73:["Snow","🌨️"],75:["Heavy Snow","❄️"],77:["Snow Grains","🌨️"],80:["Showers","🌦️"],81:["Showers","🌧️"],82:["Heavy Showers","⛈️"],
+  85:["Snow Showers","🌨️"],86:["Snow Showers","❄️"],95:["Thunderstorms","⛈️"],96:["T-Storms, Hail","⛈️"],99:["T-Storms, Hail","⛈️"]};
+function wmo(code,day=1){const w=WMO[code]||["Unknown","🌡️"];return [w[0], !day&&w[2]?w[2]:w[1]]}
+const compass=d=>["N","NE","E","SE","S","SW","W","NW"][Math.round(((d%360)+360)%360/45)%8];
+const hhmm=iso=>{const [h,m]=String(iso).slice(11,16).split(":").map(Number);if(isNaN(h))return"--";return `${(h%12)||12}:${String(m).padStart(2,"0")} ${h<12?"AM":"PM"}`};
+const dayName=iso=>new Date(iso+"T12:00:00").toLocaleDateString([], {weekday:"short"}).toUpperCase();
+function wxLoad(){try{const s=JSON.parse(store("voidcable.wxloc"));if(s&&isFinite(s.lat)&&s.name)return s}catch(e){}return null}
+const wxHere=()=>wx.loc||WX_CITIES[wx.city%WX_CITIES.length];
+async function wxGet(L){
+  const k=L.lat.toFixed(2)+","+L.lon.toFixed(2), c=wx.cache[k];
+  if(c&&Date.now()-c.at<600000)return c.data;
+  const data=await getJSON(`https://api.open-meteo.com/v1/forecast?latitude=${L.lat}&longitude=${L.lon}`+
+    `&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m,wind_direction_10m,pressure_msl`+
+    `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset`+
+    `&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=6`);
+  wx.cache[k]={data,at:Date.now()};return data;
+}
+async function wxFetch(){wx.data=await wxGet(wxHere());wx.fetched=Date.now()}
+/* tour: each city gets Current Conditions, then the Extended Forecast. A saved city cycles all four pages. */
+async function wxStep(){
+  if(wx.loc){wx.page=(wx.page+1)%4;if(Date.now()-wx.fetched>600000){try{await wxFetch()}catch(e){}}wxRender();return}
+  wx.step++;
+  if(wx.step%2===0){
+    const next=(wx.city+1)%WX_CITIES.length;
+    try{wx.data=await wxGet(WX_CITIES[next]);wx.city=next;wx.fetched=Date.now()}catch(e){}
+    wx.page=0;
+  }else wx.page=2;
+  wxRender();
+  wxGet(WX_CITIES[(wx.city+1)%WX_CITIES.length]).catch(()=>{});
+}
+async function wxTune(ch,tk){
+  wx.loc=wxLoad();
+  if(!wx.loc)wx.city=Math.floor((Date.now()-EPOCH)/18000)%WX_CITIES.length; // same city for everyone at the same moment
+  await wxFetch();if(tk!==token)return;
+  mode="weather";$("wxview").hidden=false;setSnow(false);hideMsg();
+  wx.page=0;wx.step=0;wxRender();
+  clearInterval(wx.timer);
+  wx.timer=setInterval(()=>{if(mode==="weather")wxStep()},9000);
+  wxNowLine();
+  wxMusic(ch,tk);
+}
+function wxNowLine(){
+  if(wx.loc)setNow({title:`Local forecast for ${wx.loc.name}`, sub:"Smooth jazz all day. Local on the 8s at :08, :18, :28 and so on.", link:"https://open-meteo.com", via:"Weather data by Open-Meteo.com"});
+  else setNow({title:"Weather Across America", sub:"Big-city forecasts and smooth jazz. Tap SET MY CITY for your own forecast.", link:"https://open-meteo.com", via:"Weather data by Open-Meteo.com"});
+}
+function wxRender(){
+  const d=wx.data;if(!d)return;
+  const c=d.current, D=d.daily;
+  $("wxCity").textContent=wxHere().name;
+  const titles=["Current Conditions",wx.loc?"Local Forecast":"Today",`Extended Forecast`,"Almanac"];
+  let html="";
+  if(wx.page===0){
+    const [txt,ico]=wmo(c.weather_code,c.is_day);
+    html=`<div class="wx-cc"><div class="wx-big"><span class="ico">${ico}</span><span class="temp">${Math.round(c.temperature_2m)}°</span><span class="cond">${txt}</span></div>
+      <dl class="wx-dl"><dt>Feels Like</dt><dd>${Math.round(c.apparent_temperature)}°</dd><dt>Humidity</dt><dd>${Math.round(c.relative_humidity_2m)}%</dd>
+      <dt>Wind</dt><dd>${compass(c.wind_direction_10m)} ${Math.round(c.wind_speed_10m)} mph</dd><dt>Pressure</dt><dd>${(c.pressure_msl*0.02953).toFixed(2)} in</dd></dl></div>`;
+  }else if(wx.page===1){
+    const t0=wmo(D.weather_code[0])[0], t1=wmo(D.weather_code[1])[0];
+    html=`<div class="wx-text"><div><b>TODAY:</b> ${t0}. High ${Math.round(D.temperature_2m_max[0])}°F. Chance of precipitation ${D.precipitation_probability_max[0]??0}%.</div>
+      <div><b>TONIGHT:</b> Low around ${Math.round(D.temperature_2m_min[1])}°F.</div>
+      <div><b>${dayName(D.time[1])}:</b> ${t1}. High ${Math.round(D.temperature_2m_max[1])}°F. Chance of precipitation ${D.precipitation_probability_max[1]??0}%.</div></div>`;
+  }else if(wx.page===2){
+    html=`<div class="wx-days">`+[1,2,3,4,5].map(i=>{const [t,ic]=wmo(D.weather_code[i]);
+      return `<div><span class="d">${dayName(D.time[i])}</span><span class="i">${ic}</span><span class="c">${t}</span><span class="t">${Math.round(D.temperature_2m_max[i])}° <span>${Math.round(D.temperature_2m_min[i])}°</span></span></div>`}).join("")+`</div>`;
+  }else{
+    html=`<dl class="wx-dl" style="font-size:4.4cqw"><dt>Sunrise today</dt><dd>${hhmm(D.sunrise[0])}</dd><dt>Sunset today</dt><dd>${hhmm(D.sunset[0])}</dd>
+      <dt>Sunrise ${dayName(D.time[1])}</dt><dd>${hhmm(D.sunrise[1])}</dd><dt>Sunset ${dayName(D.time[1])}</dt><dd>${hhmm(D.sunset[1])}</dd></dl>`;
+  }
+  $("wxBody").innerHTML=html;
+  wxTitle(titles[wx.page]);
+}
+function wxTitle(base){
+  const eights=new Date().getMinutes()%10===8;
+  const el=$("wxTitle");el.textContent=eights&&wx.loc?"Local on the 8s":(base||el.dataset.base||"Current Conditions");
+  if(base)el.dataset.base=base;el.classList.toggle("eights",eights);
+}
+async function wxMusic(ch,tk){
+  try{
+    if(!wx.tracks.length){
+      for(const q of ch.music){
+        let docs=[];try{docs=await archiveSearch(q,100)}catch(e){}
+        if(!docs.length)continue;
+        const order=shuffleSeeded(docs.slice(),seedOf(new Date().toDateString()));
+        for(const d of order.slice(0,4)){
+          let m=null;try{m=await getJSON("https://archive.org/metadata/"+encodeURIComponent(d.identifier))}catch(e){}
+          const files=(m&&m.files||[]).filter(f=>/\.mp3$/i.test(f.name)&&f.private!=="true");
+          files.forEach(f=>wx.tracks.push({src:"https://archive.org/download/"+encodeURIComponent(d.identifier)+"/"+encPath(f.name),title:f.title||f.name.split("/").pop().replace(/\.mp3$/i,"")}));
+          if(wx.tracks.length>=8)break;
+        }
+        if(wx.tracks.length)break;
+      }
+      shuffleSeeded(wx.tracks,seedOf("jazz"+new Date().toDateString()));
+    }
+    if(tk!==token||!wx.tracks.length){if(!wx.tracks.length)$("wxMusic").textContent="♪ music offline";return}
+    wx.musicFails=0;wxPlayTrack();
+  }catch(e){}
+}
+function wxPlayTrack(){
+  const t=wx.tracks[wx.track%wx.tracks.length];
+  $("wxMusic").textContent="♪ "+t.title.slice(0,40);
+  aud.muted=!soundOn;aud.src=t.src;safePlay(aud);
+}
+async function setWxCity(loc){
+  wx.loc=loc;
+  if(loc)store("voidcable.wxloc",JSON.stringify(loc));else{try{localStorage.removeItem("voidcable.wxloc")}catch(e){}}
+  $("cityModal").hidden=true;
+  if(mode!=="weather")return;
+  try{if(!loc)wx.city=Math.floor((Date.now()-EPOCH)/18000)%WX_CITIES.length;await wxFetch();wx.page=0;wx.step=0;wxRender();wxNowLine();
+    toast(loc?`Forecast set to ${loc.name}. Saved only on this device.`:"Showing cities across America.")}
+  catch(e){toast("Couldn't load that forecast. Try again in a minute.")}
+}
+function useMyLocation(){
+  if(!navigator.geolocation){toast("This browser can't share your location. Search for your city instead.");return}
+  toast("Finding your forecast…");
+  navigator.geolocation.getCurrentPosition(p=>{
+    // rounded to about a mile, and only sent to the weather service
+    setWxCity({lat:+p.coords.latitude.toFixed(2), lon:+p.coords.longitude.toFixed(2), name:"My Location"});
+  },()=>toast("Location is off. Search for your city instead."),{timeout:12000,maximumAge:600000});
+}
+function openCity(){
+  $("cityRes").innerHTML="";$("cityQ").value="";
+  $("cityTour").hidden=!wx.loc;
+  $("cityModal").hidden=false;setTimeout(()=>{try{$("cityQ").focus()}catch(e){}},50);
+}
+let cityHits=[];
+$("cityForm").addEventListener("submit",async e=>{
+  e.preventDefault();const q=$("cityQ").value.trim();if(q.length<2){toast("Type at least 2 letters of a city.");return}
+  $("cityRes").innerHTML="<p>Searching…</p>";
+  try{
+    const j=await getJSON(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`,8000);
+    cityHits=(j.results||[]).map(r=>({lat:+(+r.latitude).toFixed(2),lon:+(+r.longitude).toFixed(2),
+      name:r.country_code==="US"?`${r.name}, ${US_ST[r.admin1]||r.admin1||"US"}`:[r.name,r.admin1,r.country].filter(Boolean).filter((x,i,a)=>a.indexOf(x)===i).join(", ")}));
+    $("cityRes").innerHTML=cityHits.length?cityHits.map((c,i)=>`<button class="btn" type="button" data-c="${i}">${esc(c.name)}</button>`).join(""):"<p>No cities found. Check the spelling and try again.</p>";
+  }catch(err){$("cityRes").innerHTML="<p>Couldn't search right now. Try again in a minute.</p>"}
+});
+$("cityRes").addEventListener("click",e=>{const b=e.target.closest("[data-c]");if(b)setWxCity(cityHits[+b.dataset.c])});
+$("cityGeo").onclick=useMyLocation;
+$("cityTour").onclick=()=>setWxCity(null);
+$("cityClose").onclick=()=>{$("cityModal").hidden=true};
+
+/* audio element shared by radio + weather */
+aud.addEventListener("playing",()=>{if(mode==="radio"){setSnow(false);hideMsg()}});
+aud.addEventListener("ended",()=>{if(mode==="weather"){wx.track++;wxPlayTrack()}});
+aud.addEventListener("error",()=>{
+  if(!aud.getAttribute("src"))return;
+  if(mode==="radio"){if(++radio.fails>=radio.list.length){showMsg("NO SIGNAL");return}radio.idx=(radio.idx+1)%radio.list.length;radioPlay()}
+  if(mode==="weather"&&wx.tracks.length&&++wx.musicFails<wx.tracks.length){wx.track++;wxPlayTrack()}
+});
+
+/* ================= sound ================= */
+function setSound(on){
+  soundOn=on;vid.muted=!on;aud.muted=!on;
+  if(mode==="youtube")ytSound();
+  if(on){if(mode==="video")safePlay(vid);if(mode==="radio"||mode==="weather")safePlay(aud)}
+  $("sound").textContent=on?"🔊 SOUND ON":"🔇 TAP FOR SOUND";$("fsSound").textContent=on?"MUTE":"SOUND";$("snd").classList.toggle("on",on);$("snd").setAttribute("aria-label",on?"Mute":"Sound");
+  if(on)setTimeout(()=>$("sound").hidden=true,1500);else $("sound").hidden=false;
+  if(rmt.code)pushRemoteState();
+}
+$("sound").onclick=e=>{e.stopPropagation();setSound(!soundOn)};
+
+/* ================= fullscreen + picture in picture ================= */
+function fsElement(){return document.fullscreenElement||document.webkitFullscreenElement}
+async function enterFS(){
+  const req=screenEl.requestFullscreen||screenEl.webkitRequestFullscreen;
+  if(req){try{await req.call(screenEl)}catch(e){}await sleep(350)}
+  if(fsElement()){try{await screen.orientation.lock("landscape")}catch(e){}}
+  else document.body.classList.add("tvmode"); // iPhone: fill the window instead of handing the video to iOS
+  pokeFsBar();
+  setTimeout(()=>{if(mode==="video")resyncVideo()},400);
+}
+function exitFS(){
+  if(fsElement()){try{(document.exitFullscreen||document.webkitExitFullscreen).call(document)}catch(e){}}
+  document.body.classList.remove("tvmode");
+  setTimeout(()=>{if(mode==="video")resyncVideo()},300);
+}
+let fsT;function pokeFsBar(){const b=$("fsbar");b.classList.remove("fade");clearTimeout(fsT);fsT=setTimeout(()=>b.classList.add("fade"),3500)}
+screenEl.addEventListener("click",()=>{if(fsElement()||document.body.classList.contains("tvmode"))pokeFsBar()});
+$("fsbar").addEventListener("click",e=>{
+  const a=e.target.closest("[data-act]");if(!a)return;e.stopPropagation();pokeFsBar();
+  ({down:()=>tune(cur-1),up:()=>tune(cur+1),sound:()=>setSound(!soundOn),exit:exitFS})[a.dataset.act]();
+});
+$("fs").onclick=enterFS;
+function pipSupported(){return (document.pictureInPictureEnabled&&!!vid.requestPictureInPicture)||(typeof vid.webkitSupportsPresentationMode==="function"&&vid.webkitSupportsPresentationMode("picture-in-picture"))}
+$("pip").onclick=async()=>{
+  if(mode!=="video")return;
+  try{
+    if(document.pictureInPictureEnabled&&vid.requestPictureInPicture){
+      if(document.pictureInPictureElement)await document.exitPictureInPicture();else await vid.requestPictureInPicture();
+    }else vid.webkitSetPresentationMode(vid.webkitPresentationMode==="picture-in-picture"?"inline":"picture-in-picture");
+  }catch(e){toast("Start the tape playing, then try Picture in Picture again.")}
+};
+
+/* lock screen / control center */
+function updateMediaSession(title,artist){
+  if(!("mediaSession" in navigator))return;
+  try{navigator.mediaSession.metadata=new MediaMetadata({title,artist,album:"VOID CABLE"})}catch(e){}
+}
+if("mediaSession" in navigator){
+  const set=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch(e){}};
+  set("nexttrack",()=>tune(cur+1));set("previoustrack",()=>tune(cur-1));
+  set("play",()=>{if(mode==="video")resyncVideo();else if(mode==="youtube")yt.player.playVideo();else safePlay(aud)});
+  set("pause",()=>{if(mode==="video")vid.pause();else if(mode==="youtube")yt.player.pauseVideo();else aud.pause()});
+}
+
+/* coming back to the tab: jump back to live */
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden)return;
+  if(mode==="video")resyncVideo();
+  if(mode==="youtube"&&yt.player){try{if(yt.player.getPlayerState()!==1)ytPlaySlot()}catch(e){}}
+  if((mode==="radio"||mode==="weather")&&aud.paused&&aud.getAttribute("src"))safePlay(aud);
+  heartbeat();
+});
+
+/* ================= viewers (Netlify Function) ================= */
+const clientId=(()=>{let v=store("voidcable.cid");if(!v){v=Math.random().toString(36).slice(2)+Date.now().toString(36);store("voidcable.cid",v)}return v||Math.random().toString(36).slice(2)})();
+let viewers=null, vFails=0, hbLast=0;
+async function heartbeat(){
+  if(vFails>=3||location.protocol==="file:"||Date.now()-hbLast<4000||document.body.classList.contains("remotemode"))return;
+  hbLast=Date.now();
+  try{
+    const r=await fetch("/api/viewers",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({ch:CHANNELS[cur].id,id:clientId})});
+    if(!r.ok||!/json/.test(r.headers.get("content-type")||""))throw new Error(r.status);
+    viewers=await r.json();vFails=0;renderViewers();renderGuide();
+  }catch(e){vFails++}
+}
+function renderViewers(){
+  const ok=viewers&&typeof viewers.total==="number";
+  $("boxwatch").hidden=!ok;$("chwatch").hidden=!ok;
+  if(!ok)return;
+  $("boxwatch").textContent=`${viewers.total} ONLINE`;
+  const n=(viewers.channels||{})[CHANNELS[cur].id]||1;
+  $("chwatch").textContent=String(n);$("chwatch").title=`${n} watching this channel`;
+}
+setInterval(heartbeat,25000);
+
+/* ================= emote reactions (Netlify Function) ================= */
+const EMOTES=["😂","🔥","😮","❤️","💀","👏"];
+const react={ok:false, since:0, primed:false, mine:new Set(), fails:0, busy:false, last:0, ch:null};
+$("reactBar").innerHTML=EMOTES.map((e,i)=>`<button class="btn" type="button" data-e="${i}" aria-label="React ${e}">${e}</button>`).join("");
+$("reactBar").addEventListener("click",ev=>{const b=ev.target.closest("[data-e]");if(b)sendReact(+b.dataset.e)});
+function floatEmote(e){
+  const el=document.createElement("span");el.className="float";el.textContent=e;
+  el.style.left=(58+Math.random()*34)+"%";el.style.setProperty("--dx",(Math.random()*18-9).toFixed(1)+"cqw");
+  $("floats").appendChild(el);setTimeout(()=>el.remove(),2700);
+}
+async function sendReact(i){
+  if(Date.now()-react.last<600)return;react.last=Date.now();
+  floatEmote(EMOTES[i]);
+  const id=Math.random().toString(36).slice(2,10);react.mine.add(id);
+  try{await fetch("/api/react",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({ch:CHANNELS[cur].id,i,id})})}catch(e){}
+}
+async function pollReacts(){
+  if(react.busy||document.hidden||react.fails>=3||location.protocol==="file:"||document.body.classList.contains("remotemode"))return;
+  const ch=CHANNELS[cur].id;
+  if(react.ch!==ch){react.ch=ch;react.since=0;react.primed=false}
+  react.busy=true;
+  try{
+    const r=await fetch(`/api/react?ch=${encodeURIComponent(ch)}&since=${react.since}`);
+    if(!r.ok||!/json/.test(r.headers.get("content-type")||""))throw new Error(r.status);
+    const j=await r.json();react.fails=0;
+    if(!react.ok){react.ok=true;$("reactBar").hidden=false}
+    if(react.ch===ch){
+      react.since=j.now||react.since;
+      if(react.primed)(j.items||[]).slice(-20).forEach((it,k)=>{if(!react.mine.has(it.id)&&EMOTES[it.i])setTimeout(()=>floatEmote(EMOTES[it.i]),k*140)});
+      react.primed=true;
+    }
+  }catch(e){react.fails++}
+  finally{react.busy=false}
+}
+setInterval(pollReacts,3500);
+
+/* ================= guide, up next, clock ================= */
+function renderNext(){
+  if(mode!=="video"||!now)return;
+  const out=[];let k=now.i, start=Date.now()+(now.seg.dur-(now.offset||0))*1000, guard=0;
+  while(out.length<4&&guard++<sched.segs.length*2){k=(k+1)%sched.segs.length;const s=sched.segs[k];
+    if(!s.isBreak)out.push(`<div class="row"><time>${fmtClock(new Date(start))}</time><span>${esc(s.title)}</span></div>`);start+=s.dur*1000}
+  $("nextlist").innerHTML=out.join("");
+}
+const KIND={archive:"TV",nasa:"TV",youtube:"WEB",radio:"FM",weather:"WX",prime:"TV"};
+function guideNow(c){
+  if(c.type==="radio")return radio.lists[c.id]&&radio.ch===c&&mode==="radio"?radio.list[radio.idx].name:"Live radio";
+  if(c.type==="weather")return "Forecasts across America + smooth jazz";
+  if(c.type==="youtube")return ytTitles[c.id]||"Official uploads, every 10 minutes";
+  if(c.type==="prime")return primeBlock().label;
+  return "";
+}
+let guideSched={};
+function renderGuide(){
+  $("guide").innerHTML=CHANNELS.map((c,i)=>{
+    let on=guideNow(c);
+    const sc=guideSched[c.id];if(sc){const w=whereNow(sc);on=w.seg.isBreak?"Commercial break":w.seg.title}
+    const vw=viewers&&viewers.channels&&viewers.channels[c.id];
+    return `<button class="ch" type="button" data-i="${i}" aria-current="${i===cur}">
+      <span class="n">${esc(c.num)}</span>
+      <span><b>${esc(c.name)}<span class="kind">${KIND[c.type]}</span>${vw?`<span class="vw">● ${vw}</span>`:""}</b><em>${esc(c.blurb)}</em>${on?`<span class="on">NOW: ${esc(on)}</span>`:""}</span></button>`;
+  }).join("");
+}
+$("guide").addEventListener("click",e=>{const b=e.target.closest(".ch");if(b){tune(+b.dataset.i);if(innerWidth<920)screenEl.scrollIntoView({behavior:"smooth",block:"start"})}});
+$("up").onclick=()=>tune(cur+1);
+$("snd").onclick=()=>setSound(!soundOn);
+/* GUIDE / CHAT tabs. Chat loads only when someone opens it. */
+const chatOn=!!(DISCORD.server&&DISCORD.channel);
+$("tabChat").hidden=!chatOn;$("chatBtn").hidden=!chatOn;$("tabs").style.setProperty("--tabs",chatOn?3:2);
+function showTab(which){
+  if(which==="chat"&&!chatOn)which="guide";
+  $("tabGuide").setAttribute("aria-selected",String(which==="guide"));$("tabGrid").setAttribute("aria-selected",String(which==="grid"));$("tabChat").setAttribute("aria-selected",String(which==="chat"));
+  $("guidePanel").hidden=which!=="guide";$("gridPanel").hidden=which!=="grid";$("chatPanel").hidden=which!=="chat";
+  if(which==="grid")renderListings(true);
+  const chat=which==="chat";
+  if(chat&&!$("chatMount").firstChild){
+    const f=document.createElement("iframe");
+    f.src=`https://e.widgetbot.io/channels/${encodeURIComponent(DISCORD.server)}/${encodeURIComponent(DISCORD.channel)}`;
+    f.title="VOID CABLE chat";f.allow="clipboard-write; fullscreen";f.loading="lazy";
+    $("chatMount").appendChild(f);
+  }
+}
+$("tabGuide").onclick=()=>showTab("guide");
+$("tabChat").onclick=()=>showTab("chat");
+$("tabGrid").onclick=()=>showTab("grid");
+$("chatBtn").onclick=()=>{showTab("chat");$("side").scrollIntoView({behavior:"smooth",block:"start"})};
+$("guideBtn").onclick=()=>{showTab("grid");$("side").scrollIntoView({behavior:"smooth",block:"start"})};
+$("logoLink").onclick=e=>{e.preventDefault();scrollTo({top:0,behavior:"smooth"})};
+$("down").onclick=()=>tune(cur-1);
+$("nextStation").onclick=nextStation;
+$("wxLoc").onclick=openCity;
+document.addEventListener("keydown",e=>{
+  if(e.target.closest&&e.target.closest("input,textarea"))return;
+  if(e.key==="ArrowUp"){e.preventDefault();tune(cur+1)}
+  if(e.key==="ArrowDown"){e.preventDefault();tune(cur-1)}
+  if(e.key==="Escape"&&document.body.classList.contains("tvmode"))exitFS();
+});
+
+setInterval(()=>{
+  const d=new Date();
+  const t=d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
+  $("boxtime").textContent=t;$("wxTime").textContent=t+" · "+d.toLocaleDateString([], {weekday:"short",month:"short",day:"numeric"});
+  if(mode==="weather")wxTitle();
+  if(mode==="video"&&sched&&now){
+    const el=Math.min(now.seg.dur,localElapsed());
+    $("prog").style.width=(el/now.seg.dur*100).toFixed(2)+"%";$("remain").textContent=fmtLeft(now.seg.dur-el);
+    $("elapsed").textContent=fmtHMS(el);$("total").textContent=fmtHMS(now.seg.dur);
+  }
+  if(CHANNELS[cur].type==="prime"&&primeKey&&primeBlock().key!==primeKey){primeKey=null;tune(cur)}
+  if(mode==="youtube"&&yt.ch&&Math.floor((Date.now()-EPOCH)/1000/yt.ch.slot)!==yt.slotK)ytPlaySlot();
+},1000);
+/* drift check: if someone has fallen way behind live (5+ minutes), jump back to the live point */
+setInterval(()=>{if(mode==="video"&&!vid.paused&&!holding&&vid.readyState>=3&&!now.seg.isBreak&&Math.abs(driftSec())>300)playCurrent(token)},30000);
+setInterval(()=>{renderGuide();if(!$("gridPanel").hidden)renderListings(false)},60000);
+
+/* ================= TV listings grid + reminders ================= */
+const GRID_MIN=180, PX=5, gridFail=new Set();
+let gridLoading=false;
+function reminders(){try{return JSON.parse(store("voidcable.remind")||"[]")}catch(e){return []}}
+function saveReminders(r){store("voidcable.remind",JSON.stringify(r))}
+function cellsFor(c,t0,t1){
+  if(c.type==="prime"){
+    const out=[];let t=t0;
+    while(t<t1){const b=primeBlock(new Date(t));let e=t+15*60000;while(e<t1&&primeBlock(new Date(e)).key===b.key)e+=15*60000;
+      out.push({s:t,e:Math.min(e,t1),title:primeTarget(b).name,sub:b.label.split(" · ")[0]});t=e}
+    return out;
+  }
+  if(c.type==="archive"||c.type==="nasa"){
+    if(gridFail.has(c.id))return [{s:t0,e:t1,title:"No signal right now"}];
+    const sc=guideSched[c.id];if(!sc)return null;
+    const out=[];const w=whereNow(sc,t0);let i=w.i,st=t0-w.offset*1000,guard=0;
+    while(st<t1&&guard++<500){const seg=sc.segs[i],en=st+seg.dur*1000;
+      if(seg.isBreak&&out.length)out[out.length-1].e=en;else out.push({s:st,e:en,title:seg.isBreak?"Commercial break":seg.title});
+      st=en;i=(i+1)%sc.segs.length}
+    return out;
+  }
+  if(c.type==="radio")return [{s:t0,e:t1,title:"Live radio",sub:c.tag}];
+  if(c.type==="weather")return [{s:t0,e:t1,title:"Forecasts + smooth jazz",sub:"Set your own city anytime"}];
+  if(c.type==="youtube"){const out=[],slot=c.slot*1000;let st=Math.floor((t0-EPOCH)/slot)*slot+EPOCH;const tn=Date.now();
+    while(st<t1){out.push({s:st,e:st+slot,title:(st<=tn&&tn<st+slot&&ytTitles[c.id])||"Adult Swim clip"});st+=slot}return out}
+  return [];
+}
+function renderListings(load){
+  const tn=Date.now(), t0=Math.floor(tn/1800000)*1800000, t1=t0+GRID_MIN*60000, W=GRID_MIN*PX, x=t=>(t-t0)/60000*PX, rem=reminders();
+  let h=`<div class="g" style="--w:${W}px"><div class="g-head"><div class="g-corner">CH</div><div class="g-times">`;
+  for(let t=t0;t<t1;t+=1800000)h+=`<span style="left:${x(t)}px">${fmtClock(new Date(t))}</span>`;
+  h+=`</div></div>`;
+  CHANNELS.forEach((c,ci)=>{
+    const cells=cellsFor(c,t0,t1);
+    h+=`<div class="g-row"><button class="g-ch" type="button" data-i="${ci}"><b>${esc(c.num)}</b><span>${esc(c.name)}</span></button><div class="g-line">`;
+    if(!cells)h+=`<div class="g-cell wait" style="left:2px;width:${W-4}px">Loading listings…</div>`;
+    else for(const k of cells){
+      const l=Math.max(0,x(k.s)), r=Math.min(W,x(k.e));if(r-l<8)continue;
+      const on=k.s<=tn&&tn<k.e, past=k.e<=tn, has=rem.some(m=>m.ch===c.id&&m.start===k.s);
+      h+=`<button class="g-cell${on?" on":""}${past?" past":""}" type="button" style="left:${l+1}px;width:${r-l-2}px" data-i="${ci}" data-s="${k.s}" data-e="${k.e}" data-t="${esc(k.title)}">${has?'<span class="bell">🔔</span>':""}<span class="gt">${esc(k.title)}</span><span class="t">${on?"ON NOW":fmtClock(new Date(k.s))}${k.sub?" · "+esc(k.sub):""}</span></button>`;
+    }
+    h+=`</div></div>`;
+  });
+  h+=`<div class="g-nowline" style="left:${96+x(tn)}px"></div></div>`;
+  const keep=$("gridwrap").scrollLeft;$("grid").innerHTML=h;$("gridwrap").scrollLeft=keep;
+  if(load&&!gridLoading)loadGridSchedules();
+}
+async function loadGridSchedules(){
+  gridLoading=true;
+  const todo=CHANNELS.filter(c=>(c.type==="archive"||c.type==="nasa")&&!guideSched[c.id]&&!gridFail.has(c.id));
+  let i=0;
+  const worker=async()=>{while(i<todo.length){const c=todo[i++];try{guideSched[c.id]=await getSchedule(c)}catch(e){gridFail.add(c.id)}if(!$("gridPanel").hidden)renderListings(false)}};
+  await Promise.all([worker(),worker()]);
+  gridLoading=false;renderGuide();
+}
+$("grid").addEventListener("click",e=>{
+  const head=e.target.closest(".g-ch");
+  if(head){tune(+head.dataset.i);screenEl.scrollIntoView({behavior:"smooth",block:"start"});return}
+  const cell=e.target.closest(".g-cell");if(!cell||!cell.dataset.s||cell.classList.contains("past"))return;
+  const i=+cell.dataset.i, s0=+cell.dataset.s, e0=+cell.dataset.e, tn=Date.now(), c=CHANNELS[i];
+  if(s0<=tn&&tn<e0){tune(i);screenEl.scrollIntoView({behavior:"smooth",block:"start"});return}
+  const r=reminders(), k=r.findIndex(m=>m.ch===c.id&&m.start===s0);
+  if(k>=0){r.splice(k,1);toast("Reminder removed.")}
+  else{r.push({ch:c.id,start:s0,title:cell.dataset.t});toast(`Reminder set: CH ${c.num} at ${fmtClock(new Date(s0))}. Keep VOID CABLE open to get it.`)}
+  saveReminders(r);renderListings(false);
+});
+let remindFor=null;
+setInterval(()=>{
+  const r=reminders(), t=Date.now(), due=r.find(m=>m.start<=t+15000&&m.start>t-10*60000);
+  const keep=r.filter(m=>m.start>t-10*60000&&m!==due);
+  if(due){const c=CHANNELS[byId(due.ch)];remindFor=due;$("remindText").textContent=`Starting now on CH ${c?c.num:"?"}: ${due.title}`;$("remind").hidden=false}
+  if(keep.length!==r.length)saveReminders(keep);
+},10000);
+$("remindGo").onclick=()=>{const i=remindFor?byId(remindFor.ch):-1;if(i>=0){tune(i);screenEl.scrollIntoView({behavior:"smooth",block:"start"})}$("remind").hidden=true};
+$("remindX").onclick=()=>{$("remind").hidden=true};
+
+/* ================= AirPlay ================= */
+let airplayAvailable=false;
+if(window.WebKitPlaybackTargetAvailabilityEvent){
+  vid.addEventListener("webkitplaybacktargetavailabilitychanged",e=>{airplayAvailable=e.availability==="available";contextButtons(CHANNELS[cur].type)});
+}
+$("airplay").onclick=()=>{try{vid.webkitShowPlaybackTargetPicker()}catch(e){toast("AirPlay isn't available on this device.")}};
+
+/* ================= phone remote (Netlify Function) ================= */
+const rmt={ok:false, code:null, since:0, primed:false, timer:null};
+async function remotePing(){
+  if(location.protocol==="file:")return;
+  try{const r=await fetch("/api/remote?ping=1");if(r.ok&&/json/.test(r.headers.get("content-type")||"")){rmt.ok=true;$("remoteBtn").hidden=false}}catch(e){}
+}
+function loadQR(){return window.QRCode?Promise.resolve():new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)})}
+async function openPair(){
+  if(!rmt.code){rmt.code=String(10000+Math.floor(Math.random()*90000));hostRemote()}
+  const link=location.origin+location.pathname+"#remote-"+rmt.code;
+  $("pairCode").textContent=rmt.code;$("pairLink").textContent=link.replace(/^https?:\/\//,"");
+  $("pairModal").hidden=false;
+  try{await loadQR();$("qr").hidden=false;$("qr").innerHTML="";new QRCode($("qr"),{text:link,width:180,height:180,colorDark:"#050322",colorLight:"#ffffff"})}catch(e){$("qr").hidden=true}
+}
+function hostRemote(){clearInterval(rmt.timer);rmt.since=0;rmt.primed=false;rmt.timer=setInterval(pollRemote,1200);pushRemoteState()}
+async function pollRemote(){
+  if(!rmt.code||document.hidden)return;
+  try{
+    const r=await fetch(`/api/remote?code=${rmt.code}&since=${rmt.since}`);if(!r.ok)return;
+    const j=await r.json();rmt.since=j.now||rmt.since;
+    if(!rmt.primed){rmt.primed=true;return}
+    for(const c of j.cmds||[])runRemote(c);
+  }catch(e){}
+}
+function runRemote(c){
+  $("pairModal").hidden=true;
+  const acts={up:()=>tune(cur+1),down:()=>tune(cur-1),sound:()=>setSound(!soundOn),
+    full:()=>{if(document.body.classList.toggle("tvmode"))pokeFsBar()},
+    tune:()=>{const i=byId(String(c.arg));if(i>=0)tune(i)},
+    react:()=>{if(EMOTES[c.arg])sendReact(+c.arg)}};
+  (acts[c.cmd]||(()=>{}))();
+}
+let pushT;
+function pushRemoteState(){
+  if(!rmt.code)return;clearTimeout(pushT);
+  pushT=setTimeout(()=>{const ch=CHANNELS[cur];fetch("/api/remote",{method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({code:rmt.code,state:{ch:ch.id,num:ch.num,name:ch.name,title:$("title").textContent,sound:soundOn}})}).catch(()=>{})},500);
+}
+function enterRemote(code){
+  document.body.classList.add("remotemode");$("remoteUI").hidden=false;$("rCode").textContent="CODE "+code;
+  $("rReact").innerHTML=EMOTES.map((e,i)=>`<button class="btn" type="button" data-cmd="react" data-arg="${i}" aria-label="React ${e}">${e}</button>`).join("");
+  $("rList").innerHTML=CHANNELS.map(c=>`<button class="btn" type="button" data-cmd="tune" data-arg="${esc(c.id)}"><b>${esc(c.num)}</b>${esc(c.name)}</button>`).join("");
+  $("remoteUI").addEventListener("click",ev=>{
+    const b=ev.target.closest("[data-cmd]");if(!b)return;
+    fetch("/api/remote",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({code,cmd:b.dataset.cmd,arg:b.dataset.arg??null})})
+      .then(r=>{if(!r.ok)throw 0}).catch(()=>toast("Couldn't reach your TV. Check the code."));
+    if(navigator.vibrate)navigator.vibrate(10);
+  });
+  $("rLeave").onclick=()=>{history.replaceState(null,"",location.pathname);location.reload()};
+  const poll=async()=>{try{const r=await fetch(`/api/remote?code=${code}&since=${Date.now()}`);const j=await r.json();const st=j.state;
+    if(st){$("rCh").textContent=`CH ${st.num} · ${st.name}`;$("rTitle").textContent=st.title||"";$("rSound").textContent=st.sound?"MUTE":"SOUND"}}catch(e){}};
+  poll();setInterval(poll,2500);
+}
+$("remoteBtn").onclick=openPair;
+$("pairClose").onclick=()=>{$("pairModal").hidden=true};
+$("joinForm").addEventListener("submit",e=>{
+  e.preventDefault();const c=$("joinCode").value.trim();
+  if(!/^\d{5}$/.test(c)){toast("Enter the 5-digit code from your TV.");return}
+  history.replaceState(null,"",location.pathname+"#remote-"+c);location.reload();
+});
+
+/* start: remote link > link (#channel) > last channel you watched > AFTER HOURS */
+const byId=id=>CHANNELS.findIndex(c=>c.id===id);
+const remoteHash=location.hash.match(/^#remote-(\d{5})$/);
+if(remoteHash){enterRemote(remoteHash[1])}
+else{
+  let start=byId(location.hash.slice(1));
+  if(start<0)start=byId(store("voidcable.ch")||"");
+  if(start<0)start=byId(DEFAULT_CH);
+  renderGuide();
+  tune(start);
+  setTimeout(pollReacts,1500);
+  remotePing();
+}
+</script>
+</body>
+</html>
