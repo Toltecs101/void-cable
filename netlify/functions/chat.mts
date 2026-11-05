@@ -1,11 +1,11 @@
 import { getStore } from "@netlify/blobs";
 import type { Config, Context } from "@netlify/functions";
 
-// Per-channel chat. Anyone can read; posting needs a Discord sign-in (see auth.mts).
+// Per-channel chat. Anyone can read; posting needs a Google (or Discord) sign-in (see auth.mts).
 // Each message is its own key, so nothing is read-modify-written:
 //   m/<channel>/<13-digit time>-<rand>   message JSON
 //   d/<channel>/<message key>            "deleted" marker so open pages drop it
-//   ban/<discord id>, admin/<discord id>, rl/<discord id> (last post time)
+//   ban/<user id>, admin/<user id>, rl/<user id> (last post time); Google ids start with "g"
 // Messages older than 24 hours are cleaned up.
 //
 // Moderator: set ADMIN_CODE in Netlify; a signed-in person who sends "/admin <code>" becomes a moderator.
@@ -82,7 +82,7 @@ export default async (req: Request, context: Context) => {
       await Promise.all([store.delete(key), store.set(`d/${ch}/${key}`, "1")]);
       return Response.json({ ok: true });
     }
-    const uid = String(body.uid ?? "").replace(/\D/g, "").slice(0, 25);
+    const uid = String(body.uid ?? "").replace(/[^a-z0-9]/gi, "").slice(0, 32);
     if (!uid) return err("Unknown person.", 400);
     await store.set(`ban/${uid}`, "1");
     const { blobs } = await store.list({ prefix: `m/${ch}/` });
@@ -96,6 +96,7 @@ export default async (req: Request, context: Context) => {
 
   // send a message
   if ((await store.get(`ban/${user.id}`)) !== null) return err("You can't post in this chat.", 403);
+  if (!user.name) return err("Pick a chat name first.", 400);
   const ch = body.ch;
   if (!okCh(ch)) return err("Unknown channel.", 400);
   const text = String(body.text ?? "").replace(/[\u0000-\u001f\u007f​-‏‪-‮]/g, "").replace(/\s+/g, " ").trim();

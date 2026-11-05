@@ -196,6 +196,7 @@ body.tvmode .screen{position:fixed;inset:0;z-index:100;aspect-ratio:auto;width:a
 .chat-form input{flex:1;min-width:0;width:100%;font-family:var(--mono);font-size:21px;padding:8px;border:2px solid var(--edge);background:#07053a;color:var(--ink)}
 .chat-signin{text-decoration:none;font-size:21px;background:linear-gradient(180deg,#8b93ff 0%,#5865f2 52%,#3c45c9 100%)}
 .chat-signin svg{width:26px;height:26px}
+.chat-signin.g{background:linear-gradient(180deg,#fff 0%,#eef0ff 52%,#c9cdf0 100%);color:#1f1f3a;text-shadow:none}
 .chat-note{margin:0;font-size:16px;color:var(--dim)}
 .chat-note button{background:none;border:0;color:var(--cyan);font:inherit;text-decoration:underline;cursor:pointer;padding:0}
 
@@ -439,10 +440,17 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
         <input id="chatIn" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="Say something…" aria-label="Chat message">
         <button class="btn gold" type="submit">SEND</button>
       </form>
-      <a class="btn chat-signin" id="chatSignIn" href="/api/auth/login" hidden>
+      <form class="chat-form" id="chatNameForm" hidden>
+        <input id="chatName" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="Pick a chat name" aria-label="Chat name">
+        <button class="btn gold" type="submit">SAVE</button>
+      </form>
+      <a class="btn chat-signin g" id="chatSignInG" href="/api/auth/login?p=google" hidden>
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.6 13.3l7.8 6C12.3 13.6 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 7l7.5 5.8c4.4-4 6.8-10 6.8-17.3z"/><path fill="#FBBC05" d="M10.4 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.3.8-4.7l-7.8-6C1 16.5 0 20.1 0 24s1 7.5 2.6 10.7l7.8-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.4 0-11.7-4.1-13.6-9.8l-7.8 6C6.6 42.6 14.6 48 24 48z"/></svg>
+        SIGN IN WITH GOOGLE</a>
+      <a class="btn chat-signin" id="chatSignIn" href="/api/auth/login?p=discord" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 5.3A18 18 0 0 0 15.6 4l-.6 1.2a16 16 0 0 0-6 0L8.4 4A18 18 0 0 0 4 5.3C1.4 9.2.7 13 1 16.8a18 18 0 0 0 5.4 2.7l1.2-1.8a11 11 0 0 1-1.8-.9l.4-.3a12.8 12.8 0 0 0 11.6 0l.4.3-1.8.9 1.2 1.8a18 18 0 0 0 5.4-2.7c.4-4.4-.7-8.2-3-11.5zM8.7 14.5c-1 0-1.9-1-1.9-2.1s.8-2.1 1.9-2.1 1.9 1 1.9 2.1-.8 2.1-1.9 2.1zm6.6 0c-1 0-1.9-1-1.9-2.1s.8-2.1 1.9-2.1 1.9 1 1.9 2.1-.8 2.1-1.9 2.1z"/></svg>
         SIGN IN WITH DISCORD TO CHAT</a>
-      <p class="chat-note" id="chatNote">Anyone can read. To post, sign in with Discord. We only get your Discord name and picture, never your email. Messages clear after 24 hours.</p>
+      <p class="chat-note" id="chatNote">Anyone can read. To post, sign in and pick a chat name. Messages clear after 24 hours.</p>
       <p class="chat-note" id="chatMe" hidden></p>
     </section>
   </aside>
@@ -1451,8 +1459,8 @@ setInterval(()=>{
 setInterval(()=>{if(mode==="video"&&!vid.paused&&!holding&&vid.readyState>=3&&!now.seg.isBreak&&Math.abs(driftSec())>300)playCurrent(token)},30000);
 setInterval(()=>{renderGuide();if(!$("gridPanel").hidden)renderListings(false)},60000);
 
-/* ================= chat (sign in with Discord to post) ================= */
-const chat={me:null, admin:false, ch:null, since:0, keys:new Set(), busy:false, timer:null, fails:0};
+/* ================= chat (sign in with Google, or Discord, to post) ================= */
+const chat={me:null, admin:false, needsName:false, providers:{}, ch:null, since:0, keys:new Set(), busy:false, timer:null, fails:0};
 async function chatInit(){
   if(location.protocol==="file:"||document.body.classList.contains("remotemode"))return;
   try{
@@ -1460,28 +1468,39 @@ async function chatInit(){
     if(!r.ok||!/json/.test(r.headers.get("content-type")||""))throw 0;
     const j=await r.json();
     if(!j.configured)return;
-    chat.me=j.user||null;chat.admin=!!j.admin;setChatOn(true);chatSignedIn();
+    chat.me=j.user||null;chat.admin=!!j.admin;chat.needsName=!!j.needsName;chat.providers=j.providers||{discord:true};setChatOn(true);chatSignedIn();
     const q=new URLSearchParams(location.search);
     if(q.get("chat")==="1"){
       showTab("chat");$("side").scrollIntoView({block:"start"});
-      if(q.get("signin"))toast("Discord sign-in didn't finish. Try again.");
+      if(q.get("signin"))toast("Sign-in didn't finish. Try again.");
+      else if(chat.me&&chat.needsName){toast("Signed in. Now pick a chat name.");setTimeout(()=>$("chatName").focus(),300)}
       else if(chat.me)toast(`Signed in as ${chat.me.name}.`);
       try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}
     }
   }catch(e){setTimeout(chatInit,60000)}
 }
 function chatSignedIn(){
-  const me=chat.me;
-  $("chatForm").hidden=!me;$("chatSignIn").hidden=!!me;$("chatNote").hidden=!!me;$("chatMe").hidden=!me;
-  $("chatSignIn").href="/api/auth/login?r="+encodeURIComponent(CHANNELS[cur].id);
-  if(me)$("chatMe").innerHTML=`Signed in as <b>${esc(me.name)}</b>${chat.admin?" · moderator":""} · <button type="button" id="chatOut">Sign out</button>`;
-  const out=$("chatOut");if(out)out.onclick=async()=>{try{await fetch("/api/auth/logout",{method:"POST"})}catch(e){}chat.me=null;chat.admin=false;chatSignedIn();chatRender(true)};
+  const me=chat.me, naming=!!me&&chat.needsName, p=chat.providers;
+  $("chatForm").hidden=!me||naming;$("chatNameForm").hidden=!naming;
+  $("chatSignInG").hidden=!!me||!p.google;$("chatSignIn").hidden=!!me||!p.discord;
+  $("chatNote").hidden=!!me&&!naming;$("chatMe").hidden=!me;
+  $("chatNote").textContent=naming?"This is the name people see in chat. It can't be someone else's, and it has nothing to do with your Google account."
+    :p.google?"Anyone can read. To post, sign in with Google and pick a chat name. We don't keep your Google name, email or picture. Messages clear after 24 hours."
+    :"Anyone can read. To post, sign in with Discord. We only get your Discord name and picture, never your email. Messages clear after 24 hours.";
+  chatLinks();
+  if(me)$("chatMe").innerHTML=naming?`Signed in · <button type="button" id="chatOut">Sign out</button>`
+    :`Signed in as <b>${esc(me.name)}</b>${chat.admin?" · moderator":""} · <button type="button" id="chatOut">Sign out</button>`;
+  const out=$("chatOut");if(out)out.onclick=async()=>{try{await fetch("/api/auth/logout",{method:"POST"})}catch(e){}chat.me=null;chat.admin=false;chat.needsName=false;chatSignedIn();chatRender(true)};
+}
+function chatLinks(){
+  const r="&r="+encodeURIComponent(CHANNELS[cur].id);
+  $("chatSignInG").href="/api/auth/login?p=google"+r;$("chatSignIn").href="/api/auth/login?p=discord"+r;
 }
 function chatOpen(){
   const id=CHANNELS[cur].id;
   if(chat.ch!==id){chat.ch=id;chat.since=0;chat.keys.clear();$("chatList").innerHTML="";$("chatList").appendChild(chatEmptyEl())}
   $("chatCh").textContent=`CH ${CHANNELS[cur].num} CHAT`;
-  $("chatSignIn").href="/api/auth/login?r="+encodeURIComponent(id);
+  chatLinks();
   const n=viewers&&viewers.channels&&viewers.channels[id];$("chatHere").hidden=!n;if(n)$("chatHere").textContent=String(n);
   clearInterval(chat.timer);chat.timer=setInterval(chatPoll,3000);chatPoll();
 }
@@ -1517,10 +1536,18 @@ async function chatPoll(){
 async function chatPost(body){
   const r=await fetch("/api/chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
   let j={};try{j=await r.json()}catch(e){}
-  if(r.status===401){chat.me=null;chatSignedIn();toast("Please sign in with Discord again.");return null}
+  if(r.status===401){chat.me=null;chatSignedIn();toast("Please sign in again.");return null}
   if(!r.ok){toast(j.error||"Couldn't send that. Try again in a moment.");return null}
   return j;
 }
+$("chatNameForm").addEventListener("submit",async e=>{
+  e.preventDefault();const name=$("chatName").value.trim();if(!name)return;
+  let r,j={};
+  try{r=await fetch("/api/auth/name",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name})});j=await r.json()}catch(err){}
+  if(r&&r.status===401){chat.me=null;chat.needsName=false;chatSignedIn();toast("Please sign in again.");return}
+  if(!r||!r.ok||!j.user){toast(j.error||"Couldn't save that name. Try again.");return}
+  chat.me=j.user;chat.needsName=false;chatSignedIn();toast(`You're ${j.user.name} in chat.`);setTimeout(()=>$("chatIn").focus(),100);
+});
 $("chatForm").addEventListener("submit",async e=>{
   e.preventDefault();const inp=$("chatIn"),text=inp.value.trim();if(!text)return;
   const claim=text.match(/^\/admin\s+(\S+)$/i);
