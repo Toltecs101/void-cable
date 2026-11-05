@@ -742,7 +742,7 @@ function tidyBreaks(segs){const out=[];for(const x of segs){const p=out[out.leng
 function reindex(sc){let t=0;sc.starts=sc.segs.map(x=>{const a=t;t+=x.dur;return a});sc.total=t;return sc}
 async function archiveSearch(q, rows=300){
   const url="https://archive.org/advancedsearch.php?q="+encodeURIComponent("("+q+")"+EN_FILTER)+"&fl%5B%5D=identifier&fl%5B%5D=title&fl%5B%5D=year&rows="+rows+"&sort%5B%5D=identifier+asc&output=json";
-  return (await getJSON(url)).response.docs;
+  return (await getJSON(url,20000)).response.docs;
 }
 async function buildArchive(ch){
   const fixed=(ch.ids||[]).map(x=>typeof x==="string"?{identifier:x}:{identifier:x.id,all:!!x.all});
@@ -916,7 +916,7 @@ async function tune(idx,opt={}){
     else if(ch.type==="weather") await wxTune(ch,tk);
   }catch(e){
     if(tk!==token)return;
-    gridFail.add(ch.id);
+    markDead(ch.id);
     setSnow(true);showMsg("NO SIGNAL");
     if(opt.dir||opt.scan)setTimeout(()=>{if(tk===token)chStep(opt.dir||1,opt.scan)},1200);   // surfing: don't stop on a dead channel
     setNow({title:"No signal on this channel right now", sub:"The source didn't answer. Try another channel or come back in a bit."});
@@ -1682,6 +1682,8 @@ $("chatList").addEventListener("click",async e=>{
 
 /* ================= TV listings grid + reminders ================= */
 const GRID_MIN=180, PX=5, gridFail=new Set();
+/* a channel that didn't answer is only treated as off the air for 3 minutes, then it gets tried again */
+function markDead(id){gridFail.add(id);setTimeout(()=>{gridFail.delete(id);renderGuide()},180000)}
 let gridLoading=false;
 function reminders(){try{return JSON.parse(store("voidcable.remind")||"[]")}catch(e){return []}}
 function saveReminders(r){store("voidcable.remind",JSON.stringify(r))}
@@ -1731,7 +1733,7 @@ async function loadGridSchedules(){
   gridLoading=true;
   const todo=CHANNELS.filter(c=>(c.type==="archive"||c.type==="nasa")&&!guideSched[c.id]&&!gridFail.has(c.id));
   let i=0;
-  const worker=async()=>{while(i<todo.length){const c=todo[i++];try{guideSched[c.id]=await getSchedule(c)}catch(e){gridFail.add(c.id)}if(!$("gridPanel").hidden)renderListings(false)}};
+  const worker=async()=>{while(i<todo.length){const c=todo[i++];try{guideSched[c.id]=await getSchedule(c)}catch(e){markDead(c.id)}if(!$("gridPanel").hidden)renderListings(false)}};
   await Promise.all([worker(),worker()]);
   gridLoading=false;renderGuide();
 }
