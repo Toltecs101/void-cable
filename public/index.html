@@ -357,6 +357,9 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
 .pwa-ban .btn{flex:none;min-height:40px;font-size:20px;padding:6px 10px}
 .controls .pwa-b{white-space:nowrap}
 /* === /pwa === */
+/* === channels === */
+.seasonal{font-family:var(--mono);font-size:13px;padding:1px 5px;margin-left:4px;border:1px solid var(--edge);background:#1f6b3a;color:#fff;text-shadow:none;letter-spacing:.06em;white-space:nowrap}
+/* === /channels === */
 @media (max-width:430px){
   .tabs .btn{font-size:21px}
   .livebar{gap:7px}
@@ -622,6 +625,60 @@ const CHANNELS = [
   {id:"retro-fm", num:"98.7", name:"RETRO FM", type:"radio", icon:"📻", blurb:"Live 80s stations, still on the air.", tag:"80s"},
   {id:"night-drive-fm", num:"106.1", name:"NIGHT DRIVE FM", type:"radio", icon:"🌃", blurb:"Live chillout radio for the drive home.", tag:"chillout"},
   /* ---- added Nov 2026 ---- */
+  {id:"boombox", num:"21", name:"BOOMBOX", icon:"🎤", type:"archive", maxYear:2002, blurb:"Rap City, Yo! MTV Raps, and the VCR on record.",
+   q:'(title:("Rap City") OR title:("Yo! MTV Raps") OR title:("Yo MTV Raps") OR title:("Video Soul") OR title:("Video Music Box") OR (title:("The Box") AND (title:(music) OR title:(video) OR title:(videos) OR title:(channel)))) AND mediatype:movies',
+   match:/(rap city|yo!? ?mtv raps|video soul|video music box|the box)/i,
+   exclude:/(review|reaction|reacts?\b|unboxing|podcast|commentary|\bai\b|ai[- ]generated|twitch|livestream|live stream|fan ?edit|remaster(ed)? by|upscal|parody|tribute|tiktok|lyrics|karaoke|type beat|instrumental|box set|out of the box|jack in the box|xbox)/i},
+  {id:"must-see", num:"6", name:"MUST SEE TV", icon:"🛋️", type:"archive", maxYear:2000, blurb:"Thursday night, 1996. Don't touch the remote.",
+   q:'(title:("must see tv") OR title:("NBC Thursday") OR title:(TGIF) OR ((title:(NBC) OR title:(ABC) OR title:(CBS) OR title:(FOX)) AND (title:("with commercials") OR title:("original broadcast") OR title:("original airing") OR title:(primetime) OR title:("prime time")) AND (year:[1988 TO 2000] OR title:(1988 OR 1989 OR 1990 OR 1991 OR 1992 OR 1993 OR 1994 OR 1995 OR 1996 OR 1997 OR 1998 OR 1999 OR 2000 OR 1990s)))) AND mediatype:movies',
+   match:/(must see|thursday|tgif|with commercials|original (broadcast|airing)|prime ?time|broadcast|airing)/i,
+   exclude:/(review|reaction|reacts?\b|unboxing|podcast|commentary|\bai\b|ai[- ]generated|twitch|livestream|live stream|fan ?edit|remaster(ed)? by|upscal|parody|tiktok|commercials only|just commercials|ad break|news|sports|football|\bnfl\b)/i},
+  {id:"late-late", num:"23", name:"LATE LATE", icon:"🌃", type:"archive", maxYear:2009, blurb:"A monologue, a band, and one more guest before bed.",
+   q:'(title:(Letterman) OR title:("Tonight Show") OR title:("Johnny Carson") OR title:(Arsenio) OR title:("Late Night with Conan") OR title:("Conan O\'Brien") OR title:("Late Night with David")) AND mediatype:movies',
+   match:/(letterman|tonight show|carson|arsenio|conan o'?brien|late night)/i,
+   exclude:/(review|reaction|reacts?\b|unboxing|podcast|commentary|\bai\b|ai[- ]generated|twitch|livestream|live stream|fan ?edit|remaster(ed)? by|upscal|parody|impersonat|impression|tribute|tiktok|youtube poop|\bytp\b|barbarian|conan exiles|fallon|kimmel|colbert|corden|seth meyers|\b20(1\d|2\d)\b)/i},
+  {id:"territory-days", num:"67", name:"TERRITORY DAYS", icon:"💪", type:"archive", maxYear:1992, blurb:"Bingo halls, blood feuds and a local TV studio.",
+   q:'(title:("Mid-South") OR title:("Mid South Wrestling") OR title:("World Class Championship") OR title:(WCCW) OR title:("Memphis Wrestling") OR title:("Championship Wrestling") OR title:(NWA) OR title:(AWA) OR title:("Mid-Atlantic") OR title:("Jim Crockett") OR title:("Portland Wrestling") OR title:("Stampede Wrestling")) AND (title:(wrestling) OR subject:(wrestling)) AND mediatype:movies',
+   match:/(mid-?south|world class|wccw|memphis|\bnwa\b|\bawa\b|championship wrestling|mid-?atlantic|jim crockett|portland|stampede|territor)/i,
+   exclude:/(review|reaction|reacts?\b|unboxing|podcast|commentary|\bai\b|ai[- ]generated|twitch|livestream|live stream|fan ?edit|remaster(ed)? by|upscal|shoot interview|\bwcw\b|\bwwf\b|\bwwe\b|nitro|monday night|smackdown|\btna\b|impact|\baew\b|\becw\b|powerrr|2k\d\d|video game|gameplay|\b(199[3-9]|20\d\d)\b)/i},
+  {id:"morphin-hour", num:"26", name:"MORPHIN HOUR", icon:"⚡", type:"archive", maxYear:2005, blurb:"It's morphin time. Five teens, one giant robot.",
+   q:'(title:("Power Rangers") OR title:("Mighty Morphin") OR title:(Ultraman) OR title:("VR Troopers") OR title:(Beetleborgs) OR title:("Super Sentai") OR title:("Masked Rider") OR title:("Big Bad Beetleborgs")) AND mediatype:movies',
+   match:/(power rangers|morphin|ultraman|vr troopers|beetleborgs|super sentai|masked rider)/i,
+   exclude:/(review|reaction|reacts?\b|unboxing|podcast|commentary|\bai\b|ai[- ]generated|twitch|livestream|live stream|fan ?edit|fan film|remaster(ed)? by|upscal|parody|cosplay|toy|figure|legacy wars|battle for the grid|gameplay|playthrough|let'?s play|\bmmd\b|japanese|\bjp\b|eng(lish)? ?subs?\b|\b20(0[6-9]|[12]\d)\b)/i},
+  {id:"shop-at-home", num:"98", name:"SHOP AT HOME", icon:"💎", type:"archive", maxYear:2005, blurb:"Cubic zirconia. Call now, only 400 left.",
+   q:'(title:(QVC) OR title:(HSN) OR title:("Home Shopping Network") OR title:("Home Shopping Club") OR title:("shopping channel") OR title:("Shop at Home") OR title:(ValueVision)) AND mediatype:movies',
+   match:/(qvc|\bhsn\b|home shopping|shopping channel|shop at home|valuevision)/i,
+   exclude:/(review|reaction|reacts?\b|unboxing|podcast|commentary|\bai\b|ai[- ]generated|twitch|livestream|live stream|fan ?edit|remaster(ed)? by|upscal|parody|tiktok|haul|try ?on|\bvlog\b|bloopers?|fails?\b|\b20(0[6-9]|[12]\d)\b)/i},
+  {id:"action-news", num:"9", name:"ACTION NEWS", icon:"📰", type:"archive", maxYear:2001, blurb:"Live at eleven. Film at eleven. Hair at eleven.",
+   q:'(title:(news) OR title:(newscast)) AND (title:("local news") OR title:(newscast) OR title:("eyewitness news") OR title:("action news") OR title:(1980s OR 1990s OR 1980 OR 1981 OR 1982 OR 1983 OR 1984 OR 1985 OR 1986 OR 1987 OR 1988 OR 1989 OR 1990 OR 1991 OR 1992 OR 1993 OR 1994 OR 1995 OR 1996 OR 1997 OR 1998 OR 1999)) AND mediatype:movies',
+   // case-sensitive on purpose: K/W call letters (KTLA, WXYZ) must be capitals
+   match:/([Ll]ocal [Nn]ews|[Nn]ewscast|NEWSCAST|[Ee]yewitness [Nn]ews|[Aa]ction [Nn]ews|LOCAL NEWS|\b[KW][A-Z]{2,3}(-TV)?\b)/,
+   exclude:/(review|reaction|reacts?\b|unboxing|podcast|commentary|\bai\b|ai[- ]generated|twitch|livestream|live stream|fan ?edit|remaster(ed)? by|upscal|parody|tiktok|bloopers?|fails?\b|compilation|\bcnn\b|msnbc|fox news|nightly news|world news tonight|evening news|\bbbc\b|\b20(0[2-9]|[12]\d)\b)/i},
+  {id:"game-show", num:"14", name:"GAME SHOW", icon:"🎰", type:"archive", maxYear:2005, blurb:"Come on down. No whammies. Survey says…",
+   q:'(title:("Price Is Right") OR title:("Press Your Luck") OR title:("Supermarket Sweep") OR title:("Match Game") OR title:("Family Feud") OR title:("Card Sharks") OR title:("Joker\'s Wild") OR title:("Wheel of Fortune") OR title:("Body Language") OR title:("Hollywood Squares")) AND mediatype:movies',
+   match:/(price is right|press your luck|supermarket sweep|match game|family feud|card sharks|joker'?s wild|wheel of fortune|body language|hollywood squares)/i,
+   exclude:/(review|reaction|reacts?\b|unboxing|podcast|commentary|\bai\b|ai[- ]generated|twitch|livestream|live stream|fan ?edit|remaster(ed)? by|upscal|parody|\bsnl\b|tiktok|bloopers?|board game|pc game|video game|gameplay|playthrough|let'?s play|\bps[1-5]\b|xbox|\bwii\b|nintendo|\bds\b|mobile|\bapp\b|ubisoft|home game|\b20(0[6-9]|[12]\d)\b)/i},
+  {id:"drive-in", num:"71", name:"DRIVE-IN", icon:"🚗", type:"archive", maxYear:1979, minDur:10, maxDur:900, blurb:"Visit the snack bar. Ten minutes till showtime.",
+   q:'(title:("drive-in") OR title:("drive in") OR title:(intermission) OR title:(snipe) OR title:("let\'s all go to the lobby") OR subject:("drive-in") OR subject:(intermission)) AND mediatype:movies',
+   match:/(drive-? ?in|intermission|snipe|lobby|refreshment|concession|snack bar|countdown|trailer)/i,
+   exclude:/(review|reaction|reacts?\b|unboxing|podcast|commentary|\bai\b|ai[- ]generated|twitch|livestream|live stream|fan ?edit|remaster(ed)? by|upscal|parody|tiktok|restaurant|food truck|\bvlog\b|music video|church|sermon|\b(19[89]\d|20\d\d)\b)/i},
+  {id:"sign-off", num:"100", name:"STATION SIGN-OFF", icon:"🌙", type:"archive", maxYear:2005, maxDur:600, blurb:"The broadcast day is over. Goodnight.",
+   q:'(title:("sign off") OR title:("sign-off") OR title:(signoff) OR title:("test pattern") OR title:("Indian head") OR title:("test card") OR title:("station closedown") OR (title:("national anthem") AND (title:(tv) OR title:(station) OR title:(broadcast) OR title:(sign)))) AND mediatype:movies',
+   match:/(sign[- ]?off|test pattern|indian head|test card|national anthem|closedown|end of (the )?broadcast day)/i,
+   exclude:/(review|reaction|reacts?\b|unboxing|podcast|commentary|\bai\b|ai[- ]generated|twitch|livestream|live stream|fan ?edit|remaster(ed)? by|upscal|parody|tiktok|youtube|my channel|analog horror|fake|fictional|fictitious|recreat|mock|minecraft|roblox|\bgta\b|cover|remix|sung by|super bowl|olympics|game)/i},
+  {id:"yule-log", num:"120", name:"YULE LOG", icon:"🔥", type:"archive", maxYear:2009, season:{from:"12-01", to:"01-02"}, blurb:"A log, a fire, and carols till New Year's.",
+   q:'(title:("yule log") OR title:(fireplace) OR (title:(christmas) AND (title:(special) OR title:(commercials) OR title:(commercial) OR title:(broadcast) OR title:(vhs)))) AND mediatype:movies',
+   match:/(yule log|fireplace|christmas|xmas|holiday)/i,
+   exclude:/(review|reaction|reacts?\b|unboxing|podcast|commentary|\bai\b|ai[- ]generated|twitch|livestream|live stream|fan ?edit|remaster(ed)? by|upscal|parody|tiktok|asmr|\b\d+ ?hours?\b|minecraft|screensaver|animated fireplace|haul|decor|\b20(1\d|2\d)\b)/i},
+  {id:"fright-night", num:"203", name:"FRIGHT NIGHT", icon:"🎃", type:"archive", maxYear:2005, season:{from:"10-01", to:"11-02"}, blurb:"Pumpkin specials and spooky ads, taped in October.",
+   // horror hosts live on CREATURE FEATURE (202); this one is Halloween specials and spooky commercials only
+   q:'(title:(halloween) AND (title:(special) OR title:(commercials) OR title:(commercial) OR title:(broadcast) OR title:(bumpers) OR title:(promos) OR title:(vhs))) AND mediatype:movies',
+   match:/(halloween|great pumpkin|spooky|haunted|trick or treat)/i,
+   exclude:/(review|reaction|reacts?\b|unboxing|podcast|commentary|\bai\b|ai[- ]generated|twitch|livestream|live stream|fan ?edit|remaster(ed)? by|upscal|parody|tiktok|horror host|elvira|svengoolie|joe bob|commander usa|creature feature|michael myers|carpenter|halloween (ii|iii|4|5|h20|kills|ends|resurrection)|costume ideas|makeup|tutorial|haul|decor|\b20(0[6-9]|[12]\d)\b)/i},
+  {id:"parade", num:"111", name:"THANKSGIVING PARADE", icon:"🦃", type:"archive", maxYear:2005, season:{from:"11-20", to:"11-30"}, blurb:"Giant balloons, lip-synced floats, then the turkey.",
+   q:'(title:("Thanksgiving Day Parade") OR title:("Macy\'s Thanksgiving") OR title:("Macys Thanksgiving") OR (title:(thanksgiving) AND (title:(parade) OR title:(special) OR title:(commercials) OR title:(broadcast)))) AND mediatype:movies',
+   match:/(thanksgiving|parade|turkey)/i,
+   exclude:/(review|reaction|reacts?\b|unboxing|podcast|commentary|\bai\b|ai[- ]generated|twitch|livestream|live stream|fan ?edit|remaster(ed)? by|upscal|parody|tiktok|football|\bnfl\b|recipe|cooking|\bvlog\b|travel|\b20(0[6-9]|[12]\d)\b)/i},
   {id:"nature-hour", num:"38", name:"NATURE HOUR", icon:"🦁", type:"archive", blurb:"Lions, whales and a narrator who's seen it all.",
    q:'(title:("wild kingdom") OR title:("national geographic") OR title:(wildlife) OR subject:(wildlife) OR (subject:(nature) AND subject:(documentary)) OR (title:(nature) AND title:(documentary))) AND mediatype:movies'},
   {id:"bird-up", num:"58", name:"BIRD UP", icon:"🐦", type:"archive", maxYear:2030, blurb:"A talk show falling apart on purpose. Nobody is safe.",
@@ -658,6 +715,12 @@ const CHANNELS = [
   {id:"session", num:"43", name:"SESSION", icon:"🛹", type:"archive", blurb:"Skate videos dubbed off a friend's VHS.",
    q:'(title:("skate video") OR title:(skateboarding) OR subject:(skateboarding)) AND mediatype:movies'},
 ].sort((a,b)=>parseFloat(a.num)-parseFloat(b.num));
+/* === channels === */
+/* seasonal channels ({season:{from:"MM-DD",to:"MM-DD"}}) only air inside their window, by local date; a window may wrap New Year */
+{const d=new Date(),md=String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+ const inSeason=s=>s.from<=s.to?(md>=s.from&&md<=s.to):(md>=s.from||md<=s.to);
+ for(let i=CHANNELS.length-1;i>=0;i--)if(CHANNELS[i].season&&!inSeason(CHANNELS[i].season))CHANNELS.splice(i,1);}
+/* === /channels === */
 const DEFAULT_CH = "after-hours";
 /* English only: skip items tagged with another language or dubbed/subbed for another market */
 const EN_FILTER = ' AND NOT language:(spa OR spanish OR jpn OR japanese OR por OR portuguese OR fre OR french OR ger OR german OR ita OR italian OR rus OR russian OR chi OR chinese OR kor OR korean OR dut OR dutch OR pol OR polish)'+
@@ -1571,7 +1634,7 @@ function renderGuide(){
     const vw=viewers&&viewers.channels&&viewers.channels[c.id], fav=favs.has(c.id);
     return `<button class="ch${gridFail.has(c.id)&&!sc?" dead":""}" type="button" data-i="${i}" aria-current="${i===cur}">
       <span class="n"><i>${c.icon||""}</i>${esc(c.num)}</span>
-      <span><b>${esc(c.name)}<span class="kind">${KIND[c.type]}</span>${vw?`<span class="vw">● ${vw}</span>`:""}<span class="fav${fav?" on":""}" data-fav="${esc(c.id)}" role="button" aria-label="${fav?"Remove from":"Add to"} favorites">${fav?"★":"☆"}</span></b><em>${esc(c.blurb)}</em>${on?`<span class="on">NOW: ${esc(on)}</span>`:""}</span></button>`;
+      <span><b>${esc(c.name)}<span class="kind">${KIND[c.type]}</span>${c.season?`<span class="seasonal">🎄 SEASONAL</span>`:""}${vw?`<span class="vw">● ${vw}</span>`:""}<span class="fav${fav?" on":""}" data-fav="${esc(c.id)}" role="button" aria-label="${fav?"Remove from":"Add to"} favorites">${fav?"★":"☆"}</span></b><em>${esc(c.blurb)}</em>${on?`<span class="on">NOW: ${esc(on)}</span>`:""}</span></button>`;
   }).join("");
 }
 $("guide").addEventListener("click",e=>{
