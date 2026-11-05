@@ -883,7 +883,33 @@ async function tune(idx){
 
 /* ---- video channels (archive.org + NASA) ---- */
 /* Tune in at the live point; after that, each clip plays to its real end before the next starts. */
-function playCurrent(tk){const w=whereNow(sched);playIndex(tk,w.i,w.offset)}
+/* Tuning in during a commercial break would mean loading several tiny files in a row, so jump to the next show instead. */
+function playCurrent(tk){
+  const w=whereNow(sched);
+  if(w.seg.isBreak){for(let k=1;k<sched.segs.length;k++){const j=(w.i+k)%sched.segs.length;if(!sched.segs[j].isBreak)return playIndex(tk,j,0)}}
+  playIndex(tk,w.i,w.offset);
+}
+/* Point the player straight at the right spot in the file (#t=) so it doesn't load from the start and then seek. */
+function setSrc(seg,at,useDirect){
+  const base=useDirect&&seg.direct?seg.direct:seg.src, t=(seg.start||0)+at;
+  now.direct=base===seg.direct;now.target=t;
+  vid.src=t>1?base+"#t="+t.toFixed(1):base;
+  vid.onloadedmetadata=()=>{if(now.seg!==seg)return;if(Math.abs(vid.currentTime-t)>2){try{vid.currentTime=t}catch(e){}}safePlay(vid)};
+  safePlay(vid);
+}
+/* iPhones sometimes ignore an early seek and start the tape from 0; fix that once it can play */
+vid.addEventListener("canplay",()=>{if(mode==="video"&&now&&!segPlayed&&now.target>1&&vid.currentTime<now.target-5){try{vid.currentTime=now.target}catch(e){}}});
+/* Tiny playback log (channel, tape, how long it took to start, what went wrong). No personal info. */
+function diag(result,extra={}){
+  try{
+    if(!now||!now.seg||location.protocol==="file:")return;
+    const s=now.seg, c=navigator.connection||{};
+    const body=JSON.stringify({ch:CHANNELS[cur].id,tape:(s.link||"").split("/").pop()||s.src.split("/")[4]||"",brk:!!s.isBreak,
+      mbps:Math.round((s.mbps||0)*10)/10,at:Math.round(now.target||0),ms:Date.now()-now.t0,result,net:c.effectiveType||"",
+      dev:/iPhone|iPad/.test(navigator.userAgent)?"ios":/Android/.test(navigator.userAgent)?"android":"desktop",...extra});
+    navigator.sendBeacon?navigator.sendBeacon("/api/diag",new Blob([body],{type:"application/json"})):fetch("/api/diag",{method:"POST",body,keepalive:true}).catch(()=>{});
+  }catch(e){}
+}
 function advance(){if(mode!=="video"||!sched||!now)return;playIndex(token,(now.i+1)%sched.segs.length,0)}
 function localElapsed(){return now?Math.max(0,vid.currentTime-(now.seg.start||0)):0}
 function driftSec(){
@@ -893,24 +919,20 @@ function driftSec(){
 }
 function playIndex(tk,i,offset){
   clearInterval(holdTimer);holding=false;segPlayed=false;stalls=[];lastAdv=Date.now();lastT=-1;stuckTries=0;userPaused=false;
-  now={i,offset,seg:sched.segs[i]};const s=now.seg;
+  now={i,offset,seg:sched.segs[i],t0:Date.now()};const s=now.seg;
   const nextShow=sched.segs.slice(now.i+1).concat(sched.segs).find(x=>!x.isBreak);
   setNow({title:s.isBreak?"Commercial Break":s.title, sub:s.isBreak?(nextShow?`Up next: ${nextShow.title}`:""):(s.year?String(s.year):""),
     link:s.link, via:s.via, remain:fmtLeft(s.dur-now.offset)});
   $("desc").textContent=s.isBreak?"We'll be right back after these messages.":(s.notes||descBase);
   renderNext();
   vid.muted=!soundOn;
-  vid.src=s.direct||s.src;
-  vid.onloadedmetadata=()=>{
-    if(tk!==token||now.seg!==s)return;
-    try{vid.currentTime=(s.start||0)+offset}catch(e){}
-    safePlay(vid);
-  };
-  safePlay(vid);
+  if(!segPlayed&&!snow.hidden)showMsg("TUNING IN…");
+  setSrc(s,offset,true);
 }
 function inPiP(){return document.pictureInPictureElement===vid||vid.webkitPresentationMode==="picture-in-picture"}
 function resyncVideo(){
   if(mode!=="video"||!sched||!now)return;
+  if(!segPlayed){if(vid.paused)safePlay(vid);return}   // still loading: restarting would only throw away the progress
   if(Math.abs(driftSec())>(now.seg.mbps>2.5?120:30))return playCurrent(token);
   if(vid.paused)safePlay(vid);
 }
@@ -920,7 +942,7 @@ vid.addEventListener("playing",()=>{if(mode==="video"){setSnow(false);hideMsg()}
    If this browser stops loading while paused (common on iPhone), we never do that again this visit. */
 let holding=false, holdTimer=null, holdWorks=true, segPlayed=false, stalls=[];
 function bufferedAhead(){const t=vid.currentTime,b=vid.buffered;for(let i=0;i<b.length;i++){if(b.start(i)<=t+0.5&&b.end(i)>t)return b.end(i)-t}return 0}
-vid.addEventListener("playing",()=>{segPlayed=true});
+vid.addEventListener("playing",()=>{if(mode==="video"&&now&&!segPlayed){diag("ok");dropRun=0}segPlayed=true});
 vid.addEventListener("waiting",()=>{
   if(mode!=="video")return;
   showMsg("BUFFERING…");
@@ -960,8 +982,12 @@ vid.addEventListener("timeupdate",()=>{
 /* a segment that's only part of a file ends at its own mark */
 vid.addEventListener("timeupdate",()=>{if(mode==="video"&&now&&!holding&&vid.currentTime>=(now.seg.start||0)+now.seg.dur+0.25)advance()});
 /* a tape that won't load is skipped for this visit, and the channel moves on */
+let dropRun=0;   // tapes skipped in a row without anything playing
 function dropSeg(bad){
-  setSnow(true);showMsg("SIGNAL LOST");
+  setSnow(true);
+  /* if several tapes in a row won't start, the problem is the connection, not the tapes: keep trying instead of skipping everything */
+  if(++dropRun>3){showMsg("WEAK SIGNAL · STILL TRYING…");const seg=now.seg;stuckTries=0;lastAdv=Date.now();now.t0=Date.now();setSrc(seg,segPlayed?localElapsed():now.offset,false);return}
+  showMsg("SIGNAL LOST");
   if(bad&&sched&&sched.segs.length>1){
     sched.segs=tidyBreaks(sched.segs.filter(s=>s!==bad));reindex(sched);
     const tk=token;setTimeout(()=>{if(tk===token)playCurrent(tk)},900);
@@ -969,26 +995,27 @@ function dropSeg(bad){
 }
 vid.addEventListener("error",()=>{
   if(mode!=="video"||!vid.getAttribute("src"))return;
-  if(now&&now.seg&&now.seg.direct&&vid.getAttribute("src")===now.seg.direct){
-    const seg=now.seg;delete seg.direct;const at=localElapsed();vid.src=seg.src;
-    vid.onloadedmetadata=()=>{try{vid.currentTime=(seg.start||0)+at}catch(e){}safePlay(vid)};return;
+  const code=vid.error?vid.error.code:0;
+  if(now&&now.seg&&now.direct){
+    const seg=now.seg;delete seg.direct;diag("direct-failed",{code});setSrc(seg,segPlayed?localElapsed():now.offset,false);return;
   }
+  diag("error",{code});
   dropSeg(now&&now.seg);
 });
-/* Watchdog: if the picture hasn't moved for 20 seconds, re-tune once; if it's still stuck, skip that tape. */
+/* Watchdog. A tape that hasn't started after 10 seconds gets one fresh try, and is skipped at 20.
+   A tape that was playing and froze gets 20 seconds, one fresh try, then is skipped. */
 let lastT=-1, lastAdv=Date.now(), stuckTries=0, userPaused=false;
 vid.addEventListener("timeupdate",()=>{if(Math.abs(vid.currentTime-lastT)>0.05){lastT=vid.currentTime;lastAdv=Date.now();stuckTries=0}});
 setInterval(()=>{
   if(mode!=="video"||!now||!sched||holding||userPaused||document.hidden||inPiP())return;
-  if(Date.now()-lastAdv<20000)return;
+  if(Date.now()-lastAdv<(segPlayed?20000:10000))return;
   lastAdv=Date.now();const seg=now.seg;
   if(stuckTries<1){
-    stuckTries++;showMsg("RE-TUNING…");
-    const at=segPlayed?localElapsed():now.offset;delete seg.direct;
-    vid.src=seg.src;vid.onloadedmetadata=()=>{try{vid.currentTime=(seg.start||0)+at}catch(e){}safePlay(vid)};safePlay(vid);
+    stuckTries++;showMsg("RE-TUNING…");diag(segPlayed?"froze":"slow-start",{rs:vid.readyState,ns:vid.networkState,buf:Math.round(bufferedAhead())});
+    delete seg.direct;setSrc(seg,segPlayed?localElapsed():now.offset,false);
     return;
   }
-  stuckTries=0;dropSeg(seg);
+  stuckTries=0;diag("skipped",{rs:vid.readyState,ns:vid.networkState});dropSeg(seg);
 },3000);
 /* live TV never sits paused on the page: resume and jump back to "now" */
 vid.addEventListener("pause",()=>{
