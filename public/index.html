@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>VOID CABLE</title>
 <meta name="description" content="Synced channels of forgotten tapes, live radio and Weather on the 8s.">
 <meta name="theme-color" content="#120a3e">
@@ -340,6 +344,19 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
 .rwlist .row.on span{color:var(--gold)}
 .rwlist .row.on span::before{content:"\23EA  "}
 /* === /rewind === */
+/* === pwa === */
+.controls .pwa-b{font-size:21px;padding:8px 11px}
+.controls .pwa-b:disabled{opacity:.6;cursor:progress}
+.pwa-ban{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:190;
+  width:min(470px,calc(100% - 24px));display:flex;gap:10px;align-items:center;padding:10px 12px;
+  background:linear-gradient(180deg,var(--indigo-3),var(--indigo-2));border:2px solid var(--gold);color:var(--ink);
+  box-shadow:var(--bevel),0 4px 0 var(--edge),0 12px 30px rgba(0,0,0,.5);font-family:var(--mono);font-size:19px;line-height:1.15}
+.pwa-ban p{margin:0;flex:1 1 auto;min-width:0}
+.pwa-ban b{display:block;font-family:var(--display);font-weight:400;font-size:25px;color:var(--gold);text-shadow:2px 2px 0 #000;letter-spacing:.02em}
+.pwa-ban .shr{display:inline-block;padding:0 4px;border:1px solid var(--dim);color:var(--cyan)}
+.pwa-ban .btn{flex:none;min-height:40px;font-size:20px;padding:6px 10px}
+.controls .pwa-b{white-space:nowrap}
+/* === /pwa === */
 @media (max-width:430px){
   .tabs .btn{font-size:21px}
   .livebar{gap:7px}
@@ -440,6 +457,9 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
       <button class="btn orange" id="rwLive" type="button" title="Back to the live broadcast" hidden>&gt;&gt; LIVE</button>
       <button class="btn" id="scanBtn" type="button" title="Flip through the channels on their own">SCAN</button>
       <button class="btn" id="sleepBtn" type="button" title="Sleep timer" aria-label="Sleep timer">💤</button>
+      <button class="btn gold pwa-b" id="installBtn" type="button" title="Install VOID CABLE as an app" hidden>📲 INSTALL</button>
+      <button class="btn pwa-b" id="shareTonight" type="button" title="Make a picture of what's on tonight and share it">📸 SHARE TONIGHT</button>
+      <button class="btn pwa-b" id="shareLink" type="button" title="Share a link to this channel">🔗 SHARE</button>
       <button class="btn orange wide" id="nextStation" type="button" hidden>NEXT STATION ▶</button>
       <button class="btn orange wide" id="wxLoc" type="button" hidden>SET MY CITY</button>
     </div>
@@ -1887,6 +1907,157 @@ $("rwLive").onclick=rwLive;
 $("rwPillLive").onclick=e=>{e.stopPropagation();rwLive()};
 setInterval(()=>{if(rewinding&&mode!=="video")rwOff();rwUI();rwRender()},1000);
 /* === /rewind === */
+/* === pwa === */
+/* Installable app (manifest + shell-only service worker), add-to-home-screen hints, and share buttons.
+   Nothing here talks to a server except fetching the page's own files; no analytics. */
+const pwa={prompt:null, busy:false, url:"voidcable-tv.netlify.app"};
+if("serviceWorker" in navigator&&location.protocol!=="file:"){
+  const reg=()=>navigator.serviceWorker.register("/sw.js").catch(()=>{});
+  if(document.readyState==="complete")reg();else window.addEventListener("load",reg);
+}
+const pwaStandalone=()=>navigator.standalone===true||(window.matchMedia&&matchMedia("(display-mode: standalone)").matches);
+/* Chrome / Android / desktop: keep the install prompt and offer it from an INSTALL button */
+window.addEventListener("beforeinstallprompt",e=>{
+  e.preventDefault();pwa.prompt=e;
+  if(store("voidcable.install.no")!=="1"&&!pwaStandalone())$("installBtn").hidden=false;
+});
+window.addEventListener("appinstalled",()=>{pwa.prompt=null;$("installBtn").hidden=true;toast("📺 VOID CABLE is on your home screen")});
+$("installBtn").onclick=async()=>{
+  const p=pwa.prompt;if(!p){$("installBtn").hidden=true;return}
+  pwa.prompt=null;$("installBtn").hidden=true;
+  try{p.prompt();const r=await p.userChoice;if(r&&r.outcome==="dismissed")store("voidcable.install.no","1")}catch(e){}
+};
+/* iOS Safari has no install prompt: show a one-time banner that explains Share → Add to Home Screen */
+(function pwaIOSHint(){
+  const ua=navigator.userAgent||"";
+  const ios=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  const safari=/safari/i.test(ua)&&!/crios|fxios|edgios|opios|gsa\//i.test(ua);
+  if(!ios||!safari||pwaStandalone()||store("voidcable.a2hs")==="1")return;
+  setTimeout(()=>{
+    if(document.body.classList.contains("remotemode")||document.querySelector(".pwa-ban"))return;
+    const b=document.createElement("div");b.className="pwa-ban";b.setAttribute("role","dialog");b.setAttribute("aria-label","Add to Home Screen");
+    b.innerHTML=`<p><b>📲 ADD TO HOME SCREEN</b>Tap <span class="shr">Share ⇪</span> below, then <b style="display:inline;font-size:inherit;font-family:inherit;text-shadow:none">Add to Home Screen</b> to keep VOID CABLE like an app.</p><button class="btn gold" type="button">GOT IT</button>`;
+    b.querySelector("button").onclick=()=>{store("voidcable.a2hs","1");b.remove()};
+    document.body.appendChild(b);
+  },9000);
+})();
+
+/* "TONIGHT ON VOID CABLE" share card: a 1080x1350 PNG drawn on a canvas in the guide's colors */
+function pwaFontsReady(){
+  if(!document.fonts||!document.fonts.load)return Promise.resolve();
+  return Promise.race([Promise.all([document.fonts.load('64px "Jersey 10"'),document.fonts.load('40px "VT323"')]),sleep(2500)]).catch(()=>{});
+}
+pwaFontsReady();   // warm the fonts so a tap can draw and share right away (iOS wants share() close to the tap)
+function pwaLineup(max=8){
+  const dead=id=>typeof gridFail!=="undefined"&&gridFail.has(id)&&!guideSched[id];
+  const order=CHANNELS.map((c,i)=>i).filter(i=>!dead(CHANNELS[i].id));
+  const rank=i=>(i===cur?0:guideSched[CHANNELS[i].id]?1:2);
+  order.sort((a,b)=>rank(a)-rank(b)||a-b);
+  return order.slice(0,max).map(i=>{
+    const c=CHANNELS[i];let on="";
+    try{
+      if(i===cur&&now&&now.seg&&!now.seg.isBreak&&now.seg.title)on=now.seg.title;
+      const sc=guideSched[c.id];if(!on&&sc){const w=whereNow(sc);if(w.seg&&!w.seg.isBreak)on=w.seg.title||""}
+    }catch(e){}
+    return {num:c.num, name:c.name, on:String(on||c.blurb||"").replace(/\s+/g," ").trim(), live:!!on};
+  });
+}
+function drawShareCard(){
+  const W=1080,H=1350,cv=document.createElement("canvas");cv.width=W;cv.height=H;
+  const x=cv.getContext("2d"), DISP='"Jersey 10","VT323","Courier New",monospace', MONO='"VT323","Courier New",monospace';
+  const lin=(y0,y1,stops)=>{const g=x.createLinearGradient(0,y0,0,y1);stops.forEach(([o,c])=>g.addColorStop(o,c));return g};
+  const fit=(t,max)=>{if(x.measureText(t).width<=max)return t;while(t.length>1&&x.measureText(t+"…").width>max)t=t.slice(0,-1);return t.trimEnd()+"…"};
+  const shadowText=(t,px,py,col,sh,off)=>{x.fillStyle=sh;x.fillText(t,px+off,py+off);x.fillStyle=col;x.fillText(t,px,py)};
+  const fitFont=(t,size,fam,max)=>{do{x.font=`${size}px ${fam}`}while(x.measureText(t).width>max&&--size>20);return size};
+  x.imageSmoothingEnabled=false;x.textBaseline="alphabetic";
+  // indigo body + a few stars
+  x.fillStyle=lin(0,H,[[0,"#22157a"],[.45,"#120a3e"],[1,"#0b0626"]]);x.fillRect(0,0,W,H);
+  const r=mulberry(seedOf(new Date().toDateString()));x.fillStyle="rgba(200,210,255,.55)";
+  for(let k=0;k<70;k++){const s=r()<.2?4:2;x.fillRect(Math.floor(r()*W),220+Math.floor(r()*(H-220)),s,s)}
+  // amber masthead band with the slanted edge, like the site header
+  const BH=200;
+  x.fillStyle=lin(0,BH,[[0,"#22157a"],[1,"#170e55"]]);x.fillRect(0,0,W,BH);
+  x.fillStyle=lin(0,BH,[[0,"#ffc76a"],[.55,"#f08a2a"],[1,"#b8471c"]]);
+  x.beginPath();x.moveTo(0,0);x.lineTo(W*.8,0);x.lineTo(W*.8-60,BH);x.lineTo(0,BH);x.closePath();x.fill();
+  x.fillStyle="rgba(255,255,255,.35)";x.fillRect(0,0,W*.8,4);
+  x.fillStyle="#050322";x.fillRect(0,BH,W,6);
+  // pixel TV (same 16x16 mark as the logo)
+  const TV=[[4,0,1,1,"#fff1cc"],[5,1,1,1,"#fff1cc"],[6,2,1,1,"#fff1cc"],[11,0,1,1,"#fff1cc"],[10,1,1,1,"#fff1cc"],[9,2,1,1,"#fff1cc"],
+    [1,3,14,11,"#050322"],[2,4,12,9,"#ffd84a"],[3,5,8,7,"#62f0ff"],[4,6,1,2,"#1d1266"],[5,8,1,2,"#1d1266"],[6,10,1,1,"#1d1266"],
+    [7,8,1,2,"#1d1266"],[8,6,1,2,"#1d1266"],[12,5,1,1,"#b8471c"],[12,7,1,1,"#b8471c"],[12,10,1,1,"#ff3d3d"],[3,14,2,1,"#050322"],[11,14,2,1,"#050322"]];
+  const px=9,tx=56,ty=(BH-16*px)/2;
+  TV.forEach(([a,b,w,h])=>{x.fillStyle="rgba(0,0,0,.45)";x.fillRect(tx+a*px+5,ty+b*px+5,w*px,h*px)});
+  TV.forEach(([a,b,w,h,c])=>{x.fillStyle=c;x.fillRect(tx+a*px,ty+b*px,w*px,h*px)});
+  fitFont("VOID CABLE",110,DISP,560);shadowText("VOID CABLE",224,118,"#ffd84a","#3a1500",5);
+  fitFont("DIGITAL CABLE GUIDE",40,MONO,540);shadowText("DIGITAL CABLE GUIDE",228,162,"#fff1cc","#5a2400",2);
+  // clock on the indigo side of the band
+  fitFont(fmtClock(new Date()).toUpperCase(),50,MONO,200);x.textAlign="right";shadowText(fmtClock(new Date()).toUpperCase(),W-36,118,"#f4efff","#000",3);x.textAlign="left";
+  // title + date
+  const title="TONIGHT ON VOID CABLE";fitFont(title,108,DISP,W-120);
+  shadowText(title,60,312,"#ffd84a","#000",5);
+  const d=new Date(), date=d.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric",year:"numeric"}).toUpperCase();
+  x.font=`46px ${MONO}`;shadowText(fit(date,W-120),62,366,"#62f0ff","#000",3);
+  // lineup rows
+  const rows=pwaLineup(8), RY=400, RH=88, GAP=8, L=60, RW=W-120;
+  rows.forEach((row,k)=>{
+    const y=RY+k*(RH+GAP);
+    x.fillStyle="#050322";x.fillRect(L-3,y-3,RW+6,RH+6+4);
+    x.fillStyle=lin(y,y+RH,[[0,k%2?"#24177d":"#2a1c8f"],[1,k%2?"#1d1266":"#211574"]]);x.fillRect(L,y,RW,RH);
+    x.fillStyle="rgba(255,255,255,.22)";x.fillRect(L,y,RW,3);x.fillRect(L,y,3,RH);
+    // channel number tile
+    const NW=150;x.fillStyle=lin(y,y+RH,[[0,"#fff0a0"],[.5,"#ffd84a"],[1,"#e0a400"]]);x.fillRect(L,y,NW,RH);
+    x.fillStyle="#050322";x.fillRect(L+NW,y,3,RH);
+    x.font=`30px ${MONO}`;x.fillStyle="#5a3a00";x.textAlign="center";x.fillText("CH",L+NW/2,y+28);
+    x.font=`58px ${DISP}`;x.fillStyle="#2a1600";x.fillText(String(row.num),L+NW/2,y+77);x.textAlign="left";
+    const TX=L+NW+22, TW=RW-NW-44;
+    x.font=`48px ${DISP}`;shadowText(fit(row.name,TW-(row.live?110:0)),TX,y+42,"#f4efff","#000",3);
+    if(row.live){x.font=`30px ${MONO}`;const lw=x.measureText("● ON NOW").width;x.fillStyle="#ff3d3d";x.fillText("● ON NOW",L+RW-22-lw,y+38)}
+    x.font=`38px ${MONO}`;x.fillStyle=row.live?"#ffb347":"#cfc4f2";x.fillText(fit("— "+row.on,TW),TX,y+77);
+  });
+  // viewers + URL footer
+  const FY=H-92;
+  if(viewers&&typeof viewers.total==="number"&&viewers.total>0){
+    x.font=`42px ${MONO}`;x.textAlign="center";
+    shadowText(`★ ${viewers.total} WATCHING RIGHT NOW ★`,W/2,FY-32,"#ffd84a","#000",3);x.textAlign="left";
+  }
+  x.fillStyle="#050322";x.fillRect(0,FY-6,W,6);
+  x.fillStyle=lin(FY,H,[[0,"#ffc76a"],[.55,"#f08a2a"],[1,"#b8471c"]]);x.fillRect(0,FY,W,H-FY);
+  x.fillStyle="rgba(255,255,255,.35)";x.fillRect(0,FY,W,4);
+  x.font=`60px ${DISP}`;x.textAlign="center";shadowText(pwa.url,W/2,FY+64,"#fff6d0","#3a1500",4);x.textAlign="left";
+  return cv;
+}
+function pwaCanvasBlob(cv){   // synchronous, so share() still counts as part of the tap on iOS
+  const b64=cv.toDataURL("image/png").split(",")[1], bin=atob(b64), u=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+  return new Blob([u],{type:"image/png"});
+}
+function pwaDownload(blob,name){
+  const a=document.createElement("a"),u=URL.createObjectURL(blob);a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(u),4000);
+}
+$("shareTonight").onclick=async()=>{
+  if(pwa.busy)return;pwa.busy=true;$("shareTonight").disabled=true;
+  try{
+    if(document.fonts&&!document.fonts.check('64px "Jersey 10"'))await pwaFontsReady();
+    const blob=pwaCanvasBlob(drawShareCard()), name="void-cable-tonight.png";
+    const file=typeof File==="function"?new File([blob],name,{type:"image/png"}):null;
+    if(file&&navigator.canShare&&navigator.canShare({files:[file]})){
+      try{await navigator.share({files:[file],title:"Tonight on VOID CABLE",text:"Tonight on VOID CABLE · "+location.origin+"/"})}
+      catch(e){if(e&&e.name!=="AbortError"){pwaDownload(blob,name);toast("📸 Saved the picture")}}
+    }else{pwaDownload(blob,name);toast("📸 Saved tonight's lineup")}
+  }catch(e){toast("Couldn't make the picture. Try again.")}
+  finally{pwa.busy=false;$("shareTonight").disabled=false}
+};
+$("shareLink").onclick=async()=>{
+  const c=CHANNELS[cur], url=location.origin+"/#"+c.id, text=`Watching CH ${c.num} ${c.name} on VOID CABLE`;
+  if(navigator.share){
+    try{await navigator.share({title:"VOID CABLE",text,url});return}catch(e){if(e&&e.name==="AbortError")return}
+  }
+  try{await navigator.clipboard.writeText(url);toast("🔗 Link copied: "+url)}
+  catch(e){toast("🔗 "+url)}
+};
+/* === /pwa === */
+
 /* ================= phone remote (Netlify Function) ================= */
 const rmt={ok:false, code:null, since:0, primed:false, timer:null};
 async function remotePing(){
