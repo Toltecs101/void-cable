@@ -535,7 +535,7 @@ const CHANNELS = [
   {id:"after-hours", num:"54", name:"AFTER HOURS", type:"archive", breaks:"cn00s", icon:"🌙", blurb:"Past midnight. The cartoons got weird.",
    q:'(title:("adult swim") OR subject:("adult swim") OR title:("[adult swim]")) AND mediatype:movies'},
   {id:"toon-time", num:"2", name:"TOON TIME", type:"archive", icon:"🥫", blurb:"Popeye, Betty Boop and the rubber-hose gang.",
-   q:'(collection:(animationandcartoons) OR mediatype:movies) AND (title:(Popeye) OR title:("Betty Boop") OR title:(Fleischer) OR title:("Felix the Cat") OR title:("Merrie Melodies") OR title:("Looney Tunes") OR title:(Superman))'},
+   maxYear:1975, q:'(collection:(animationandcartoons) OR subject:(cartoon) OR subject:(cartoons) OR subject:(animation) OR subject:(animated)) AND mediatype:movies AND (title:(Popeye) OR title:("Betty Boop") OR title:(Fleischer) OR title:("Felix the Cat") OR title:("Merrie Melodies") OR title:("Looney Tunes") OR title:(Superman))'},
   {id:"kids-club", num:"4", name:"KIDS CLUB", type:"archive", icon:"🧃", blurb:"Saturday mornings, taped off the network.",
    q:'(title:("Fox Kids") OR title:("Kids WB") OR title:("Kids\' WB") OR title:("One Saturday Morning") OR title:("Disney Afternoon") OR title:("ABC Saturday")) AND mediatype:movies'},
   {id:"action-block", num:"24", name:"ACTION BLOCK", type:"archive", maxYear:2008, breaks:"toonami", icon:"⚡", blurb:"Toonami, 1997–2008. Real tapes, real commercials.",
@@ -626,6 +626,9 @@ const EN_FILTER = ' AND NOT language:(spa OR spanish OR jpn OR japanese OR por O
 const RIP_RE = /(blu-?ray|bdrip|brrip|dvdrip|dvd rip|web-?dl|webrip|\b(720|1080|2160)p\b|\b4k\b|complete series|full series|all episodes|season \d+ complete|\bremastered\b)/i;
 const FILMED_RE = /(filmed|recorded (it )?(on|with) (my|a|an) (phone|camera|iphone|android)|phone recording|camera recording|off (of )?(my|the) (tv )?screen|screen ?recording|\bcam ?rip\b)/i;
 const NON_EN_FILE = /(dual[ -]?audio|\bjpn\b|\bjap\b|español|espanol|latino|castellano|doblaje|dublado|deutsch|français|francais|italiano|vostfr|\bvose\b|subtitulad|legendado|subbed|\bsub(titled)?\b|\braw\b|japanese)/i;
+/* catches foreign-language uploads that aren't tagged with a language: counts common Spanish/Portuguese words in the title and notes */
+const FOREIGN_WORDS=/\b(el|los|las|del|una|unos|con|para|por|como|pero|más|también|dibujos|animados|capítulo|episodio|temporada|película|doblada|doblado|português|desenho|episódio|não|você|então)\b/gi;
+const looksForeign = t => ((String(t).match(FOREIGN_WORDS)||[]).length>=3) || /[ñ¿¡ãõ]/i.test(String(t));
 const EPOCH = Date.UTC(2026,0,1);
 const ITEMS_PER_CHANNEL = 12;
 const MAX_MBPS = 12; // only skip files far too heavy for any home connection
@@ -704,7 +707,7 @@ function toast(t){let el=document.querySelector(".toast");if(!el){el=document.cr
 
 /* ================= schedules (archive.org + NASA) ================= */
 const schedCache = {};
-const SCHED_VER="v10";
+const SCHED_VER="v11";
 function getSchedule(ch){
   if(!schedCache[ch.id]) schedCache[ch.id]=(async()=>{
     const key=`voidcable.sched.${SCHED_VER}.${ch.id}`;
@@ -782,6 +785,7 @@ async function buildArchive(ch){
     const notes=cleanDesc(md.description);
     /* era check: the earliest year named in the title or description must be within the channel's era.
        Catches modern uploads like a 2026 phone video of a TV. Items that name no year are kept. */
+    if(!d.all&&looksForeign((Array.isArray(d.title)?d.title[0]:d.title||"")+" "+notes))return;
     if(!d.all&&(RIP_RE.test((Array.isArray(d.title)?d.title[0]:d.title||"")+" "+notes)||FILMED_RE.test((Array.isArray(d.title)?d.title[0]:d.title||"")+" "+notes)))return;
     if(!d.all){
       const yrs=((Array.isArray(d.title)?d.title[0]:d.title||"")+" "+notes).match(/\b(19[3-9]\d|20[0-3]\d)\b/g);
