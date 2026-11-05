@@ -139,7 +139,7 @@ body.tvmode .screen{position:fixed;inset:0;z-index:100;aspect-ratio:auto;width:a
 .now{display:grid;gap:6px;padding-block:6px 14px;border-bottom:2px solid var(--line)}
 .chlabel{font-family:var(--display);font-size:22px;color:var(--cyan);letter-spacing:.04em;text-shadow:2px 2px 0 #000}
 .np-row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-.np-title{margin:0;font-family:var(--display);font-weight:400;font-size:38px;line-height:.95;color:var(--gold);
+.np-title{margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-family:var(--display);font-weight:400;font-size:38px;line-height:.95;color:var(--gold);
   text-shadow:3px 3px 0 #000,0 0 14px rgba(255,216,74,.3);text-wrap:balance;overflow-wrap:anywhere}
 .np-src{font-size:20px;color:var(--ink);text-decoration:underline dotted;text-underline-offset:4px;white-space:nowrap}
 .np-sub{font-size:22px;color:var(--dim)}
@@ -161,9 +161,10 @@ body.tvmode .screen{position:fixed;inset:0;z-index:100;aspect-ratio:auto;width:a
 .row span{min-width:0;overflow-wrap:anywhere}
 
 /* ---------- guide / chat ---------- */
-.side{padding-block:14px;display:grid;gap:12px;align-content:start}
-.tabs{display:grid;grid-template-columns:repeat(var(--tabs,2),1fr);gap:0;border:2px solid var(--edge);box-shadow:0 3px 0 var(--edge)}
-.tabs .btn{border:0;box-shadow:var(--bevel);min-height:50px;font-size:26px}
+.side{padding-block:14px;display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-content:start}
+.side>*{min-width:0}
+.tabs{display:grid;grid-template-columns:repeat(var(--tabs,2),minmax(0,1fr));gap:0;border:2px solid var(--edge);box-shadow:0 3px 0 var(--edge)}
+.tabs .btn{border:0;box-shadow:var(--bevel);min-height:50px;font-size:26px;min-width:0;padding-inline:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tabs .btn+.btn{border-left:2px solid var(--edge)}
 .tabs .btn[aria-selected="true"]{background:linear-gradient(180deg,#fff0a0 0%,var(--gold) 50%,var(--gold-lo) 100%);color:#2a1600;text-shadow:none}
 .guide{display:grid;gap:8px}
@@ -178,9 +179,25 @@ body.tvmode .screen{position:fixed;inset:0;z-index:100;aspect-ratio:auto;width:a
 .ch .on{display:block;font-size:18px;color:var(--cyan);margin-top:3px;overflow-wrap:anywhere}
 .ch .vw{font-family:var(--mono);font-size:17px;color:#7dff8a}
 .kind{font-family:var(--mono);font-size:15px;padding:1px 5px;border:1px solid var(--edge);background:var(--gold);color:#2a1600;text-shadow:none;letter-spacing:.06em}
-.chat{display:grid;gap:8px}
-.chat p{margin:0;font-size:18px;color:var(--dim)}
-.chat iframe{display:block;width:100%;height:min(72vh,640px);border:2px solid var(--edge);background:#0b0626;box-shadow:var(--bevel)}
+.chat{display:grid;gap:8px;grid-template-columns:minmax(0,1fr)}
+.chat-head{display:flex;align-items:center;justify-content:space-between;font-family:var(--display);font-size:24px;color:var(--gold);text-shadow:2px 2px 0 #000}
+.chat-list{height:min(52vh,460px);overflow-y:auto;display:grid;align-content:start;gap:8px;padding:10px;border:2px solid var(--edge);background:var(--indigo-2);box-shadow:inset 2px 2px 0 rgba(0,0,0,.5);-webkit-overflow-scrolling:touch}
+.chat-empty{margin:0;font-size:18px;color:var(--dim)}
+.msg-row{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:8px;align-items:start}
+.msg-row .av{position:relative;width:30px;height:30px;border:2px solid var(--edge);background:linear-gradient(180deg,var(--royal-hi),var(--royal-lo));display:grid;place-items:center;font-family:var(--display);font-size:18px;color:var(--ink);overflow:hidden}
+.msg-row .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.msg-row b{font-weight:400;color:var(--gold);font-family:var(--display);font-size:19px}
+.msg-row time{color:var(--dim);font-size:15px;margin-left:6px}
+.msg-row .t{display:block;font-size:19px;line-height:1.15;overflow-wrap:anywhere;color:var(--ink)}
+.msg-row.mine b{color:var(--cyan)}
+.msg-mod{display:flex;gap:4px}
+.msg-mod button{background:none;border:1px solid var(--line);color:var(--dim);font-family:var(--mono);font-size:15px;padding:0 5px;cursor:pointer}
+.chat-form{display:flex;gap:8px}
+.chat-form input{flex:1;min-width:0;width:100%;font-family:var(--mono);font-size:21px;padding:8px;border:2px solid var(--edge);background:#07053a;color:var(--ink)}
+.chat-signin{text-decoration:none;font-size:21px;background:linear-gradient(180deg,#8b93ff 0%,#5865f2 52%,#3c45c9 100%)}
+.chat-signin svg{width:26px;height:26px}
+.chat-note{margin:0;font-size:16px;color:var(--dim)}
+.chat-note button{background:none;border:0;color:var(--cyan);font:inherit;text-decoration:underline;cursor:pointer;padding:0}
 
 /* ---------- listings grid ---------- */
 .listings{display:grid;gap:8px}
@@ -290,6 +307,11 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
   .screen{aspect-ratio:16/10}
 }
 @media (max-width:430px){
+  .tabs .btn{font-size:21px}
+  .livebar{gap:7px}
+  .livebar .chnum{min-width:0;flex:0 1 auto;font-size:34px}
+  .livebar .btn.sq{width:46px;flex:none}
+  .chicon{width:42px}
   .logo svg{width:38px;height:38px}.logo-t b{font-size:27px}.logo-t small{font-size:13px}.clock{font-size:21px}.clock small{font-size:13px}
   #guideBtn{font-size:20px;padding:5px 9px}
 }
@@ -411,8 +433,17 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
       <div class="gridwrap" id="gridwrap"><div id="grid"></div></div>
     </section>
     <section class="chat" id="chatPanel" aria-label="Chat" hidden>
-      <p>Chat with everyone watching. Sign in with Discord or join as a guest.</p>
-      <div id="chatMount"></div>
+      <div class="chat-head"><span id="chatCh">CH 54 CHAT</span><span class="eye" id="chatHere" hidden>1</span></div>
+      <div class="chat-list" id="chatList" aria-live="polite"><p class="chat-empty" id="chatEmpty">No messages on this channel yet. Say hi.</p></div>
+      <form class="chat-form" id="chatForm" hidden>
+        <input id="chatIn" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="Say something…" aria-label="Chat message">
+        <button class="btn gold" type="submit">SEND</button>
+      </form>
+      <a class="btn chat-signin" id="chatSignIn" href="/api/auth/login" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 5.3A18 18 0 0 0 15.6 4l-.6 1.2a16 16 0 0 0-6 0L8.4 4A18 18 0 0 0 4 5.3C1.4 9.2.7 13 1 16.8a18 18 0 0 0 5.4 2.7l1.2-1.8a11 11 0 0 1-1.8-.9l.4-.3a12.8 12.8 0 0 0 11.6 0l.4.3-1.8.9 1.2 1.8a18 18 0 0 0 5.4-2.7c.4-4.4-.7-8.2-3-11.5zM8.7 14.5c-1 0-1.9-1-1.9-2.1s.8-2.1 1.9-2.1 1.9 1 1.9 2.1-.8 2.1-1.9 2.1zm6.6 0c-1 0-1.9-1-1.9-2.1s.8-2.1 1.9-2.1 1.9 1 1.9 2.1-.8 2.1-1.9 2.1z"/></svg>
+        SIGN IN WITH DISCORD TO CHAT</a>
+      <p class="chat-note" id="chatNote">Anyone can read. To post, sign in with Discord. We only get your Discord name and picture, never your email. Messages clear after 24 hours.</p>
+      <p class="chat-note" id="chatMe" hidden></p>
     </section>
   </aside>
 </div>
@@ -520,8 +551,6 @@ const CHANNELS = [
   {id:"night-drive-fm", num:"106.1", name:"NIGHT DRIVE FM", type:"radio", blurb:"Live chillout radio for late hours.", tag:"chillout"},
 ].sort((a,b)=>parseFloat(a.num)-parseFloat(b.num));
 const DEFAULT_CH = "after-hours";
-/* Discord chat (WidgetBot). Paste your server + channel IDs to switch chat on. */
-const DISCORD = {server:"", channel:""};
 /* English only: skip items tagged with another language or dubbed/subbed for another market */
 const EN_FILTER = ' AND NOT language:(spa OR spanish OR jpn OR japanese OR por OR portuguese OR fre OR french OR ger OR german OR ita OR italian OR rus OR russian OR chi OR chinese OR kor OR korean OR dut OR dutch OR pol OR polish)'+
   ' AND NOT title:("dual audio" OR "dual-audio" OR español OR espanol OR latino OR latinoamerica OR castellano OR doblaje OR dublado OR brasil OR deutsch OR deutschland OR français OR francais OR italiano OR vostfr OR subbed OR japanese OR polski OR russian)';
@@ -609,7 +638,7 @@ function toast(t){let el=document.querySelector(".toast");if(!el){el=document.cr
 
 /* ================= schedules (archive.org + NASA) ================= */
 const schedCache = {};
-const SCHED_VER="v8";
+const SCHED_VER="v9";
 function getSchedule(ch){
   if(!schedCache[ch.id]) schedCache[ch.id]=(async()=>{
     const key=`voidcable.sched.${SCHED_VER}.${ch.id}`;
@@ -640,6 +669,12 @@ async function withBreaks(s,ch,pool){
     for(const c of brk)out.push({...c,title:"Commercial Break",clip:c.title,isBreak:true,grp,start:0,notes:""});
   }
   return finish(out);
+}
+function partLabel(base,i){
+  const m=base.split("/").pop().match(/\b(part|pt|ep(?:isode)?|tape|disc|hour|reel|vol(?:ume)?)[\s._#-]*(\d{1,3})\b/i);
+  if(!m)return `Part ${i+1}`;
+  const w=m[1].toLowerCase(), word=/^ep/.test(w)?"Episode":/^pt|^part/.test(w)?"Part":/^vol/.test(w)?"Volume":w[0].toUpperCase()+w.slice(1);
+  return `${word} ${+m[2]}`;
 }
 const DESC_JUNK=/(download|video player|does ?n[o']t (work|play)|upload|please|donat|subscribe|thank|if you (like|enjoy)|my (channel|collection)|patreon|youtube|follow|credit|ripped|digiti[sz]ed|transferred|captured|converted|found on a blank|blank vhs|enjoy|comment|let me know|copyright|fair use|no copyright|all rights|reserved|for archiv|preserv)/i;
 function cleanDesc(h){
@@ -702,7 +737,7 @@ async function buildArchive(ch){
       if(+fs[0].size&&(+fs[0].size*8)/(dur*1e6)>MAX_MBPS)continue;
       if(+fs[0].size&&dur>60&&(+fs[0].size*8)/(dur*1e6)<0.18)continue; // too low-bitrate to watch
       const t=Array.isArray(d.title)?d.title[0]:d.title;
-      segs.push({title:(t||d.identifier)+(bases.length>1?" · "+base.split("/").pop():""), year:d.year||"", dur,
+      segs.push({title:(t||d.identifier)+(bases.length>1?" · "+partLabel(base,bases.indexOf(base)):""), year:d.year||"", dur,
         mbps:+fs[0].size?(+fs[0].size*8)/(dur*1e6):0, notes,
         src:"https://archive.org/download/"+encodeURIComponent(d.identifier)+"/"+encPath(fs[0].name),
         link:"https://archive.org/details/"+d.identifier, via:"via archive.org"});
@@ -816,6 +851,7 @@ async function tune(idx){
   $("chicon").textContent=KIND[ch.type]||"TV";
   descBase=ch.blurb||"";$("desc").textContent=descBase;
   stopAll();setSnow(true);showMsg("ADJUSTING THE ANTENNA…");
+  if(chatOn&&!$("chatPanel").hidden)chatOpen();
   setNow({title:"Tuning…"});contextButtons(ch.type);renderGuide();renderViewers();heartbeat();
   try{
     if(ch.type==="archive"||ch.type==="nasa"){
@@ -848,7 +884,7 @@ function driftSec(){
   let d=mine-wall;if(d>loop/2)d-=loop;if(d<-loop/2)d+=loop;return d;
 }
 function playIndex(tk,i,offset){
-  clearInterval(holdTimer);holding=false;segPlayed=false;stalls=[];
+  clearInterval(holdTimer);holding=false;segPlayed=false;stalls=[];lastAdv=Date.now();lastT=-1;stuckTries=0;userPaused=false;
   now={i,offset,seg:sched.segs[i]};const s=now.seg;
   const nextShow=sched.segs.slice(now.i+1).concat(sched.segs).find(x=>!x.isBreak);
   setNow({title:s.isBreak?"Commercial Break":s.title, sub:s.isBreak?(nextShow?`Up next: ${nextShow.title}`:""):(s.year?String(s.year):""),
@@ -915,18 +951,37 @@ vid.addEventListener("timeupdate",()=>{
 });
 /* a segment that's only part of a file ends at its own mark */
 vid.addEventListener("timeupdate",()=>{if(mode==="video"&&now&&!holding&&vid.currentTime>=(now.seg.start||0)+now.seg.dur+0.25)advance()});
+/* a tape that won't load is skipped for this visit, and the channel moves on */
+function dropSeg(bad){
+  setSnow(true);showMsg("SIGNAL LOST");
+  if(bad&&sched&&sched.segs.length>1){
+    sched.segs=tidyBreaks(sched.segs.filter(s=>s!==bad));reindex(sched);
+    const tk=token;setTimeout(()=>{if(tk===token)playCurrent(tk)},900);
+  }
+}
 vid.addEventListener("error",()=>{
   if(mode!=="video"||!vid.getAttribute("src"))return;
   if(now&&now.seg&&now.seg.direct&&vid.getAttribute("src")===now.seg.direct){
     const seg=now.seg;delete seg.direct;const at=localElapsed();vid.src=seg.src;
     vid.onloadedmetadata=()=>{try{vid.currentTime=(seg.start||0)+at}catch(e){}safePlay(vid)};return;
   }
-  const bad=now&&now.seg;setSnow(true);showMsg("SIGNAL LOST");
-  if(bad&&sched.segs.length>1){
-    sched.segs=tidyBreaks(sched.segs.filter(s=>s!==bad));reindex(sched);
-    const tk=token;setTimeout(()=>{if(tk===token)playCurrent(tk)},900);
-  }
+  dropSeg(now&&now.seg);
 });
+/* Watchdog: if the picture hasn't moved for 20 seconds, re-tune once; if it's still stuck, skip that tape. */
+let lastT=-1, lastAdv=Date.now(), stuckTries=0, userPaused=false;
+vid.addEventListener("timeupdate",()=>{if(Math.abs(vid.currentTime-lastT)>0.05){lastT=vid.currentTime;lastAdv=Date.now();stuckTries=0}});
+setInterval(()=>{
+  if(mode!=="video"||!now||!sched||holding||userPaused||document.hidden||inPiP())return;
+  if(Date.now()-lastAdv<20000)return;
+  lastAdv=Date.now();const seg=now.seg;
+  if(stuckTries<1){
+    stuckTries++;showMsg("RE-TUNING…");
+    const at=segPlayed?localElapsed():now.offset;delete seg.direct;
+    vid.src=seg.src;vid.onloadedmetadata=()=>{try{vid.currentTime=(seg.start||0)+at}catch(e){}safePlay(vid)};safePlay(vid);
+    return;
+  }
+  stuckTries=0;dropSeg(seg);
+},3000);
 /* live TV never sits paused on the page: resume and jump back to "now" */
 vid.addEventListener("pause",()=>{
   if(mode!=="video"||!vid.getAttribute("src")||holding)return;
@@ -1251,8 +1306,8 @@ function updateMediaSession(title,artist){
 if("mediaSession" in navigator){
   const set=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch(e){}};
   set("nexttrack",()=>tune(cur+1));set("previoustrack",()=>tune(cur-1));
-  set("play",()=>{if(mode==="video")resyncVideo();else if(mode==="youtube")yt.player.playVideo();else safePlay(aud)});
-  set("pause",()=>{if(mode==="video")vid.pause();else if(mode==="youtube")yt.player.pauseVideo();else aud.pause()});
+  set("play",()=>{if(mode==="video"){userPaused=false;resyncVideo()}else if(mode==="youtube")yt.player.playVideo();else safePlay(aud)});
+  set("pause",()=>{if(mode==="video"){userPaused=true;vid.pause()}else if(mode==="youtube")yt.player.pauseVideo();else aud.pause()});
 }
 
 /* coming back to the tab: jump back to live */
@@ -1352,21 +1407,16 @@ function renderGuide(){
 $("guide").addEventListener("click",e=>{const b=e.target.closest(".ch");if(b){tune(+b.dataset.i);if(innerWidth<920)screenEl.scrollIntoView({behavior:"smooth",block:"start"})}});
 $("up").onclick=()=>tune(cur+1);
 $("snd").onclick=()=>setSound(!soundOn);
-/* GUIDE / CHAT tabs. Chat loads only when someone opens it. */
-const chatOn=!!(DISCORD.server&&DISCORD.channel);
-$("tabChat").hidden=!chatOn;$("chatBtn").hidden=!chatOn;$("tabs").style.setProperty("--tabs",chatOn?3:2);
+/* CHANNELS / LISTINGS / CHAT tabs. Chat appears once the chat service answers. */
+let chatOn=false;
+function setChatOn(on){chatOn=on;$("tabChat").hidden=!on;$("chatBtn").hidden=!on;$("tabs").style.setProperty("--tabs",on?3:2)}
+setChatOn(false);
 function showTab(which){
   if(which==="chat"&&!chatOn)which="guide";
   $("tabGuide").setAttribute("aria-selected",String(which==="guide"));$("tabGrid").setAttribute("aria-selected",String(which==="grid"));$("tabChat").setAttribute("aria-selected",String(which==="chat"));
   $("guidePanel").hidden=which!=="guide";$("gridPanel").hidden=which!=="grid";$("chatPanel").hidden=which!=="chat";
   if(which==="grid")renderListings(true);
-  const chat=which==="chat";
-  if(chat&&!$("chatMount").firstChild){
-    const f=document.createElement("iframe");
-    f.src=`https://e.widgetbot.io/channels/${encodeURIComponent(DISCORD.server)}/${encodeURIComponent(DISCORD.channel)}`;
-    f.title="VOID CABLE chat";f.allow="clipboard-write; fullscreen";f.loading="lazy";
-    $("chatMount").appendChild(f);
-  }
+  if(which==="chat")chatOpen();
 }
 $("tabGuide").onclick=()=>showTab("guide");
 $("tabChat").onclick=()=>showTab("chat");
@@ -1400,6 +1450,96 @@ setInterval(()=>{
 /* drift check: if someone has fallen way behind live (5+ minutes), jump back to the live point */
 setInterval(()=>{if(mode==="video"&&!vid.paused&&!holding&&vid.readyState>=3&&!now.seg.isBreak&&Math.abs(driftSec())>300)playCurrent(token)},30000);
 setInterval(()=>{renderGuide();if(!$("gridPanel").hidden)renderListings(false)},60000);
+
+/* ================= chat (sign in with Discord to post) ================= */
+const chat={me:null, admin:false, ch:null, since:0, keys:new Set(), busy:false, timer:null, fails:0};
+async function chatInit(){
+  if(location.protocol==="file:"||document.body.classList.contains("remotemode"))return;
+  try{
+    const r=await fetch("/api/auth/me",{cache:"no-store"});
+    if(!r.ok||!/json/.test(r.headers.get("content-type")||""))throw 0;
+    const j=await r.json();
+    if(!j.configured)return;
+    chat.me=j.user||null;chat.admin=!!j.admin;setChatOn(true);chatSignedIn();
+    const q=new URLSearchParams(location.search);
+    if(q.get("chat")==="1"){
+      showTab("chat");$("side").scrollIntoView({block:"start"});
+      if(q.get("signin"))toast("Discord sign-in didn't finish. Try again.");
+      else if(chat.me)toast(`Signed in as ${chat.me.name}.`);
+      try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}
+    }
+  }catch(e){setTimeout(chatInit,60000)}
+}
+function chatSignedIn(){
+  const me=chat.me;
+  $("chatForm").hidden=!me;$("chatSignIn").hidden=!!me;$("chatNote").hidden=!!me;$("chatMe").hidden=!me;
+  $("chatSignIn").href="/api/auth/login?r="+encodeURIComponent(CHANNELS[cur].id);
+  if(me)$("chatMe").innerHTML=`Signed in as <b>${esc(me.name)}</b>${chat.admin?" · moderator":""} · <button type="button" id="chatOut">Sign out</button>`;
+  const out=$("chatOut");if(out)out.onclick=async()=>{try{await fetch("/api/auth/logout",{method:"POST"})}catch(e){}chat.me=null;chat.admin=false;chatSignedIn();chatRender(true)};
+}
+function chatOpen(){
+  const id=CHANNELS[cur].id;
+  if(chat.ch!==id){chat.ch=id;chat.since=0;chat.keys.clear();$("chatList").innerHTML="";$("chatList").appendChild(chatEmptyEl())}
+  $("chatCh").textContent=`CH ${CHANNELS[cur].num} CHAT`;
+  $("chatSignIn").href="/api/auth/login?r="+encodeURIComponent(id);
+  const n=viewers&&viewers.channels&&viewers.channels[id];$("chatHere").hidden=!n;if(n)$("chatHere").textContent=String(n);
+  clearInterval(chat.timer);chat.timer=setInterval(chatPoll,3000);chatPoll();
+}
+function chatEmptyEl(){const p=document.createElement("p");p.className="chat-empty";p.id="chatEmpty";p.textContent="No messages on this channel yet. Say hi.";return p}
+function chatRender(){ $("chatList").querySelectorAll(".msg-mod").forEach(m=>m.hidden=!chat.admin) }
+function chatAdd(m){
+  if(chat.keys.has(m.key))return;chat.keys.add(m.key);
+  const list=$("chatList"), atBottom=list.scrollHeight-list.scrollTop-list.clientHeight<40;
+  const e=$("chatEmpty");if(e)e.remove();
+  const row=document.createElement("div");row.className="msg-row"+(chat.me&&chat.me.id===m.uid?" mine":"");row.dataset.key=m.key;row.dataset.uid=m.uid;
+  const tm=new Date(m.t).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
+  const ok=/^https:\/\/cdn\.discordapp\.com\//.test(m.avatar||""), letter=esc((String(m.name||"?").trim()[0]||"?").toUpperCase());
+  row.innerHTML=`<span class="av">${letter}${ok?`<img alt="" src="${esc(m.avatar)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:""}</span><div><b>${esc(m.name)}</b><time>${tm}</time><span class="t">${esc(m.text)}</span></div>
+    <div class="msg-mod"${chat.admin?"":" hidden"}><button type="button" data-mod="delete" title="Delete message">✕</button><button type="button" data-mod="ban" title="Ban this person">BAN</button></div>`;
+  list.appendChild(row);
+  while(list.children.length>120)list.firstElementChild.remove();
+  if(atBottom||(chat.me&&chat.me.id===m.uid))list.scrollTop=list.scrollHeight;
+}
+async function chatPoll(){
+  if($("chatPanel").hidden||document.hidden||chat.busy){if($("chatPanel").hidden)clearInterval(chat.timer);return}
+  if(chat.fails>=3&&Math.random()>0.2)return;
+  chat.busy=true;const ch=chat.ch;
+  try{
+    const r=await fetch(`/api/chat?ch=${encodeURIComponent(ch)}&since=${chat.since}`,{cache:"no-store"});
+    if(!r.ok)throw 0;const j=await r.json();chat.fails=0;
+    if(ch!==chat.ch)return;
+    (j.deleted||[]).forEach(k=>{const el=$("chatList").querySelector(`[data-key="${CSS.escape(k)}"]`);if(el)el.remove()});
+    (j.msgs||[]).forEach(chatAdd);
+    if(j.msgs&&j.msgs.length)chat.since=Math.max(chat.since,...j.msgs.map(m=>m.t));
+  }catch(e){chat.fails++}
+  finally{chat.busy=false}
+}
+async function chatPost(body){
+  const r=await fetch("/api/chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
+  let j={};try{j=await r.json()}catch(e){}
+  if(r.status===401){chat.me=null;chatSignedIn();toast("Please sign in with Discord again.");return null}
+  if(!r.ok){toast(j.error||"Couldn't send that. Try again in a moment.");return null}
+  return j;
+}
+$("chatForm").addEventListener("submit",async e=>{
+  e.preventDefault();const inp=$("chatIn"),text=inp.value.trim();if(!text)return;
+  const claim=text.match(/^\/admin\s+(\S+)$/i);
+  inp.value="";
+  if(claim){const j=await chatPost({action:"claim",code:claim[1]});if(j){chat.admin=true;chatSignedIn();chatRender();toast("You're a moderator now.")}return}
+  const j=await chatPost({ch:chat.ch,text});
+  if(j&&j.msg){chatAdd(j.msg);chat.since=Math.max(chat.since,j.msg.t)}
+  else inp.value=text;
+});
+$("chatList").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-mod]");if(!b||!chat.admin)return;
+  const row=b.closest(".msg-row");
+  if(b.dataset.mod==="delete"){if(await chatPost({action:"delete",ch:chat.ch,key:row.dataset.key}))row.remove()}
+  else{
+    if(b.dataset.armed!=="1"){b.dataset.armed="1";b.textContent="SURE?";setTimeout(()=>{b.dataset.armed="";b.textContent="BAN"},3000);return}
+    if(await chatPost({action:"ban",ch:chat.ch,uid:row.dataset.uid})){
+      $("chatList").querySelectorAll(`.msg-row[data-uid="${CSS.escape(row.dataset.uid)}"]`).forEach(x=>x.remove());toast("Banned. Their messages on this channel are gone.")}
+  }
+});
 
 /* ================= TV listings grid + reminders ================= */
 const GRID_MIN=180, PX=5, gridFail=new Set();
@@ -1558,6 +1698,7 @@ else{
   tune(start);
   setTimeout(pollReacts,1500);
   remotePing();
+  chatInit();
 }
 </script>
 </body>
