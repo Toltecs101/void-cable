@@ -326,6 +326,20 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
 @keyframes wdots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
 .wait .wc{font-family:var(--display);font-size:5cqw;color:#cfd3ff;text-shadow:2px 2px 0 #000}
 .wait .btn{margin-top:1cqw;font-size:max(16px,3.4cqw);pointer-events:auto}
+/* === rewind === */
+.rwpill{position:absolute;top:4%;left:4%;z-index:9;display:flex;align-items:center;gap:8px;max-width:70%;
+  padding:4px 4px 4px 10px;font-family:var(--mono);font-size:max(14px,3.2cqw);line-height:1.1;color:var(--ink);
+  background:linear-gradient(180deg,var(--royal-hi),var(--royal-lo));border:2px solid var(--edge);box-shadow:0 3px 0 var(--edge);
+  text-shadow:2px 2px 0 #000;animation:rwpulse 1.4s ease-in-out infinite}
+.rwpill span{min-width:0;overflow-wrap:anywhere}
+.rwpill .btn{min-height:36px;padding:4px 10px;font-size:max(15px,3.2cqw);flex:none}
+@keyframes rwpulse{0%,100%{opacity:1}50%{opacity:.62}}
+@media (prefers-reduced-motion:reduce){.rwpill{animation:none}}
+.rwlist .row{appearance:none;width:100%;text-align:left;cursor:pointer;background:none;border:0;padding:4px 0;color:var(--ink);font:inherit;font-size:22px}
+.rwlist .row:hover span,.rwlist .row:focus-visible span{color:var(--gold);text-decoration:underline}
+.rwlist .row.on span{color:var(--gold)}
+.rwlist .row.on span::before{content:"\23EA  "}
+/* === /rewind === */
 @media (max-width:430px){
   .tabs .btn{font-size:21px}
   .livebar{gap:7px}
@@ -400,6 +414,7 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
         <div class="msg" id="msg">ADJUSTING THE ANTENNA…</div>
         <div class="wait" id="wait" hidden><b>ONE MOMENT PLEASE</b><span class="ws" id="waitStatus">TUNING</span><span class="wc" id="waitCh"></span><button class="btn orange" id="retune" type="button" hidden>↻ RETUNE</button></div>
         <button class="sleepcover" id="sleepCover" type="button" hidden><b>GOOD NIGHT</b><small>The sleep timer turned the TV off. Tap to turn it back on.</small></button>
+        <div class="rwpill" id="rwPill" hidden><span>⏪ REWIND · tap LIVE to rejoin</span><button class="btn orange" id="rwPillLive" type="button">LIVE</button></div>
         <button class="soundbtn" id="sound" type="button">🔇 TAP FOR SOUND</button>
         <div class="fsbar" id="fsbar">
           <button class="btn" type="button" data-act="down">CH ▼</button>
@@ -421,6 +436,8 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
       <button class="btn sq" id="airplay" type="button" aria-label="AirPlay to a TV" hidden><svg viewBox="0 0 24 24"><path d="M2 3h20v13h-4v-2h2V5H4v9h2v2H2zM12 12l7 9H5z"/></svg></button>
       <button class="btn sq" id="remoteBtn" type="button" aria-label="Phone remote" hidden><svg viewBox="0 0 24 24"><path d="M7 1h10v22H7zm2 2v18h6V3zm2 2h2v2h-2zm0 4h2v2h-2zm-1 8h4v2h-4z"/></svg></button>
       <button class="btn sq" id="pip" type="button" aria-label="Picture in Picture" hidden><svg viewBox="0 0 24 24"><path d="M2 4h20v16H2zm2 2v12h16V6zm7 5h8v6h-8z"/></svg></button>
+      <button class="btn" id="rwBack" type="button" title="Step back 30 seconds (off the live feed)" hidden>⏪ 30s</button>
+      <button class="btn orange" id="rwLive" type="button" title="Back to the live broadcast" hidden>&gt;&gt; LIVE</button>
       <button class="btn" id="scanBtn" type="button" title="Flip through the channels on their own">SCAN</button>
       <button class="btn" id="sleepBtn" type="button" title="Sleep timer" aria-label="Sleep timer">💤</button>
       <button class="btn orange wide" id="nextStation" type="button" hidden>NEXT STATION ▶</button>
@@ -442,6 +459,10 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
     <section class="upnext pad" id="nextPanel" aria-label="Up next">
       <h2 class="h2">UP NEXT</h2>
       <div id="nextlist"><div class="row"><time>--:--</time><span>Loading the schedule…</span></div></div>
+    </section>
+    <section class="upnext pad" id="rwPanel" aria-label="Earlier today" hidden>
+      <h2 class="h2">EARLIER TODAY</h2>
+      <div class="rwlist" id="rwList"></div>
     </section>
   </main>
 
@@ -964,7 +985,7 @@ async function tune(idx,opt={}){
 
 /* ---- video channels (archive.org + NASA) ---- */
 /* Tune in at the live point; after that, each clip plays to its real end before the next starts. */
-function playCurrent(tk){const w=whereNow(sched);playIndex(tk,w.i,w.offset)}
+function playCurrent(tk){if(rewinding)rwOff();const w=whereNow(sched);playIndex(tk,w.i,w.offset)}
 /* Point the player straight at the right spot in the file (#t=) so it doesn't load from the start and then seek. */
 function setSrc(seg,at,useDirect){
   const base=useDirect&&seg.direct?seg.direct:seg.src, t=(seg.start||0)+at;
@@ -986,7 +1007,7 @@ function diag(result,extra={}){
     navigator.sendBeacon?navigator.sendBeacon("/api/diag",new Blob([body],{type:"application/json"})):fetch("/api/diag",{method:"POST",body,keepalive:true}).catch(()=>{});
   }catch(e){}
 }
-function advance(){if(mode!=="video"||!sched||!now)return;playIndex(token,(now.i+1)%sched.segs.length,0)}
+function advance(){if(mode!=="video"||!sched||!now)return;if(rewinding)return rwLive();playIndex(token,(now.i+1)%sched.segs.length,0)}
 function localElapsed(){return now?Math.max(0,vid.currentTime-(now.seg.start||0)):0}
 function driftSec(){
   if(!sched||!now)return 0;
@@ -1008,6 +1029,7 @@ function playIndex(tk,i,offset){
 function inPiP(){return document.pictureInPictureElement===vid||vid.webkitPresentationMode==="picture-in-picture"}
 function resyncVideo(){
   if(mode!=="video"||!sched||!now)return;
+  if(rewinding){if(vid.paused)safePlay(vid);return}   // rewinding: stay off the live feed
   if(!segPlayed){if(vid.paused)safePlay(vid);return}   // still loading: restarting would only throw away the progress
   if(Math.abs(driftSec())>(now.seg.mbps>2.5?120:30))return playCurrent(token);
   if(vid.paused)safePlay(vid);
@@ -1619,7 +1641,7 @@ setInterval(()=>{
   if(mode==="youtube"&&yt.ch&&Math.floor((Date.now()-EPOCH)/1000/yt.ch.slot)!==yt.slotK)ytPlaySlot();
 },1000);
 /* drift check: if someone has fallen way behind live (5+ minutes), jump back to the live point */
-setInterval(()=>{if(mode==="video"&&!vid.paused&&!holding&&vid.readyState>=3&&!now.seg.isBreak&&Math.abs(driftSec())>300)playCurrent(token)},30000);
+setInterval(()=>{if(mode==="video"&&!rewinding&&!vid.paused&&!holding&&vid.readyState>=3&&!now.seg.isBreak&&Math.abs(driftSec())>300)playCurrent(token)},30000);
 setInterval(()=>{renderGuide();if(!$("gridPanel").hidden)renderListings(false)},60000);
 
 /* ================= chat (sign in with Google, or Discord, to post) ================= */
@@ -1816,6 +1838,55 @@ if(window.WebKitPlaybackTargetAvailabilityEvent){
 }
 $("airplay").onclick=()=>{try{vid.webkitShowPlaybackTargetPicker()}catch(e){toast("AirPlay isn't available on this device.")}};
 
+/* === rewind === */
+/* REWIND / WHAT YOU MISSED: schedules are deterministic, so we know what aired earlier on this channel.
+   Tapping one plays it privately from its start; LIVE (or the tape ending) snaps back to the shared live point.
+   Nothing about this is sent or stored. */
+var rewinding=false, rwKey="";
+function rwUI(){
+  $("rwPill").hidden=!rewinding;$("rwLive").hidden=!rewinding;$("rwBack").hidden=!(mode==="video"&&!!sched);
+}
+function rwOff(){rewinding=false;rwUI();rwKey="";rwRender()}
+function rwOn(){if(!rewinding){rewinding=true;toast("You're off the live feed. Tap LIVE to rejoin.")}rwUI()}
+function rwLive(){if(mode!=="video"||!sched){rwOff();return}playCurrent(token);rwUI()}
+/* the last ~6 shows (commercial breaks skipped) that aired before the live one, oldest first */
+function rwEarlier(max=6){
+  if(!sched||!sched.segs.length)return [];
+  const w=whereNow(sched), n=sched.segs.length, out=[];
+  let k=w.i, st=Date.now()-w.offset*1000, back=0;
+  const limit=Math.min(12*3600, sched.total-sched.segs[w.i].dur);   // never wrap round to the show that's on now
+  for(let g=0;g<n&&out.length<max;g++){
+    k=(k-1+n)%n;const s=sched.segs[k];back+=s.dur;if(back>limit+0.5)break;st-=s.dur*1000;
+    if(!s.isBreak)out.push({i:k,seg:s,at:st});
+  }
+  return out.reverse();
+}
+function rwRender(){
+  const panel=$("rwPanel");
+  if(mode!=="video"||!sched||!now){panel.hidden=true;return}
+  const w=whereNow(sched), key=[token,sched.total,sched.segs.length,w.i,rewinding?now.i:-1].join("/");
+  if(key===rwKey)return;rwKey=key;
+  const list=rwEarlier();panel.hidden=false;
+  $("rwList").innerHTML=list.length?list.map(x=>`<button class="row${rewinding&&now.i===x.i?" on":""}" type="button" data-rw="${x.i}" title="Watch from the start (off the live feed)"><time>${fmtClock(new Date(x.at))}</time><span>${esc(x.seg.title)}</span></button>`).join("")
+    :`<div class="row"><time>--:--</time><span>Nothing earlier on this channel yet.</span></div>`;
+}
+$("rwList").addEventListener("click",e=>{
+  const b=e.target.closest("[data-rw]");if(!b||mode!=="video"||!sched)return;
+  const i=+b.dataset.rw;if(!sched.segs[i])return;
+  rwOn();playIndex(token,i,0);rwKey="";rwRender();
+});
+/* step back 30 seconds from where you are (crosses into the previous tape if needed) */
+$("rwBack").onclick=()=>{
+  if(mode!=="video"||!sched||!now)return;
+  const n=sched.segs.length;let i=now.i, off=(segPlayed?localElapsed():now.offset)-30, g=0;
+  while(off<0&&g++<n){i=(i-1+n)%n;off+=sched.segs[i].dur}
+  if(off<0)off=0;
+  rwOn();playIndex(token,i,off);rwKey="";rwRender();
+};
+$("rwLive").onclick=rwLive;
+$("rwPillLive").onclick=e=>{e.stopPropagation();rwLive()};
+setInterval(()=>{if(rewinding&&mode!=="video")rwOff();rwUI();rwRender()},1000);
+/* === /rewind === */
 /* ================= phone remote (Netlify Function) ================= */
 const rmt={ok:false, code:null, since:0, primed:false, timer:null};
 async function remotePing(){
