@@ -1656,7 +1656,9 @@ setInterval(pollReacts,3500);
 /* ================= guide, up next, clock ================= */
 function renderNext(){
   if(mode!=="video"||!now)return;
-  const out=[];let k=now.i, start=Date.now()+(now.seg.dur-(now.offset||0))*1000, guard=0;
+  /* during a rewind, list what's coming up on the live feed, not after the rewound tape */
+  const live=(typeof rewinding!=="undefined"&&rewinding&&sched)?whereNow(sched):{i:now.i,seg:now.seg,offset:now.offset||0};
+  const out=[];let k=live.i, start=Date.now()+(live.seg.dur-(live.offset||0))*1000, guard=0;
   while(out.length<4&&guard++<sched.segs.length*2){k=(k+1)%sched.segs.length;const s=sched.segs[k];
     if(!s.isBreak)out.push(`<div class="row"><time>${fmtClock(new Date(start))}</time><span>${esc(s.title)}</span></div>`);start+=s.dur*1000}
   $("nextlist").innerHTML=out.join("");
