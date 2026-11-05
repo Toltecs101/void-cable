@@ -708,7 +708,7 @@ function toast(t){let el=document.querySelector(".toast");if(!el){el=document.cr
 
 /* ================= schedules (archive.org + NASA) ================= */
 const schedCache = {};
-const SCHED_VER="v11";
+const SCHED_VER="v12";
 function getSchedule(ch){
   if(!schedCache[ch.id]) schedCache[ch.id]=(async()=>{
     const key=`voidcable.sched.${SCHED_VER}.${ch.id}`;
