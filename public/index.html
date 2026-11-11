@@ -1017,7 +1017,7 @@ const CHANNELS = [
      shows:true = a channel of whole shows: promos, openings, trailers and reaction videos are skipped, nothing under 10 minutes
      airs, very heavy files are skipped, and one upload can't take over the channel. Every search here was checked against
      archive.org before it shipped. */
-  {id:"guide", num:"1", name:"VOID GUIDE", type:"guide", icon:"📋", blurb:"Every channel's listings scrolling by with easy-listening music, like the old preview channel. Tap a row to tune in."},
+  {id:"void-guide", num:"1", name:"VOID GUIDE", type:"guide", icon:"📋", blurb:"Every channel's listings scrolling by with easy-listening music, like the old preview channel. Tap a row to tune in."},
   {id:"big-orange-couch", num:"32", name:"BIG ORANGE COUCH", type:"archive", icon:"🛋️", limit:14, blurb:"Saturday night Nick, 1992 to 2000. Whole SNICK nights with the breaks left in.",
    ids:["snick-10-08-94","snick-08-06-94","snick-05-07-94","snick-11-05-94","snick-08-20-94","snick-03-26-94","snick-09-03-94","snick-03-20-93","snick-12-26-92","snick-01-23-93",
         "snick03121994","20170403142618","march-11-and-12-2000-nickelodeon","snick-10-02-93","snick-12-03-94","snick-10-29-94","snick-05-28-94","snick-11-27-93","snick-07-23-94",
@@ -2732,7 +2732,7 @@ const GLYPHS={tv:"...6....6.../....6..6..../.....66...../.5555555555./.5cccccc5a
   trophy:"............/.aaaaaaaaaa./a.aaaaaaaa.a/a.aaaaaaaa.a/.aaaaaaaaaa./..aaaaaaaa../...aaaaaa.../....aaaa..../.....aa...../.....aa...../...aaaaaa.../............"};
 /* channel id -> glyph, or [glyph, "ab" pairs to recolor: a becomes b] */
 const LOGO_OF={
-  "guide":"grid","void-prime":"star","after-hours":"moon","toon-time":"anvil","kids-club":"juicebox","action-block":"bolt","cartoon-2000s":"tv",
+  "void-guide":"grid","void-prime":"star","after-hours":"moon","toon-time":"anvil","kids-club":"juicebox","action-block":"bolt","cartoon-2000s":"tv",
   "slime-time":"splat","anime-04":"sakura","swim-uploads":"fish","night-glow":"palm","cable-access":"camcorder","creature-feature":"bat",
   "weather":"cloud","mission-control":"rocket","cereal-hours":"bowl","video-hits":"guitar","commercial-break":"coin","homeroom":"pencil",
   "smooth-fm":"radio","retro-fm":["radio","48"],"night-drive-fm":["radio","4d"],"boombox":"boombox","must-see":"couch","late-late":"mug",
@@ -2746,7 +2746,7 @@ const LOGO_OF={
   "i-want-my-tv":["note","ae"],"player-two":"gamepad","byte-size":"floppy","kitchen-tv":"chef","orientation-day":"clipboard","duck-and-cover":"trefoil",
   "stakeout":"badge","the-unknown":"eye","rocket-serials":"raygun","dead-of-night":"skull","high-noon":"cactus","pie-fight":"pie","vacation-reel":"reel"};
 const CAT_OF={
-  "guide":"live","void-prime":"toons","after-hours":"toons","toon-time":"toons","kids-club":"toons","action-block":"anime","cartoon-2000s":"toons",
+  "void-guide":"live","void-prime":"toons","after-hours":"toons","toon-time":"toons","kids-club":"toons","action-block":"anime","cartoon-2000s":"toons",
   "slime-time":"toons","anime-04":"anime","swim-uploads":"toons","night-glow":"music","cable-access":"weird","creature-feature":"movies",
   "weather":"live","mission-control":"learn","cereal-hours":"toons","video-hits":"music","commercial-break":"weird","homeroom":"learn",
   "smooth-fm":"music","retro-fm":"music","night-drive-fm":"music","boombox":"music","must-see":"tv","late-late":"tv","territory-days":"sports",
@@ -2761,7 +2761,7 @@ const CAT_OF={
   "high-noon":"movies","pie-fight":"movies","vacation-reel":"weird"};
 const CATS=[["all","ALL"],["fav","★ FAVES"],["new","NEW"],["toons","CARTOONS"],["anime","ANIME"],["tv","PRIME TIME"],["movies","MOVIES"],["music","MUSIC"],["weird","WEIRD"],["learn","LEARNING"],["sports","SPORTS"],["live","LIVE"]];
 const CAT_LABEL=Object.fromEntries(CATS);
-const NEW_IDS=new Set(["guide","big-orange-couch","saturday-rewind","saturday-04","checkerboard-98","home-by-330","cartoon-express","robot-hour","double-dog-dare",
+const NEW_IDS=new Set(["void-guide","big-orange-couch","saturday-rewind","saturday-04","checkerboard-98","home-by-330","cartoon-express","robot-hour","double-dog-dare",
   "story-time","tape-trader","first-run","warp-factor","unsolved","daytime","two-drink","sketch-pad","liquid-hours","i-want-my-tv","player-two","byte-size","kitchen-tv",
   "orientation-day","duck-and-cover","stakeout","the-unknown","rocket-serials","dead-of-night","high-noon","pie-fight","vacation-reel"]);
 
@@ -2881,7 +2881,7 @@ function openNew(){
 }
 $("newList").addEventListener("click",e=>{const b=e.target.closest("[data-i]");if(!b)return;$("newModal").hidden=true;tune(+b.dataset.i);screenEl.scrollIntoView({behavior:"smooth",block:"start"})});
 $("newClose").onclick=()=>{$("newModal").hidden=true};
-$("newGo").onclick=()=>{$("newModal").hidden=true;const i=byId("guide");if(i>=0)tune(i);screenEl.scrollIntoView({behavior:"smooth",block:"start"})};
+$("newGo").onclick=()=>{$("newModal").hidden=true;const i=byId("void-guide");if(i>=0)tune(i);screenEl.scrollIntoView({behavior:"smooth",block:"start"})};
 
 /* ---- poll (Netlify Function): one vote per device, change it any time ---- */
 const POLL={id:"next-channel-1", q:"WHICH CHANNEL SHOULD WE BUILD NEXT?",
@@ -2954,6 +2954,7 @@ function pvFrame(ts){
 function pvStop(){cancelAnimationFrame(pv.raf);clearInterval(pv.timer);pv.timer=null}
 async function pvTune(ch,tk){
   mode="guide";$("pvview").hidden=false;setSnow(false);hideMsg();
+  clearTimeout(osdTimer);osd.style.opacity=0;   // the channel readout would sit on top of the guide's promo panel
   pv.promoK=-1;pvRender();pvPromo();pv.last=0;pvStop();pv.raf=requestAnimationFrame(pvFrame);
   pv.timer=setInterval(()=>{
     if(mode!=="guide")return;
