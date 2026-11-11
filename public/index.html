@@ -8,14 +8,12 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>VOID CABLE</title>
-<meta name="description" content="Synced channels of forgotten tapes, live radio and Weather on the 8s.">
-<meta name="theme-color" content="#120a3e">
+<meta name="description" content="80 synced channels of forgotten tapes: Saturday mornings, late-night anime, prime time with the ads left in, live radio and Weather on the 8s.">
+<meta name="theme-color" content="#2f2f39">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="VOID CABLE">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
+<link rel="preload" href="/fonts/jersey10.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/vt323.woff2" as="font" type="font/woff2" crossorigin>
 <style>
 /* Layout: a 1999 cable guide channel, rebuilt. Amber masthead, indigo live bar, edge-to-edge picture on phones,
    chunky beveled controls, then now playing, up next, and a GUIDE / CHAT tab panel. Wide screens put the guide on the right. */
@@ -36,7 +34,7 @@ html{background:var(--night-2)}
 html,body{margin:0;min-height:100%}
 body{
   color:var(--ink);font-family:var(--mono);font-size:20px;line-height:1.15;-webkit-text-size-adjust:100%;
-  padding-block:env(safe-area-inset-top, 0px) calc(24px + env(safe-area-inset-bottom, 0px));
+  padding-block:0 calc(24px + env(safe-area-inset-bottom, 0px));
   background:
     radial-gradient(1.2px 1.2px at 23px 41px, rgba(255,255,255,.55) 50%, transparent 52%) 0 0/137px 151px,
     radial-gradient(1px 1px at 91px 17px, rgba(160,200,255,.45) 50%, transparent 52%) 0 0/173px 127px,
@@ -71,7 +69,7 @@ button{font:inherit;color:inherit}
 .mast::before{content:"";position:absolute;top:0;bottom:0;left:0;width:min(66%,560px);
   background:linear-gradient(180deg,#ffc76a 0%,#f08a2a 55%,var(--rust) 100%);
   clip-path:polygon(0 0,100% 0,calc(100% - 34px) 100%,0 100%);box-shadow:inset 0 2px 0 rgba(255,255,255,.35)}
-.mast-in{position:relative;display:flex;align-items:center;gap:10px;padding-block:8px;max-width:1280px;margin:0 auto}
+.mast-in{position:relative;display:flex;align-items:center;gap:10px;padding-block:calc(8px + env(safe-area-inset-top, 0px)) 8px;max-width:1280px;margin:0 auto}
 .logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;min-width:0;flex:1 1 auto}
 .logo svg{width:44px;height:44px;flex:none;filter:drop-shadow(2px 2px 0 rgba(0,0,0,.45))}
 .logo .led{animation:blink 1.4s steps(1) infinite}
@@ -254,6 +252,7 @@ body.tvmode .screen{position:fixed;inset:0;z-index:100;aspect-ratio:auto;width:a
 .cityres p{font-size:18px;color:var(--dim)}
 #cityQ{font-family:var(--mono);letter-spacing:0;text-align:left;font-size:24px;color:var(--ink)}
 body.remotemode .mast,body.remotemode .app,body.remotemode footer{display:none}
+body.remotemode{padding-top:env(safe-area-inset-top, 0px)}
 .remote-ui{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;padding-block:12px;max-width:560px;margin:0 auto}
 .remote-ui>*{min-width:0}
 .r-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -415,9 +414,204 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
   .np-title{font-size:33px}
 }
 @media (prefers-reduced-motion:reduce){.float{animation:fadeout 2s forwards}@keyframes fadeout{to{opacity:0}}.ticker span,.eq i,.livetag i,.logo .led,.wx-top .ttl.eights{animation:none}}
+/* === look v2 === the living-room set: a charcoal faceplate with a VCR clock and rainbow stripes, a CRT tube in a plastic
+   cabinet, a cable box with a red LED channel readout, pixel-art channel logos, and three cabinet skins. */
+@font-face{font-family:"VT323";src:url("/fonts/vt323.woff2") format("woff2");font-display:swap}
+@font-face{font-family:"Jersey 10";src:url("/fonts/jersey10.woff2") format("woff2");font-display:swap}
+@font-face{font-family:"DSEG7";src:url("/fonts/dseg7.woff2") format("woff2");font-weight:700;font-display:swap}
+:root{--card-hi:#22157a;--card-lo:#190f5c;--card-on-hi:#2c1fa0;--card-on-lo:#1d1270;--field:#07053a;--glow:#2a1a8a;
+  --led:#ff3b2f;--vfd:#5ff5d0;--plastic-hi:#3a3a44;--plastic:#24242c;--plastic-lo:#121218}
+body[data-skin="wood"]{--night:#2b1a0e;--night-2:#170d06;--indigo:#4a2e17;--indigo-2:#3a2311;--indigo-3:#5c3a1d;--line:#7a5230;--edge:#0d0703;
+  --royal-hi:#c98a3c;--royal:#9a5f22;--royal-lo:#6e3f12;--gold:#ffd27a;--gold-lo:#d99a2b;--cyan:#ffe9b8;--ink:#fff3dc;--dim:#c9a981;
+  --card-hi:#5a3819;--card-lo:#3e2510;--card-on-hi:#7a4c22;--card-on-lo:#553216;--field:#1c1008;--glow:#6b4320}
+body[data-skin="prevue"]{--night:#00006e;--night-2:#000050;--indigo:#0000a8;--indigo-2:#000090;--indigo-3:#1010c0;--line:#4a4aff;--edge:#000;
+  --royal-hi:#6a6aff;--royal:#2a2ae0;--royal-lo:#1414a8;--gold:#ffee33;--gold-lo:#d8b800;--cyan:#7fe8ff;--ink:#fff;--dim:#b8c0ff;
+  --card-hi:#1414c0;--card-lo:#0a0a98;--card-on-hi:#2a2ae8;--card-on-lo:#1616b8;--field:#00003a;--glow:#2020c8}
+body{background:
+    radial-gradient(1.2px 1.2px at 23px 41px, rgba(255,255,255,.55) 50%, transparent 52%) 0 0/137px 151px,
+    radial-gradient(1px 1px at 91px 17px, rgba(160,200,255,.45) 50%, transparent 52%) 0 0/173px 127px,
+    radial-gradient(120% 50% at 50% 0%, var(--glow) 0%, transparent 70%),
+    linear-gradient(180deg,var(--night) 0%,var(--night-2) 75%)}
+html{background:var(--night-2)}
+img.lg{display:block;image-rendering:pixelated;image-rendering:crisp-edges;image-rendering:pixelated}
+.stripes{height:8px;border-top:2px solid #000;border-bottom:2px solid var(--edge);
+  background:linear-gradient(180deg,#e8433a 0 20%,#f08a2a 20% 40%,#ffd84a 40% 60%,#3fbf6b 60% 80%,#3a7bff 80% 100%)}
+
+/* faceplate */
+.mast{background:linear-gradient(180deg,var(--plastic-hi) 0%,var(--plastic) 55%,var(--plastic-lo) 100%);border-bottom:0;box-shadow:inset 0 2px 0 rgba(255,255,255,.2)}
+.mast::before{display:none}
+.mast-in{gap:8px}
+.logo-t small{color:#c4c4d4;text-shadow:1px 1px 0 #000}
+#menuBtn{flex:none;width:44px;min-height:40px}
+.clock.vfd{flex:none;min-width:104px;padding:5px 8px 4px;background:#03100e;border:2px solid #000;border-radius:4px;text-shadow:none;
+  box-shadow:inset 0 0 8px #000,inset 0 0 0 1px rgba(95,245,208,.14),0 1px 0 rgba(255,255,255,.16)}
+.clock.vfd #boxtime{display:block;font-family:"DSEG7",var(--mono);font-weight:700;font-size:20px;line-height:1;color:var(--vfd);text-shadow:0 0 8px rgba(95,245,208,.75)}
+.clock.vfd #boxtime i{font-family:var(--mono);font-style:normal;font-weight:400;font-size:15px;margin-left:5px}
+.clock.vfd small{color:var(--vfd);opacity:.82;font-size:13px;letter-spacing:.06em;margin-top:3px}
+
+/* the set */
+.player{background:none;border-bottom:0;padding:10px max(6px,env(safe-area-inset-right,0px)) 0 max(6px,env(safe-area-inset-left,0px))}
+.tvset{padding:8px 8px 0;border:2px solid #000;border-radius:16px 16px 10px 10px;
+  background:linear-gradient(180deg,var(--plastic-hi) 0%,var(--plastic) 16%,var(--plastic-lo) 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.2),inset 0 -3px 0 rgba(0,0,0,.6),0 5px 0 var(--edge),0 14px 28px rgba(0,0,0,.5)}
+body[data-skin="wood"] .tvset{background:repeating-linear-gradient(91deg,rgba(0,0,0,.14) 0 2px,transparent 2px 9px),repeating-linear-gradient(88deg,rgba(255,220,160,.06) 0 1px,transparent 1px 13px),linear-gradient(180deg,#9a642f 0%,#6f431c 40%,#4a2a10 100%)}
+.screen{border-radius:4.4% / 5.8%;box-shadow:0 0 0 2px #000,0 0 0 4px #050508}
+.screen:fullscreen,.screen:-webkit-full-screen,body.tvmode .screen{border-radius:0;box-shadow:none}
+.tvchin{display:flex;align-items:center;gap:10px;height:26px;padding:0 8px}
+.tvbrand{font-family:var(--display);font-size:16px;line-height:1;letter-spacing:.24em;color:#cfcfdc;text-shadow:0 1px 0 #000}
+body[data-skin="wood"] .tvbrand{color:#ffe2b0}
+.tvgrille{flex:1;height:10px;border-radius:2px;opacity:.6;background:repeating-linear-gradient(90deg,#000 0 2px,transparent 2px 5px)}
+.tvled{flex:none;width:7px;height:7px;border-radius:50%;background:#3dff7a;box-shadow:0 0 8px #3dff7a}
+.ticker{margin-top:10px;border-bottom:2px solid var(--edge);border-top-color:var(--line);background:linear-gradient(180deg,var(--night-2),var(--edge))}
+
+/* CRT glass over the picture */
+.crt{position:absolute;inset:0;z-index:8;pointer-events:none;border-radius:inherit;overflow:hidden;
+  background:
+    radial-gradient(125% 125% at 50% 50%,transparent 56%,rgba(0,0,0,.42) 100%),
+    linear-gradient(118deg,rgba(255,255,255,.08) 0%,rgba(255,255,255,0) 26%),
+    repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 1px,transparent 1px 3px);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),inset 0 0 4cqw rgba(0,0,0,.5)}
+body[data-crt="off"] .crt{display:none}
+body[data-crt="full"] .crt{background:
+    radial-gradient(118% 118% at 50% 50%,transparent 50%,rgba(0,0,0,.6) 100%),
+    linear-gradient(118deg,rgba(255,255,255,.1) 0%,rgba(255,255,255,0) 30%),
+    repeating-linear-gradient(90deg,rgba(255,0,0,.07) 0 1px,rgba(0,255,0,.05) 1px 2px,rgba(0,0,255,.08) 2px 3px),
+    repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,transparent 1px 3px)}
+body[data-crt="full"] .crt::after{content:"";position:absolute;left:0;right:0;top:0;height:24%;background:linear-gradient(rgba(255,255,255,.06),transparent);animation:crtroll 8s linear infinite}
+body[data-crt="full"] .screen video{filter:saturate(1.25) contrast(1.06) brightness(1.04)}
+@keyframes crtroll{from{transform:translateY(-110%)}to{transform:translateY(520%)}}
+/* power-on: the tube warms up from a single line */
+.pwr{position:absolute;inset:0;z-index:31;background:#000;pointer-events:none;display:none;overflow:hidden}
+.screen.booting .pwr{display:block;animation:pwrbg 1.15s ease-out forwards}
+.screen.booting .pwr::after{content:"";position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:#fff;box-shadow:0 0 18px 6px rgba(255,255,255,.7);animation:pwrline 1.15s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes pwrline{0%{transform:scale(.02,1)}35%{transform:scale(1,1);opacity:1}75%{transform:scale(1,220);opacity:.85}100%{transform:scale(1,420);opacity:0}}
+@keyframes pwrbg{0%,62%{opacity:1}100%{opacity:0}}
+
+/* cable box */
+.livebar.cablebox{margin:10px max(6px,env(safe-area-inset-right,0px)) 0 max(6px,env(safe-area-inset-left,0px));padding:8px 10px;gap:6px;border:2px solid #000;border-radius:8px;
+  background:linear-gradient(180deg,#2e2e37 0%,#17171d 55%,#0b0b0f 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 4px 0 var(--edge)}
+.cablebox .chicon{appearance:none;cursor:pointer;padding:0;width:46px;height:46px;border:0;background:none;box-shadow:none}
+.cablebox .chicon img{width:46px;height:46px}
+.cb-status{display:grid;gap:3px;justify-items:start;min-width:0}
+.cablebox .livetag{font-size:22px;gap:6px;color:#f1f1f6}
+.cablebox .livetag i{width:10px;height:10px;border-radius:50%}
+.cablebox .eye{font-size:17px;color:#a9a9bb}
+.cablebox .btn.sq{width:44px;min-height:44px;flex:none}
+#lastBtn{font-size:19px;letter-spacing:0}
+.cablebox .led{position:relative;flex:none;min-width:86px;padding:8px 8px 6px;text-align:right;font-family:"DSEG7",var(--mono);font-weight:700;font-size:28px;line-height:1;
+  color:var(--led);text-shadow:0 0 10px rgba(255,59,47,.8);background:#170403;border:2px solid #000;border-radius:4px;white-space:nowrap;
+  box-shadow:inset 0 0 10px #000,inset 0 0 0 1px rgba(255,80,60,.16),0 1px 0 rgba(255,255,255,.16)}
+.cablebox .led::before{content:attr(data-ghost);position:absolute;right:8px;top:8px;color:rgba(255,59,47,.13);text-shadow:none}
+.controls{padding-top:10px}
+
+/* channel list */
+.ch{background:linear-gradient(180deg,var(--card-hi),var(--card-lo))}
+.ch[aria-current="true"]{background:linear-gradient(180deg,var(--card-on-hi),var(--card-on-lo))}
+.ch .n{display:grid;justify-items:center;gap:3px;height:auto;min-height:0;padding:0;border:0;background:none;box-shadow:none}
+.ch .n img{width:52px;height:52px}
+.ch .n .nn{font-family:var(--display);font-size:24px;line-height:1;color:var(--gold);text-shadow:2px 2px 0 #000}
+.ch .acts{margin-left:auto;display:flex;flex:none;align-items:center;gap:2px}
+.ch .info{font-family:var(--mono);font-size:22px;color:var(--dim);padding:0 5px;cursor:pointer;text-shadow:none}
+.seasonal.newtag{background:#b8471c}
+.ch .fav{margin-left:0}
+.ch b .sp{flex:1}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:0 0 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chips .btn{flex:none;min-height:36px;font-size:19px;padding:4px 10px}
+.chips .btn[aria-pressed="true"]{background:linear-gradient(180deg,#fff0a0 0%,var(--gold) 50%,var(--gold-lo) 100%);color:#2a1600;text-shadow:none}
+.modal-card{background:linear-gradient(180deg,var(--card-hi),var(--indigo-2))}
+.g-ch{background:linear-gradient(180deg,var(--card-on-hi),var(--card-on-lo))}
+.g-cell{background:linear-gradient(180deg,var(--royal),var(--royal-lo))}
+.g-cell.wait,.g-cell.past{background:var(--indigo-2)}
+.bar,.chat-form input,.joinform input{background:var(--field)}
+.gfx-bug i{display:inline-block}
+.gfx-bug i img{width:1.25em;height:1.25em}
+.np-src{color:var(--dim)}
+
+/* menu, channel card, what's new */
+.menu-row{display:grid;gap:6px}
+.menu-row>span{font-family:var(--display);font-size:22px;color:var(--cyan);text-shadow:2px 2px 0 #000}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);border:2px solid var(--edge);box-shadow:0 3px 0 var(--edge)}
+.seg .btn{border:0;min-height:42px;font-size:21px;padding:4px 6px;box-shadow:var(--bevel);min-width:0}
+.seg .btn+.btn{border-left:2px solid var(--edge)}
+.seg .btn[aria-pressed="true"]{background:linear-gradient(180deg,#fff0a0 0%,var(--gold) 50%,var(--gold-lo) 100%);color:#2a1600;text-shadow:none}
+.poll{display:grid;gap:6px}
+.poll h3{margin:0;font-family:var(--display);font-weight:400;font-size:24px;line-height:1;color:var(--gold);text-shadow:2px 2px 0 #000}
+.poll-opt{position:relative;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:44px;padding:6px 10px;cursor:pointer;text-align:left;overflow:hidden;
+  border:2px solid var(--edge);background:var(--field);color:var(--ink);font-family:var(--mono);font-size:19px;line-height:1.05}
+.poll-opt i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(180deg,var(--royal-hi),var(--royal-lo));transition:width .5s}
+.poll-opt span,.poll-opt b{position:relative}
+.poll-opt b{font-weight:400;color:var(--gold);white-space:nowrap}
+.poll-opt.mine{outline:2px solid var(--gold);outline-offset:-4px}
+.cc-head{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center}
+.cc-head img{width:84px;height:84px}
+.cc-head .h2{font-size:32px;overflow-wrap:anywhere}
+.cc-cat{font-size:17px;color:var(--dim);letter-spacing:.06em}
+.cc-list{display:grid;gap:3px;padding:8px;border:2px solid var(--edge);background:var(--field)}
+.cc-list .row{grid-template-columns:86px minmax(0,1fr);font-size:20px}
+.cc-list .row.on time{color:var(--live)}
+.cc-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cc-actions .btn{font-size:22px;min-width:0}
+.new-card{width:min(480px,100%);padding:0;gap:0;overflow:hidden;grid-template-rows:auto auto minmax(0,1fr) auto}
+.new-card>*{margin:0}
+.new-head{padding:12px 16px 4px}
+.new-head p{margin-top:4px;color:var(--dim)}
+.newlist{overflow:auto;display:grid;gap:6px;padding:8px 12px;max-height:52vh;-webkit-overflow-scrolling:touch}
+.newrow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;width:100%;padding:6px 8px;cursor:pointer;text-align:left;
+  border:2px solid var(--edge);background:linear-gradient(180deg,var(--card-on-hi),var(--card-on-lo));box-shadow:var(--bevel);color:var(--ink);font-family:var(--mono)}
+.newrow img{width:46px;height:46px}
+.newrow b{display:block;font-family:var(--display);font-weight:400;font-size:24px;line-height:1;color:var(--gold);text-shadow:2px 2px 0 #000}
+.newrow span{display:block;font-size:17px;line-height:1.1;color:var(--ink);margin-top:2px}
+.new-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px 14px;border-top:2px solid var(--edge)}
+
+/* CH 1: the scrolling guide */
+.pvview{position:absolute;inset:0;z-index:3;display:grid;grid-template-rows:38% auto minmax(0,1fr);background:#00007a;color:#fff;font-family:var(--mono);overflow:hidden}
+.pv-top{display:grid;grid-template-columns:42% 58%;min-height:0;border-bottom:.6cqw solid #000}
+.pv-clock{display:grid;place-content:center;justify-items:center;gap:.8cqw;padding:1cqw;text-align:center;background:linear-gradient(180deg,#1a1ad8,#0a0a8a);border-right:.6cqw solid #000}
+.pv-clock b{font-family:var(--display);font-weight:400;font-size:10cqw;line-height:.9;color:#ffe94a;text-shadow:.5cqw .5cqw 0 #000;white-space:nowrap}
+.pv-clock span{font-size:3.8cqw;line-height:1;color:#9fd8ff;letter-spacing:.08em}
+.pv-clock em{font-style:normal;font-family:var(--display);font-size:5cqw;line-height:1;color:#fff;letter-spacing:.06em;text-shadow:.3cqw .3cqw 0 #000}
+.pv-promo{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2.4cqw;align-items:center;padding:1.6cqw 2.6cqw;min-width:0;background:linear-gradient(180deg,#7a1fa8,#2e0a5a)}
+.pv-promo img{width:17cqw;height:17cqw}
+.pv-promo small{display:block;font-size:3.4cqw;line-height:1;color:#9fd8ff;letter-spacing:.08em}
+.pv-promo b{display:block;font-family:var(--display);font-weight:400;font-size:6.4cqw;line-height:.95;color:#ffe94a;text-shadow:.4cqw .4cqw 0 #000;overflow-wrap:anywhere}
+.pv-promo span{font-size:3.6cqw;line-height:1.05;color:#fff;margin-top:.8cqw;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.pv-head{display:grid;grid-template-columns:24% 1fr 1fr 1fr;gap:.5cqw;background:#000;border-bottom:.5cqw solid #000}
+.pv-head span{padding:.5cqw 0;text-align:center;font-size:4cqw;line-height:1;color:#000;background:linear-gradient(180deg,#f0f0ff,#9a9ab8);white-space:nowrap;overflow:hidden}
+.pv-list{position:relative;overflow:hidden;min-height:0;background:#000}
+.pv-rows{position:absolute;left:0;right:0;top:0;will-change:transform}
+.pv-row{display:grid;grid-template-columns:24% minmax(0,1fr);gap:.5cqw;width:100%;height:11cqw;margin:0 0 .5cqw;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.pv-ch{display:grid;align-content:center;gap:.3cqw;padding:0 1.6cqw;overflow:hidden;font-size:3.3cqw;line-height:1;white-space:nowrap;background:#1818d0;box-shadow:inset .3cqw .3cqw 0 rgba(255,255,255,.3),inset -.3cqw -.3cqw 0 rgba(0,0,0,.45)}
+.pv-ch b{font-family:var(--display);font-weight:400;font-size:5.6cqw;color:#ffe94a;text-shadow:.3cqw .3cqw 0 #000}
+.pv-line{position:relative;min-width:0}
+.pv-cell{position:absolute;top:0;bottom:0;overflow:hidden;padding:.9cqw 1.4cqw;font-size:4cqw;line-height:1.08;background:#2222c8;
+  box-shadow:inset .3cqw .3cqw 0 rgba(255,255,255,.26),inset -.3cqw -.3cqw 0 rgba(0,0,0,.45);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pv-cell.dim{color:#b8c0ff;background:#1616a0}
+.pv-row:active .pv-cell{background:#3a3aee}
+
+@media (min-width:960px){
+  .player{padding:14px 14px 0}
+  .tvset{padding:14px 14px 0;border-radius:22px 22px 12px 12px}
+  .tvchin{height:34px}
+  .livebar.cablebox{margin:12px 14px 0}
+  .main{background:none;border:0;box-shadow:none}
+  .cablebox .led{font-size:32px;min-width:104px}
+}
+@media (max-width:430px){
+  .logo svg{width:34px;height:34px}.logo-t b{font-size:26px}.logo-t small{font-size:12px;letter-spacing:.04em}
+  .clock.vfd{min-width:96px;padding:5px 6px 4px}.clock.vfd #boxtime{font-size:18px}
+  .cablebox .led{font-size:25px;min-width:78px;padding:8px 6px 6px}.cablebox .led::before{right:6px}
+  .cablebox .livetag{font-size:20px}
+}
+@media (max-width:370px){
+  #lastBtn{display:none}
+}
+@media (prefers-reduced-motion:reduce){.screen.booting .pwr{display:none}body[data-crt="full"] .crt::after{animation:none;display:none}}
+/* === /look v2 === */
 </style>
 </head>
-<body>
+<body data-crt="soft" data-skin="night">
+<script>try{document.body.dataset.crt=localStorage.getItem("voidcable.crt")||"soft";document.body.dataset.skin=localStorage.getItem("voidcable.skin")||"night"}catch(e){}</script>
 <header class="mast">
   <div class="mast-in pad">
     <a class="logo" href="#" id="logoLink" aria-label="VOID CABLE home">
@@ -432,27 +626,18 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
         <rect class="led" x="12" y="10" width="1" height="1" fill="#ff3d3d"/>
         <rect x="3" y="14" width="2" height="1" fill="#050322"/><rect x="11" y="14" width="2" height="1" fill="#050322"/>
       </svg>
-      <span class="logo-t"><b>VOID CABLE</b><small>DIGITAL CABLE GUIDE</small></span>
+      <span class="logo-t"><b>VOID CABLE</b><small id="tagline">ALWAYS ON · EST. 1999</small></span>
     </a>
-    <span class="sp"></span>
-    <button class="btn" id="guideBtn" type="button">GUIDE</button>
-    <div class="clock"><span id="boxtime">--:--</span><small id="boxwatch" hidden></small></div>
+    <button class="btn sq" id="menuBtn" type="button" aria-label="Menu: picture, TV set, poll, what's new"><svg viewBox="0 0 24 24"><path d="M3 5h18v3H3zM3 10.5h18v3H3zM3 16h18v3H3z"/></svg></button>
+    <div class="clock vfd"><span id="boxtime">--:--</span><small id="boxwatch" hidden></small></div>
   </div>
+  <div class="stripes" aria-hidden="true"></div>
 </header>
 
 <div class="app">
   <main class="main">
-    <div class="livebar pad">
-      <span class="chicon" id="chicon">TV</span>
-      <span class="livetag"><i></i>LIVE</span>
-      <span class="eye" id="chwatch" hidden>1</span>
-      <span class="sp"></span>
-      <button class="btn sq" id="down" type="button" aria-label="Channel down"><svg viewBox="0 0 24 24"><path d="M3 8h4l5 5 5-5h4l-9 9z"/></svg></button>
-      <span class="chnum" id="barnum">CH 54</span>
-      <button class="btn sq" id="up" type="button" aria-label="Channel up"><svg viewBox="0 0 24 24"><path d="M3 16h4l5-5 5 5h4l-9-9z"/></svg></button>
-    </div>
-
     <section class="player" aria-label="Television">
+      <div class="tvset">
       <div class="screen" id="screen">
         <video id="vid" playsinline webkit-playsinline muted autoplay preload="auto" autopictureinpicture x-webkit-airplay="allow"></video>
         <div id="ytbox" hidden><div id="ytmount"></div></div>
@@ -468,12 +653,21 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
           <div class="wx-body" id="wxBody"></div>
           <div class="wx-foot"><span id="wxTime">--:--</span><span id="wxMusic">♪ smooth jazz</span></div>
         </div>
+        <div class="pvview" id="pvview" hidden>
+          <div class="pv-top">
+            <div class="pv-clock"><em>VOID GUIDE</em><b id="pvTime">--:--</b><span id="pvDate"></span></div>
+            <div class="pv-promo"><img class="lg" id="pvLogo" alt="" width="16" height="16"><div><small id="pvPNum"></small><b id="pvPName"></b><span id="pvPText"></span></div></div>
+          </div>
+          <div class="pv-head" id="pvHead"></div>
+          <div class="pv-list"><div class="pv-rows" id="pvRows"></div></div>
+        </div>
         <div class="tapcatch" aria-hidden="true"></div>
         <canvas id="snow" width="160" height="120"></canvas>
         <div class="floats" id="floats" aria-hidden="true"></div>
         <div class="osd" id="osd">54<small>AFTER HOURS</small></div>
         <div class="msg" id="msg">ADJUSTING THE ANTENNA…</div>
         <div class="wait" id="wait" hidden><b>ONE MOMENT PLEASE</b><span class="ws" id="waitStatus">TUNING</span><span class="wc" id="waitCh"></span><button class="btn orange" id="retune" type="button" hidden>↻ RETUNE</button></div>
+        <div class="crt" aria-hidden="true"></div>
         <!-- === graphics === -->
         <div class="gfx-bug off" id="gfxBug" aria-hidden="true"><i id="gfxBugIco"></i><span id="gfxBugName"></span></div>
         <div class="gfx-l3" id="gfxL3" aria-hidden="true"><b>UP NEXT ▶</b><span><em id="gfxL3Title"></em><small id="gfxL3Time"></small></span></div>
@@ -481,6 +675,7 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
         <div class="gfx-clock" id="gfxClock" aria-hidden="true"><i></i><span id="gfxClockT">--:--</span></div>
         <div class="gfx-flash" id="gfxFlash" aria-hidden="true"></div>
         <!-- === /graphics === -->
+        <div class="pwr" aria-hidden="true"></div>
         <button class="sleepcover" id="sleepCover" type="button" hidden><b>GOOD NIGHT</b><small>The sleep timer turned the TV off. Tap to turn it back on.</small></button>
         <div class="rwpill" id="rwPill" hidden><span>⏪ REWIND · tap LIVE to rejoin</span><button class="btn orange" id="rwPillLive" type="button">LIVE</button></div>
         <button class="soundbtn" id="sound" type="button">🔇 TAP FOR SOUND</button>
@@ -491,10 +686,23 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
           <button class="btn orange" type="button" data-act="exit">EXIT</button>
         </div>
       </div>
-      <div class="ticker" aria-hidden="true"><span id="ticker">★ VOID CABLE ★</span></div>
+      <div class="tvchin" aria-hidden="true"><span class="tvbrand">VOIDVISION</span><span class="tvgrille"></span><i class="tvled"></i></div>
+      </div>
     </section>
 
+    <div class="livebar cablebox">
+      <button class="chicon" id="chicon" type="button" aria-label="About this channel"></button>
+      <div class="cb-status"><span class="livetag"><i></i>LIVE</span><span class="eye" id="chwatch" hidden>1</span></div>
+      <span class="sp"></span>
+      <button class="btn sq" id="lastBtn" type="button" aria-label="Last channel" title="Jump back to the channel you were just on">LAST</button>
+      <button class="btn sq" id="down" type="button" aria-label="Channel down"><svg viewBox="0 0 24 24"><path d="M3 8h4l5 5 5-5h4l-9 9z"/></svg></button>
+      <span class="chnum led" id="barnum" data-ghost="88" aria-label="Channel number">54</span>
+      <button class="btn sq" id="up" type="button" aria-label="Channel up"><svg viewBox="0 0 24 24"><path d="M3 16h4l5-5 5 5h4l-9-9z"/></svg></button>
+    </div>
+    <div class="ticker" aria-hidden="true"><span id="ticker">★ VOID CABLE ★</span></div>
+
     <div class="controls pad">
+      <button class="btn gold" id="guideBtn" type="button" title="TV listings for every channel">GUIDE</button>
       <button class="btn sq" id="snd" type="button" aria-label="Sound">
         <svg class="i-off" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3zM15 9l2 2 2-2 2 2-2 2 2 2-2 2-2-2-2 2-2-2 2-2-2-2z"/></svg>
         <svg class="i-on" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3zM15 9h2v6h-2zM18 6h2v12h-2z"/></svg>
@@ -543,7 +751,7 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
       <button class="btn" id="tabGrid" type="button" role="tab" aria-selected="false">LISTINGS</button>
       <button class="btn" id="tabChat" type="button" role="tab" aria-selected="false" hidden>CHAT</button>
     </div>
-    <section class="guide" id="guidePanel" aria-label="Channel guide"><div class="guide" id="guide"></div></section>
+    <section class="guide" id="guidePanel" aria-label="Channel guide"><div class="chips" id="chips" role="toolbar" aria-label="Filter channels"></div><div class="guide" id="guide"></div></section>
     <section class="listings" id="gridPanel" aria-label="TV listings" hidden>
       <p class="hint">Next 3 hours on every channel. Tap what's on now to watch, or tap a later show to get a reminder.</p>
       <div class="gridwrap" id="gridwrap"><div id="grid"></div></div>
@@ -603,6 +811,43 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
   </div>
 </div>
 
+<div class="modal" id="menuModal" hidden role="dialog" aria-modal="true" aria-label="Menu">
+  <div class="modal-card">
+    <h2 class="h2">MENU</h2>
+    <div class="menu-row"><span>PICTURE</span><div class="seg" id="crtSeg"><button class="btn" type="button" data-crt="off">CLEAN</button><button class="btn" type="button" data-crt="soft">CRT</button><button class="btn" type="button" data-crt="full">OLD TUBE</button></div></div>
+    <div class="menu-row"><span>TV SET</span><div class="seg" id="skinSeg"><button class="btn" type="button" data-skin="night">NIGHT</button><button class="btn" type="button" data-skin="wood">WOODGRAIN</button><button class="btn" type="button" data-skin="prevue">PREVUE</button></div></div>
+    <div class="menu-row"><span>CHANNEL-CHANGE STATIC</span><div class="seg" id="sfxSeg"><button class="btn" type="button" data-sfx="1">ON</button><button class="btn" type="button" data-sfx="0">OFF</button></div></div>
+    <div class="divider"></div>
+    <div class="poll"><h3 id="pollQ">VIEWER POLL</h3><div class="poll" id="pollOpts"></div><p class="chat-note" id="pollNote"></p></div>
+    <div class="divider"></div>
+    <button class="btn" id="menuNew" type="button">WHAT'S NEW</button>
+    <button class="btn orange" id="menuClose" type="button">CLOSE</button>
+  </div>
+</div>
+
+<div class="modal" id="cardModal" hidden role="dialog" aria-modal="true" aria-label="About this channel">
+  <div class="modal-card">
+    <div class="cc-head"><img class="lg" id="ccLogo" alt="" width="16" height="16"><div><div class="chlabel" id="ccNum"></div><h2 class="h2" id="ccName"></h2><div class="cc-cat" id="ccCat"></div></div></div>
+    <p id="ccBlurb"></p>
+    <div class="cc-list" id="ccList"></div>
+    <div class="cc-actions">
+      <button class="btn orange" id="ccTune" type="button">TUNE IN</button>
+      <button class="btn" id="ccFav" type="button">☆ FAVE</button>
+      <button class="btn" id="ccShare" type="button">SHARE</button>
+      <button class="btn" id="ccClose" type="button">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="newModal" hidden role="dialog" aria-modal="true" aria-label="What's new">
+  <div class="modal-card new-card">
+    <div class="stripes" aria-hidden="true"></div>
+    <div class="new-head"><h2 class="h2">NEW ON THE DIAL</h2><p id="newLead"></p></div>
+    <div class="newlist" id="newList"></div>
+    <div class="new-actions"><button class="btn orange" id="newGo" type="button">SEE THE GUIDE</button><button class="btn" id="newClose" type="button">CLOSE</button></div>
+  </div>
+</div>
+
 <section class="remote-ui" id="remoteUI" hidden aria-label="VOID CABLE remote">
   <div class="r-top pad"><span class="logo-t"><b>VOID REMOTE</b><small id="rCode">PAIRED</small></span><button class="btn orange" id="rLeave" type="button">DISCONNECT</button></div>
   <div class="r-now pad"><div class="chlabel" id="rCh">Waiting for your TV…</div><div class="np-title" id="rTitle">Open VOID CABLE on your TV</div></div>
@@ -616,12 +861,15 @@ footer{max-width:1280px;margin:18px auto 0;font-size:16px;color:var(--dim);text-
   <div class="r-list pad" id="rList"></div>
 </section>
 
-<footer class="pad">Tapes stream from archive.org, NASA and YouTube · Radio via Radio Browser · Weather data by Open-Meteo.com</footer>
+<footer class="pad">Tapes stream from archive.org, NASA and YouTube · Radio via Radio Browser · Weather data by Open-Meteo.com · Fonts: VT323, Jersey 10, DSEG (OFL)</footer>
 
 <script>
 /* ================= CHANNELS — edit to make your own =================
    type: archive (archive.org search) · nasa (NASA video library) · youtube (playlist)
          radio (Radio Browser tag) · weather (Open-Meteo + jazz from archive.org)       */
+/* helpers for the searches below: TAPE_Q = "taped off TV" (a VHS Vault item, or a title that says so); YRS = any year in a range */
+const TAPE_Q='(collection:(vhsvault) OR title:("with commercials") OR title:(WOC) OR title:(broadcast) OR title:(airing) OR title:(VHS) OR title:(recording))';
+const YRS=(a,b)=>{const y=[];for(let i=a;i<=b;i++)y.push(i);return `(year:[${a} TO ${b}] OR title:(${y.join(" OR ")}))`};
 const CHANNELS = [
   {id:"void-prime", num:"7", name:"VOID PRIME", type:"prime", icon:"⭐", blurb:"Real TV hours, Eastern time. Cartoons at dawn, anime after midnight."},
   {id:"after-hours", num:"54", name:"AFTER HOURS", type:"archive", breaks:"cn00s", icon:"🌙", blurb:"Past midnight. The cartoons got weird.",
@@ -636,8 +884,9 @@ const CHANNELS = [
         {id:"2001-summer-toonami-midnight-run.-converted",all:true},{id:"toonami_202204",all:true},{id:"YuYuHakusho1",all:true},
         {id:"Toonami_SD_Gundam_Force",all:true},{id:"2007-cartoon-network-one-piece-broadcast-bad-girls",all:true},
         {id:"ToonamiDBZTenchiCardcaptor",all:true},{id:"dbz-cell",all:true},{id:"outlaw-star-toonami",all:true},
-        {id:"sailormoontape1",all:true},{id:"toonami-vhs-recording-circa-2001-reupload",all:true}],
-   limit:16, q:'(title:(Toonami) OR subject:(Toonami)) AND (title:(WOC) OR title:(VHS) OR title:(broadcast) OR title:(airing) OR title:(recording)) AND mediatype:movies'},
+        {id:"sailormoontape1",all:true},{id:"toonami-vhs-recording-circa-2001-reupload",all:true},
+        {id:"toonami-may-20-2006-co",all:true},{id:"toonami-naruto-and-adult-swim-tape-2007-2008",all:true},{id:"2025-07-10-10-19-57-1",all:true}],
+   limit:19, q:'(title:(Toonami) OR subject:(Toonami)) AND (title:(WOC) OR title:(VHS) OR title:(broadcast) OR title:(airing) OR title:(recording)) AND mediatype:movies'},
   {id:"cartoon-2000s", num:"25", name:"CARTOON BLOCK '00s", type:"archive", breaks:"cn00s", icon:"📺", blurb:"Cartoon Network after school, 2000s.",
    ids:["CCF-2000","blank-vhs-cn-2000s"],
    q:'title:("Cartoon Network") AND (year:[2000 TO 2009] OR title:(2000 OR 2001 OR 2002 OR 2003 OR 2004 OR 2005 OR 2006 OR 2007 OR 2008 OR 2009)) AND mediatype:movies',
@@ -764,6 +1013,93 @@ const CHANNELS = [
    q:'(title:(trailer) AND (subject:(trailer) OR collection:(movie_trailers) OR title:(theatrical))) AND mediatype:movies'},
   {id:"session", num:"43", name:"SESSION", icon:"🛹", type:"archive", blurb:"Skate videos dubbed off a friend's VHS.",
    q:'(title:("skate video") OR title:(skateboarding) OR subject:(skateboarding)) AND mediatype:movies'},
+  /* ---- added Nov 11 2026: the big lineup ----
+     shows:true = a channel of whole shows: promos, openings, trailers and reaction videos are skipped, nothing under 10 minutes
+     airs, very heavy files are skipped, and one upload can't take over the channel. Every search here was checked against
+     archive.org before it shipped. */
+  {id:"guide", num:"1", name:"VOID GUIDE", type:"guide", icon:"📋", blurb:"Every channel's listings scrolling by with easy-listening music, like the old preview channel. Tap a row to tune in."},
+  {id:"big-orange-couch", num:"32", name:"BIG ORANGE COUCH", type:"archive", icon:"🛋️", limit:14, blurb:"Saturday night Nick, 1992 to 2000. Whole SNICK nights with the breaks left in.",
+   ids:["snick-10-08-94","snick-08-06-94","snick-05-07-94","snick-11-05-94","snick-08-20-94","snick-03-26-94","snick-09-03-94","snick-03-20-93","snick-12-26-92","snick-01-23-93",
+        "snick03121994","20170403142618","march-11-and-12-2000-nickelodeon","snick-10-02-93","snick-12-03-94","snick-10-29-94","snick-05-28-94","snick-11-27-93","snick-07-23-94",
+        "snick-06-25-94","snick-04-09-94","snick-10-09-93","snick-10-01-94","snick-11-13-93","snick-11-12-94","snick-12-18-93","snick-12-11-93","snick-01-29-94","snick-01-22-94",
+        "snick-01-08-94","snick-11-20-93","snick-06-04-94"].map(id=>({id,all:true}))},
+  {id:"saturday-rewind", num:"28", name:"SATURDAY REWIND", type:"archive", shows:true, limit:24, minDur:1200, icon:"⏪", blurb:"Whole network blocks rebuilt with their real commercials: Fox Kids, Kids' WB, Nick, Toon Disney, Sci-Fi Channel.",
+   q:'title:("Rinse Repeat") AND (title:("With Commercials") OR title:("Full Episodes")) AND mediatype:movies',
+   match:/(full episodes?|with commercials)/i, exclude:/(trump|pence|lincoln|murder|oppression|fatherh|same fear|scrub|regime)/i},
+  {id:"saturday-04", num:"29", name:"SATURDAY '04", type:"archive", shows:true, limit:18, minDur:900, maxYear:2008, icon:"💣", blurb:"Kids' WB, 4Kids TV and the Fox Box. Pokémon, Yu-Gi-Oh! and Sonic X before lunch.",
+   q:'(title:("4Kids") OR title:("Fox Box") OR title:("FoxBox") OR title:("Kids WB") OR title:("Kids\' WB") OR title:(Jetix)) AND '+YRS(2000,2008)+' AND mediatype:movies',
+   exclude:/(\bdvds?\b|complete collection|box ?set)/i},
+  {id:"checkerboard-98", num:"27", name:"CHECKERBOARD '98", type:"archive", shows:true, limit:18, minDur:900, maxYear:1999, icon:"🏁", blurb:"Cartoon Network in the checkerboard years. Cartoon Cartoons, Cult Toons, Toon Heads.",
+   q:'title:("Cartoon Network") AND '+YRS(1992,1999)+' AND mediatype:movies', exclude:/(adult swim|\[as\])/i},
+  {id:"home-by-330", num:"34", name:"HOME BY 3:30", type:"archive", shows:true, limit:20, minDur:900, maxYear:2000, icon:"🚌", blurb:"Backpack down, TV on. The Disney Afternoon, Animaniacs, Tiny Toons and Batman.",
+   q:'(title:("Disney Afternoon") OR title:("Rescue Rangers") OR title:(DuckTales) OR title:(TaleSpin) OR title:("Darkwing Duck") OR title:("Goof Troop") OR title:(Animaniacs) OR title:("Tiny Toon") OR title:("Batman: The Animated")) AND '+TAPE_Q+' AND mediatype:movies',
+   match:/(disney afternoon|rescue rangers|ducktales|duck tales|talespin|darkwing|goof troop|animaniacs|tiny toon|batman)/i},
+  {id:"cartoon-express", num:"42", name:"CARTOON EXPRESS", type:"archive", shows:true, limit:24, minDur:900, maxYear:2004, icon:"👻", blurb:"Yogi, Scooby, the Flintstones and the Jetsons, taped off Boomerang and the USA Cartoon Express.",
+   q:'(title:("Hanna-Barbera") OR title:("Hanna Barbera") OR title:(Boomerang) OR title:("Cartoon Express") OR title:("Yogi Bear") OR title:(Flintstones) OR title:(Jetsons) OR title:("Scooby-Doo") OR title:("Scooby Doo") OR title:("Huckleberry Hound") OR title:("Top Cat") OR title:("Wacky Races")) AND '+TAPE_Q+' AND mediatype:movies',
+   match:/(hanna|boomerang|cartoon express|yogi|flintstones|jetsons|scooby|huckleberry|top cat|wacky races)/i, exclude:/(unleashed|pokemon|movie|live action)/i},
+  {id:"robot-hour", num:"51", name:"ROBOT HOUR", type:"archive", shows:true, limit:20, minDur:900, maxYear:1996, icon:"🤖", blurb:"Half-hour toy commercials we loved anyway. Voltron, Transformers, He-Man, G.I. Joe.",
+   q:'(title:(Voltron) OR title:(Robotech) OR title:(Transformers) OR title:("G.I. Joe") OR title:("He-Man") OR title:(ThunderCats) OR title:("M.A.S.K.") OR title:(GoBots) OR title:(SilverHawks) OR title:("Inspector Gadget")) AND '+TAPE_Q+' AND mediatype:movies',
+   match:/(voltron|robotech|transformers|g\.?i\.? ?joe|he-?man|thundercats|m\.?a\.?s\.?k|gobots|silverhawks|inspector gadget)/i, exclude:/(\btoys?\b|figure\b|movie|animated episode|generation 2)/i},
+  {id:"double-dog-dare", num:"37", name:"DOUBLE DOG DARE", type:"archive", shows:true, limit:18, maxYear:2003, icon:"🏆", blurb:"Kid game shows. Obstacle courses, a talking temple, and somebody is getting slimed.",
+   q:'(title:("Legends of the Hidden Temple") OR title:("Nick Arcade") OR title:("Nickelodeon GUTS") OR title:("Global GUTS") OR ((title:("Double Dare") OR title:("Figure It Out") OR title:("Finders Keepers") OR title:("What Would You Do") OR title:("Wild & Crazy Kids") OR title:("Think Fast") OR title:("Get the Picture")) AND (title:(Nickelodeon) OR subject:(Nickelodeon) OR subject:(nick) OR title:(Nick) OR title:(episode)))) AND mediatype:movies',
+   match:/(double dare|hidden temple|guts|nick arcade|crazy kids|figure it out|finders keepers|what would you do|think fast|get the picture)/i, exclude:/(berenstain|arthur|anniversary)/i},
+  {id:"story-time", num:"17", name:"STORY TIME", type:"archive", shows:true, limit:18, maxYear:2004, icon:"📚", blurb:"Public TV after school. Bill Nye, Reading Rainbow, Mister Rogers and the Magic School Bus.",
+   q:'(title:("Reading Rainbow") OR title:("Mister Rogers") OR title:("Square One") OR title:("3-2-1 Contact") OR title:(Ghostwriter) OR title:(Wishbone) OR title:("Bill Nye") OR title:("Beakman") OR title:("Electric Company") OR title:("Carmen Sandiego") OR title:("Magic School Bus")) AND mediatype:movies',
+   match:/(reading rainbow|mister rogers|square one|3-2-1 contact|ghostwriter|wishbone|bill nye|beakman|electric company|carmen sandiego|magic school bus)/i, exclude:/(\bgame\b|\bpc\b|cd-?rom|soundtrack|\bbook\b)/i},
+  {id:"tape-trader", num:"52", name:"TAPE TRADER", type:"archive", shows:true, limit:18, maxYear:2003, icon:"📼", blurb:"English-dubbed anime off worn VHS. The tapes you traded at the comic shop.",
+   q:'collection:(vhsvault) AND (subject:(anime) OR title:(anime)) AND mediatype:movies', exclude:/(\bsub\b|subtitled|\braw\b|japanese|fansub|music video|\bamv\b)/i},
+  {id:"first-run", num:"10", name:"FIRST RUN", type:"archive", shows:true, limit:20, minDur:1200, maxDur:14400, maxYear:2004, icon:"📡", blurb:"Syndicated hours off the local station. X-Files, Baywatch, Quantum Leap, Knight Rider.",
+   q:'(title:("X-Files") OR title:(Baywatch) OR title:(Xena) OR title:("Hercules: The Legendary") OR title:("Knight Rider") OR title:("A-Team") OR title:(MacGyver) OR title:("Quantum Leap") OR title:(Sliders) OR title:("Walker, Texas Ranger") OR title:(Renegade) OR title:(Highlander)) AND '+TAPE_Q+' AND mediatype:movies',
+   match:/(x-?files|baywatch|xena|hercules|knight rider|a-team|macgyver|quantum leap|sliders|walker|renegade|highlander)/i},
+  {id:"warp-factor", num:"50", name:"WARP FACTOR", type:"archive", shows:true, limit:18, minDur:1200, maxYear:2001, icon:"🪐", blurb:"Star Trek marathons, Doctor Who off PBS, and The Outer Limits, taped with the ads.",
+   q:'(title:("Star Trek") OR title:("Babylon 5") OR title:("Space: 1999") OR title:("Battlestar Galactica") OR title:("Buck Rogers in the 25th") OR title:("Doctor Who") OR title:("seaQuest") OR title:("Outer Limits")) AND '+TAPE_Q+' AND mediatype:movies',
+   match:/(star trek|babylon 5|space:? ?1999|battlestar|buck rogers|doctor who|seaquest|outer limits)/i, exclude:/(convention|panel|interview|motion picture)/i},
+  {id:"unsolved", num:"45", name:"UNSOLVED", type:"archive", shows:true, limit:20, minDur:900, maxYear:2002, icon:"🔍", blurb:"That theme music. Unsolved Mysteries, Rescue 911 and America's Most Wanted.",
+   q:'(title:("Unsolved Mysteries") OR title:("Rescue 911") OR title:("America\'s Most Wanted")) AND ('+TAPE_Q+' OR title:(episode) OR title:(season) OR title:(Stack) OR title:(Shatner) OR title:(NBC) OR title:(CBS) OR title:(FOX) OR title:(Lifetime)) AND mediatype:movies',
+   match:/(unsolved mysteries|rescue 911|most wanted)/i, exclude:/(animated|fan theor|revisiting|youtube|red web|greatest|\bgame\b|soundtrack)/i},
+  {id:"daytime", num:"44", name:"DAYTIME", type:"archive", shows:true, limit:30, minDur:900, maxDur:10800, maxYear:2003, icon:"💬", blurb:"Home sick from school. Donahue, Geraldo, Sally, Ricki Lake.",
+   q:'(title:(Donahue) OR title:("Sally Jessy") OR title:(Geraldo) OR title:("Jerry Springer") OR title:("Ricki Lake") OR title:("Jenny Jones") OR title:("Maury Povich") OR title:("Montel Williams") OR title:("Oprah Winfrey Show")) AND mediatype:movies',
+   match:/(donahue|sally jessy|geraldo|springer|ricki lake|jenny jones|maury|montel|oprah)/i, exclude:/(too hot for tv|uncensored|opera\b|amedure)/i},
+  {id:"two-drink", num:"22", name:"TWO DRINK MINIMUM", type:"archive", shows:true, limit:18, maxYear:2005, icon:"🎙️", blurb:"A brick wall, a microphone and a stool. Stand-up off cable.",
+   q:'(title:("Evening at the Improv") OR title:("Comic Strip Live") OR title:("Def Comedy Jam") OR title:("Comedy Central Presents") OR title:("One Night Stand") OR title:("Young Comedians") OR title:("Half Hour Comedy Hour") OR title:(ComicView) OR title:("Stand-Up Spotlight") OR title:("HBO Comedy") OR (collection:(vhsvault) AND (title:("stand up") OR title:("stand-up") OR title:(standup) OR subject:("stand-up comedy") OR subject:("stand up comedy")))) AND mediatype:movies',
+   match:/(stand[- ]?up|improv|comic strip live|def comedy|comedy central presents|one night stand|young comedians|comedy hour|comic ?view|hbo comedy)/i, exclude:/(manga|\bdub\b|las vegas|open mic|lesson)/i},
+  {id:"sketch-pad", num:"60", name:"SKETCH PAD", type:"archive", shows:true, limit:20, minDur:900, maxYear:2003, icon:"🎭", blurb:"Sketch comedy off the air. Saturday Night Live, Kids in the Hall, In Living Color, Mr. Show.",
+   q:'(title:("Second City Television") OR title:("SCTV Network") OR title:("Kids in the Hall") OR title:("Mr. Show") OR title:(MADtv) OR title:("Upright Citizens Brigade") OR title:("Ben Stiller Show") OR ((title:("Saturday Night Live") OR title:("In Living Color")) AND '+TAPE_Q+')) AND mediatype:movies',
+   match:/(second city|sctv|kids in the hall|in living color|mr\.? show|madtv|upright citizens|ben stiller show|saturday night live|snl)/i, exclude:/(baseball|negro|documentary|interview|re-?edited|hijab|kiamat)/i},
+  {id:"liquid-hours", num:"59", name:"LIQUID HOURS", type:"archive", shows:true, limit:20, maxYear:2001, icon:"🧪", blurb:"MTV's weird cartoon years. Liquid Television, Æon Flux, The Maxx, Beavis and Butt-Head.",
+   q:'(title:("Liquid Television") OR title:("Aeon Flux") OR title:("MTV Oddities") OR title:("The Maxx") OR title:("Beavis and Butt") OR title:("Spike and Mike") OR title:("Spike & Mike")) AND mediatype:movies',
+   match:/(liquid television|aeon flux|oddities|the maxx|beavis|spike (and|&) mike)/i, exclude:/(\bgame\b|soundtrack|live action|2005|do america|do the universe)/i},
+  {id:"i-want-my-tv", num:"61", name:"I WANT MY TV", type:"archive", shows:true, limit:18, minDur:900, maxYear:1999, icon:"🎵", blurb:"Music television when it played music. MTV and VH1 tapes, 1981 to 1999.",
+   q:'collection:(vhsvault) AND (title:(MTV) OR title:(VH1) OR title:(MuchMusic)) AND mediatype:movies', match:/(mtv|vh1|muchmusic)/i},
+  {id:"player-two", num:"65", name:"PLAYER TWO", type:"archive", shows:true, limit:18, maxYear:2013, icon:"🕹️", blurb:"TV about video games. X-Play, Attack of the Show, The Screen Savers, Starcade.",
+   q:'(title:(G4TV) OR title:("G4 TV") OR title:(TechTV) OR title:("X-Play") OR title:("Attack of the Show") OR title:("Screen Savers") OR title:(Cinematech) OR title:("Electric Playground") OR title:(Starcade) OR title:("Video Power") OR title:("GamePro TV")) AND mediatype:movies',
+   match:/(g4|techtv|x-?play|attack of the show|screen savers|cinematech|electric playground|starcade|video power|gamepro)/i, exclude:/(revival|202\d)/i},
+  {id:"byte-size", num:"16", name:"BYTE SIZE", type:"archive", shows:true, limit:16, maxYear:2003, icon:"💾", blurb:"The Computer Chronicles and Net Cafe. 286s, modems, and what this 'web' thing might be good for.",
+   q:'collection:(computerchronicles OR netcafe) AND mediatype:movies', exclude:/(arabic|spanish|french|german|japanese|portuguese|chinese)/i},
+  {id:"kitchen-tv", num:"39", name:"KITCHEN TV", type:"archive", shows:true, limit:18, maxYear:2003, icon:"👨‍🍳", blurb:"Butter, wine and a wobbly soufflé. Julia Child, the Frugal Gourmet, Yan Can Cook.",
+   q:'(title:("French Chef") OR title:("Julia Child") OR title:("Yan Can Cook") OR title:("Frugal Gourmet") OR title:("Galloping Gourmet") OR title:("Great Chefs") OR title:("Justin Wilson") OR title:("cooking show")) AND mediatype:movies',
+   match:/(french chef|julia child|yan can cook|frugal gourmet|galloping gourmet|great chefs|justin wilson|cooking show)/i, exclude:/(exhibit|festival|interview)/i},
+  {id:"orientation-day", num:"96", name:"ORIENTATION DAY", type:"archive", shows:true, limit:18, minDur:300, maxYear:2001, icon:"📋", blurb:"Welcome to the team. Please watch this tape before your first shift.",
+   q:'(title:("training video") OR title:("employee training") OR title:("orientation video") OR title:("training tape") OR subject:("training video")) AND (collection:(vhsvault) OR year:[1960 TO 1999] OR title:(VHS) OR title:(1980s) OR title:(1990s)) AND mediatype:movies',
+   match:/(training|orientation|employee)/i, exclude:/(\bdog\b|puppy|potty|fitness|workout|military|army|navy|air force|pilot|flight|football|basketball|baseball|soccer|martial|karate|weapon|firearm|pistol|rifle|sermon|church|\b20[012]\d\b)/i},
+  {id:"duck-and-cover", num:"97", name:"DUCK & COVER", type:"archive", shows:true, minDur:240, maxYear:1975, icon:"☢️", blurb:"Cold War films about the atom. Stay calm and get under your desk.",
+   q:'collection:(prelinger) AND (subject:("civil defense") OR title:(atomic) OR subject:(atomic) OR title:("civil defense") OR subject:("Cold War") OR title:(fallout) OR title:(bomb))'},
+  {id:"stakeout", num:"41", name:"STAKEOUT", type:"archive", shows:true, minDur:1200, maxYear:1965, icon:"🚓", blurb:"Just the facts. Dragnet, Peter Gunn, Racket Squad and Sherlock Holmes.",
+   q:'collection:(classic_tv) AND (title:(Dragnet) OR title:("Racket Squad") OR title:("Sherlock Holmes") OR title:("Mr. and Mrs. North") OR title:("Peter Gunn") OR title:("Man With a Camera") OR title:(Decoy) OR title:("Mr. District Attorney") OR title:("Burke\'s Law") OR title:("Dick Tracy"))'},
+  {id:"the-unknown", num:"205", name:"THE UNKNOWN", type:"archive", shows:true, limit:16, minDur:1200, maxYear:1970, icon:"👁️", blurb:"Strange tales with a twist. One Step Beyond, Tales of Tomorrow, Alfred Hitchcock Presents.",
+   q:'(title:("One Step Beyond") OR title:("Tales of Tomorrow") OR title:("Science Fiction Theatre") OR title:("Alfred Hitchcock Presents") OR (title:("Lights Out") AND collection:(classic_tv))) AND mediatype:movies',
+   match:/(one step beyond|tales of tomorrow|science fiction theat|hitchcock presents|lights out)/i, exclude:/(radio|\botr\b|audio|frightmares)/i},
+  {id:"rocket-serials", num:"204", name:"ROCKET SERIALS", type:"archive", shows:true, maxYear:1960, icon:"🔫", blurb:"To be continued! Flash Gordon, Buck Rogers and Commando Cody, one cliffhanger at a time.",
+   q:'(title:("Flash Gordon") OR title:("Buck Rogers") OR title:("Commando Cody") OR title:("Radar Men") OR title:("Rocky Jones") OR title:("Space Patrol") OR title:("Tom Corbett") OR title:("Captain Video") OR title:("Undersea Kingdom") OR title:("Phantom Empire") OR title:("Zombies of the Stratosphere")) AND mediatype:movies',
+   match:/(flash gordon|buck rogers|commando cody|radar men|rocky jones|space patrol|tom corbett|captain video|undersea kingdom|phantom empire|zombies of the stratosphere)/i, exclude:/(radio|1980|filmation|cartoon|animated|comic|\bps[1-5]\b|\bgame\b)/i},
+  {id:"dead-of-night", num:"201", name:"DEAD OF NIGHT", type:"archive", shows:true, minDur:3000, maxYear:1985, icon:"💀", blurb:"Horror movies the late show ran at 1 AM. Lock the door.",
+   q:'collection:(feature_films) AND subject:(horror) AND mediatype:movies'},
+  {id:"high-noon", num:"102", name:"HIGH NOON", type:"archive", shows:true, minDur:2400, maxYear:1979, icon:"🌵", blurb:"Saturday matinee westerns. White hats, black hats, one street.",
+   q:'collection:(feature_films) AND (subject:(western) OR subject:(westerns)) AND mediatype:movies'},
+  {id:"pie-fight", num:"46", name:"PIE FIGHT", type:"archive", shows:true, maxYear:1965, icon:"🥧", blurb:"Chaplin, Keaton, Laurel & Hardy and the Stooges. Somebody's getting a pie.",
+   q:'collection:(Comedy_Films) AND mediatype:movies'},
+  {id:"vacation-reel", num:"130", name:"VACATION REEL", type:"archive", minDur:120, maxYear:1995, icon:"🎞️", blurb:"Other people's home movies. Somebody's 1960 road trip, mostly silent, all heart.",
+   q:'collection:(home_movies) AND mediatype:movies'},
 ].sort((a,b)=>parseFloat(a.num)-parseFloat(b.num));
 /* === channels === */
 /* seasonal channels ({season:{from:"MM-DD",to:"MM-DD"}}) only air inside their window, by local date; a window may wrap New Year */
@@ -778,8 +1114,10 @@ const EN_FILTER = ' AND NOT language:(spa OR spanish OR jpn OR japanese OR por O
 /* Quality + source rules for search results:
    - clean disc/web rips of whole series are pirated copies, not broadcast history, so they're skipped
    - phone/camera recordings of a TV screen are skipped */
-const RIP_RE = /(blu-?ray|bdrip|brrip|dvdrip|dvd rip|web-?dl|webrip|\b(720|1080|2160)p\b|\b4k\b|complete series|full series|all episodes|season \d+ complete|\bremastered\b)/i;
+const RIP_RE = /(blu-?ray|bdrip|brrip|dvdrip|dvd rip|web-?dl|webrip|\b(720|1080|2160)p\b|\b4k\b|complete series|complete collection|full series|all episodes|season \d+ complete|\bremastered\b)/i;
 const FILMED_RE = /(filmed|recorded (it )?(on|with) (my|a|an) (phone|camera|iphone|android)|phone recording|camera recording|off (of )?(my|the) (tv )?screen|screen ?recording|\bcam ?rip\b)/i;
+/* on channels of whole shows (shows:true): no promos, openings, trailers, clips or reaction videos */
+const SHOW_SKIP = /(review|reaction|reacts?\b|unboxing|podcast|commentary|\bai\b|ai[- ]generated|twitch|livestream|live stream|fan ?edit|remaster(ed)? by|upscal|parody|tiktok|opening (to|and closing)|closing to|openings\b|\bpromos?\b|trailers?\b|featurette|behind the scenes|making of|teaser|bumpers?\b|previews?\b|custom\b|commercials? (only|compilation|block)|\(clip\)|\bclips?\b)/i;
 const NON_EN_FILE = /(dual[ -]?audio|\bjpn\b|\bjap\b|español|espanol|latino|castellano|doblaje|dublado|deutsch|français|francais|italiano|vostfr|\bvose\b|subtitulad|legendado|subbed|\bsub(titled)?\b|\braw\b|japanese)/i;
 /* catches foreign-language uploads that aren't tagged with a language: counts common Spanish/Portuguese words in the title and notes */
 const FOREIGN_WORDS=/\b(el|los|las|del|una|unos|con|para|por|como|pero|más|también|dibujos|animados|capítulo|episodio|temporada|película|doblada|doblado|português|desenho|episódio|não|você|então)\b/gi;
@@ -862,7 +1200,7 @@ function toast(t){let el=document.querySelector(".toast");if(!el){el=document.cr
 
 /* ================= schedules (archive.org + NASA) ================= */
 const schedCache = {};
-const SCHED_VER="v12";
+const SCHED_VER="v13";
 function getSchedule(ch){
   if(!schedCache[ch.id]) schedCache[ch.id]=(async()=>{
     const key=`voidcable.sched.${SCHED_VER}.${ch.id}`;
@@ -949,17 +1287,18 @@ async function buildArchive(ch){
     const groups={};
     for(const f of m.files){
       if(!/\.mp4$/i.test(f.name)||f.private==="true"||NON_EN_FILE.test(f.name)||(+f.height&&+f.height<200)||(!d.all&&(RIP_RE.test(f.name)||FILMED_RE.test(f.name))))continue;
-      if(!d.all){const hay=(d.title||"")+" "+f.name;if(ch.match&&!ch.match.test(hay))continue;if(ch.exclude&&ch.exclude.test(hay))continue}
+      if(!d.all){const hay=(d.title||"")+" "+f.name;if(ch.match&&!ch.match.test(hay))continue;if(ch.exclude&&ch.exclude.test(hay))continue;if(ch.shows&&SHOW_SKIP.test(hay))continue}
       const base=f.name.replace(/(\.ia)?\.mp4$/i,"").replace(/_512kb$/i,"");
       (groups[base]||=[]).push(f);
     }
-    const bases=Object.keys(groups).sort();
+    let bases=Object.keys(groups).sort();
+    if(ch.shows&&!d.all&&bases.length>10)bases=shuffleSeeded(bases,seedOf(d.identifier)).slice(0,10).sort();   // one big upload can't take over a channel
     for(const base of bases){
       const fs=groups[base];
       const dur=Math.max(...fs.map(f=>parseLen(f.length)));
-      if(dur<(ch.minDur||20)||dur>(ch.maxDur||Infinity))continue;
+      if(dur<(ch.minDur||(ch.shows?600:20))||dur>(ch.maxDur||Infinity))continue;
       fs.sort((a,b)=>(+a.size||9e12)-(+b.size||9e12));
-      if(+fs[0].size&&(+fs[0].size*8)/(dur*1e6)>MAX_MBPS)continue;
+      if(+fs[0].size&&(+fs[0].size*8)/(dur*1e6)>(ch.maxMbps||(ch.shows?5:MAX_MBPS)))continue;
       if(+fs[0].size&&dur>60&&(+fs[0].size*8)/(dur*1e6)<0.18)continue; // too low-bitrate to watch
       const t=Array.isArray(d.title)?d.title[0]:d.title;
       segs.push({title:(t||d.identifier)+(bases.length>1?" · "+partLabel(base,bases.indexOf(base)):""), year:d.year||"", dur,
@@ -1058,7 +1397,7 @@ function setNow({title, sub="", link, via, remain=""}){
   $("remain").textContent=remain;
   if(link){$("src").href=link;$("src").textContent=via||"source";$("src").hidden=false}else $("src").hidden=true;
   const ch=CHANNELS[cur];
-  $("ticker").textContent=`★ NOW ON CH ${ch.num} ${ch.name}: ${title}   ★ LOCAL ON THE 8s, CH 8   ★ LIVE RADIO ON 88.1, 98.7 AND 106.1   ★ MISSION CONTROL, CH 62   ★ VOID CABLE · A VOIDMONKX BROADCAST   ★`;
+  $("ticker").textContent=`★ NOW ON CH ${ch.num} ${ch.name}: ${title}   ★ NEW: BIG ORANGE COUCH, CH 32   ★ LISTINGS ON THE VOID GUIDE, CH 1   ★ LOCAL ON THE 8s, CH 8   ★ LIVE RADIO ON 88.1, 98.7 AND 106.1   ★ ${CHANNELS.length} CHANNELS, ALWAYS ON   ★ VOID CABLE · A VOIDMONKX BROADCAST   ★`;
   updateMediaSession(title, `CH ${ch.num} · ${ch.name}`);
   if(rmt.code)pushRemoteState();
 }
@@ -1067,7 +1406,7 @@ function stopAll(){
   vid.pause();vid.removeAttribute("src");vid.load();
   aud.pause();aud.removeAttribute("src");aud.load();
   $("ytbox").hidden=true;if(yt.player&&yt.player.stopVideo){try{yt.player.stopVideo()}catch(e){}}
-  $("radioview").hidden=true;$("wxview").hidden=true;
+  $("radioview").hidden=true;$("wxview").hidden=true;$("pvview").hidden=true;pvStop();
   clearInterval(wx.timer);
 }
 function contextButtons(type){
@@ -1082,14 +1421,16 @@ function contextButtons(type){
 async function tune(idx,opt={}){
   if(!opt.scan)stopScan();
   if(sleepState.off){sleepState.off=false;$("sleepCover").hidden=true}
+  const was=cur;
   cur=(idx+CHANNELS.length)%CHANNELS.length;
+  if(tunedOnce&&was!==cur)lastCh=was;tunedOnce=true;
   const ch=CHANNELS[cur], tk=++token;
   store("voidcable.ch",ch.id);
   try{history.replaceState(null,"","#"+ch.id)}catch(e){}
   osd.innerHTML=esc(ch.num)+"<small>"+esc(ch.name)+"</small>";showOSD();
   $("chname").textContent=`CH ${ch.num} · ${ch.name}`;
-  $("barnum").textContent=`CH ${ch.num}`;
-  $("chicon").textContent=ch.icon||KIND[ch.type]||"TV";
+  setLED(ch.num);
+  $("chicon").innerHTML=logoImg(ch);sfxZap();
   descBase=ch.blurb||"";$("desc").textContent=descBase;
   stopAll();setSnow(true);$("wait").hidden=true;showMsg("ADJUSTING THE ANTENNA…");
   if(chatOn&&!$("chatPanel").hidden)chatOpen();
@@ -1106,6 +1447,7 @@ async function tune(idx,opt={}){
     }else if(ch.type==="youtube") await ytTune(ch,tk);
     else if(ch.type==="radio") await radioTune(ch,tk);
     else if(ch.type==="weather") await wxTune(ch,tk);
+    else if(ch.type==="guide") await pvTune(ch,tk);
   }catch(e){
     if(tk!==token)return;
     markDead(ch.id);
@@ -1513,11 +1855,11 @@ $("cityClose").onclick=()=>{$("cityModal").hidden=true};
 
 /* audio element shared by radio + weather */
 aud.addEventListener("playing",()=>{if(mode==="radio"){setSnow(false);hideMsg()}});
-aud.addEventListener("ended",()=>{if(mode==="weather"){wx.track++;wxPlayTrack()}});
+aud.addEventListener("ended",()=>{if(mode==="weather"||mode==="guide"){wx.track++;wxPlayTrack()}});
 aud.addEventListener("error",()=>{
   if(!aud.getAttribute("src"))return;
   if(mode==="radio"){if(++radio.fails>=radio.list.length){showMsg("NO SIGNAL");return}radio.idx=(radio.idx+1)%radio.list.length;radioPlay()}
-  if(mode==="weather"&&wx.tracks.length&&++wx.musicFails<wx.tracks.length){wx.track++;wxPlayTrack()}
+  if((mode==="weather"||mode==="guide")&&wx.tracks.length&&++wx.musicFails<wx.tracks.length){wx.track++;wxPlayTrack()}
 });
 
 /* description: two lines, More to expand */
@@ -1527,9 +1869,9 @@ $("descMore").onclick=()=>{const d=$("desc"),open=d.classList.toggle("clamp");$(
 
 /* ================= sound ================= */
 function setSound(on){
-  soundOn=on;vid.muted=!on;aud.muted=!on;
+  soundOn=on;vid.muted=!on;aud.muted=!on;if(on)sfxInit();
   if(mode==="youtube")ytSound();
-  if(on){if(mode==="video")safePlay(vid);if(mode==="radio"||mode==="weather")safePlay(aud)}
+  if(on){if(mode==="video")safePlay(vid);if(mode==="radio"||mode==="weather"||mode==="guide")safePlay(aud)}
   $("sound").textContent=on?"🔊 SOUND ON":"🔇 TAP FOR SOUND";$("fsSound").textContent=on?"MUTE":"SOUND";$("snd").classList.toggle("on",on);$("snd").setAttribute("aria-label",on?"Mute":"Sound");
   if(on)setTimeout(()=>$("sound").hidden=true,1500);else $("sound").hidden=false;
   if(rmt.code)pushRemoteState();
@@ -1585,7 +1927,7 @@ document.addEventListener("visibilitychange",()=>{
   if(document.hidden)return;
   if(mode==="video")resyncVideo();
   if(mode==="youtube"&&yt.player){try{if(yt.player.getPlayerState()!==1)ytPlaySlot()}catch(e){}}
-  if((mode==="radio"||mode==="weather")&&aud.paused&&aud.getAttribute("src"))safePlay(aud);
+  if((mode==="radio"||mode==="weather"||mode==="guide")&&aud.paused&&aud.getAttribute("src"))safePlay(aud);
   heartbeat();
 });
 
@@ -1665,19 +2007,21 @@ function renderNext(){
     if(!s.isBreak)out.push(`<div class="row"><time>${fmtClock(new Date(start))}</time><span>${esc(s.title)}</span></div>`);start+=s.dur*1000}
   $("nextlist").innerHTML=out.join("");
 }
-const KIND={archive:"TV",nasa:"TV",youtube:"WEB",radio:"FM",weather:"WX",prime:"TV"};
+const KIND={archive:"TV",nasa:"TV",youtube:"WEB",radio:"FM",weather:"WX",prime:"TV",guide:"TV"};
 function guideNow(c){
   if(c.type==="radio")return radio.lists[c.id]&&radio.ch===c&&mode==="radio"?radio.list[radio.idx].name:"Live radio";
   if(c.type==="weather")return "Forecasts across America + smooth jazz";
   if(c.type==="youtube")return ytTitles[c.id]||"Official uploads, every 10 minutes";
   if(c.type==="prime")return primeBlock().label;
+  if(c.type==="guide")return "Listings for every channel, with music";
   return "";
 }
 let guideSched={};
 /* favorites: starred channels sit at the top of the guide (saved on this device only) */
 let favs=new Set();try{favs=new Set(JSON.parse(store("voidcable.favs")||"[]"))}catch(e){}
 function renderGuide(){
-  const order=CHANNELS.map((c,i)=>i).sort((a,b)=>(favs.has(CHANNELS[b].id)-favs.has(CHANNELS[a].id))||a-b);
+  const order=CHANNELS.map((c,i)=>i).filter(i=>catOk(CHANNELS[i])).sort((a,b)=>(favs.has(CHANNELS[b].id)-favs.has(CHANNELS[a].id))||a-b);
+  if(!order.length){$("guide").innerHTML=`<p class="hint">${catFilter==="fav"?"No faves yet. Tap the ☆ on any channel to keep it here.":"Nothing in this group right now."}</p>`;return}
   $("guide").innerHTML=order.map(i=>{
     const c=CHANNELS[i];
     let on=guideNow(c);
@@ -1685,11 +2029,13 @@ function renderGuide(){
     if(!sc&&gridFail.has(c.id))on="Off the air right now";
     const vw=viewers&&viewers.channels&&viewers.channels[c.id], fav=favs.has(c.id);
     return `<button class="ch${gridFail.has(c.id)&&!sc?" dead":""}" type="button" data-i="${i}" aria-current="${i===cur}">
-      <span class="n"><i>${c.icon||""}</i>${esc(c.num)}</span>
-      <span><b>${esc(c.name)}<span class="kind">${KIND[c.type]}</span>${c.season?`<span class="seasonal">🎄 SEASONAL</span>`:""}${vw?`<span class="vw">● ${vw}</span>`:""}<span class="fav${fav?" on":""}" data-fav="${esc(c.id)}" role="button" aria-label="${fav?"Remove from":"Add to"} favorites">${fav?"★":"☆"}</span></b><em>${esc(c.blurb)}</em>${on?`<span class="on">NOW: ${esc(on)}</span>`:""}</span></button>`;
+      <span class="n">${logoImg(c)}<span class="nn">${esc(c.num)}</span></span>
+      <span><b>${esc(c.name)}${KIND[c.type]!=="TV"?`<span class="kind">${KIND[c.type]}</span>`:""}${c.season?`<span class="seasonal">🎄 SEASONAL</span>`:""}${NEW_IDS.has(c.id)?`<span class="seasonal newtag">NEW</span>`:""}${vw?`<span class="vw">● ${vw}</span>`:""}<span class="acts"><span class="info" data-info="${i}" role="button" aria-label="About ${esc(c.name)}">ⓘ</span><span class="fav${fav?" on":""}" data-fav="${esc(c.id)}" role="button" aria-label="${fav?"Remove from":"Add to"} favorites">${fav?"★":"☆"}</span></span></b><em>${esc(c.blurb)}</em>${on?`<span class="on">NOW: ${esc(on)}</span>`:""}</span></button>`;
   }).join("");
 }
 $("guide").addEventListener("click",e=>{
+  const inf=e.target.closest("[data-info]");
+  if(inf){e.stopPropagation();openCard(+inf.dataset.info);return}
   const f=e.target.closest("[data-fav]");
   if(f){e.stopPropagation();const id=f.dataset.fav;favs.has(id)?favs.delete(id):favs.add(id);store("voidcable.favs",JSON.stringify([...favs]));renderGuide();toast(favs.has(id)?"Added to favorites.":"Removed from favorites.");return}
   const b=e.target.closest(".ch");if(b){tune(+b.dataset.i);if(innerWidth<920)screenEl.scrollIntoView({behavior:"smooth",block:"start"})}});
@@ -1765,7 +2111,8 @@ const numEntry={v:"",t:null};
 setInterval(()=>{
   const d=new Date();
   const t=d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});
-  $("boxtime").textContent=t;$("wxTime").textContent=t+" · "+d.toLocaleDateString([], {weekday:"short",month:"short",day:"numeric"});
+  {const tm=t.match(/^([\d:.\s]+?)\s*([^\d:.\s].*)?$/);$("boxtime").innerHTML=tm?esc(tm[1])+(tm[2]?"<i>"+esc(tm[2])+"</i>":""):esc(t)}
+  $("wxTime").textContent=t+" · "+d.toLocaleDateString([], {weekday:"short",month:"short",day:"numeric"});
   if(mode==="weather")wxTitle();
   if(mode==="video"&&sched&&now){
     const el=Math.min(now.seg.dur,localElapsed());
@@ -1911,6 +2258,7 @@ function cellsFor(c,t0,t1){
       st=en;i=(i+1)%sc.segs.length}
     return out;
   }
+  if(c.type==="guide")return [{s:t0,e:t1,title:"Listings for every channel",sub:"with music"}];
   if(c.type==="radio")return [{s:t0,e:t1,title:"Live radio",sub:c.tag}];
   if(c.type==="weather")return [{s:t0,e:t1,title:"Forecasts + smooth jazz",sub:"Set your own city anytime"}];
   if(c.type==="youtube"){const out=[],slot=c.slot*1000;let st=Math.floor((t0-EPOCH)/slot)*slot+EPOCH;const tn=Date.now();
@@ -2186,7 +2534,7 @@ function gfxNextShow(){
 }
 function gfxTick(){
   const ch=CHANNELS[cur];if(!ch)return;
-  if(gfx.bugCh!==ch.id){gfx.bugCh=ch.id;$("gfxBugIco").textContent=ch.icon||"";$("gfxBugName").textContent=gfxShort(ch);$("gfxBug").style.setProperty("--gfx-hue",gfxHue(ch))}
+  if(gfx.bugCh!==ch.id){gfx.bugCh=ch.id;$("gfxBugIco").innerHTML=logoImg(ch);$("gfxBugName").textContent=gfxShort(ch);$("gfxBug").style.setProperty("--gfx-hue",gfxHue(ch))}
   const covered=!$("wait").hidden||!$("sleepCover").hidden||!snow.hidden||!msg.hidden||!$("pairModal").hidden;
   const brk=mode==="video"&&now&&now.seg&&now.seg.isBreak;
   $("gfxBug").classList.toggle("off",covered||brk||!(mode==="video"||mode==="youtube"));
@@ -2302,6 +2650,324 @@ $("joinForm").addEventListener("submit",e=>{
   history.replaceState(null,"",location.pathname+"#remote-"+c);location.reload();
 });
 
+/* === lineup + look v2 === pixel logos, categories, channel cards, what's new, menu (picture / set / static), poll, CH 1 guide.
+   Everything here is additive: it reads player state and calls tune(); the playback engine above is untouched. */
+const PICO={0:"#000000",1:"#1D2B53",2:"#7E2553",3:"#008751",4:"#AB5236",5:"#5F574F",6:"#C2C3C7",7:"#FFF1E8",8:"#FF004D",9:"#FFA300",a:"#FFEC27",b:"#00E436",c:"#29ADFF",d:"#83769C",e:"#FF77A8",f:"#FFCCAA"};
+/* 12x12 glyphs, one palette character per pixel ("." = clear), rows separated by "/" */
+const GLYPHS={tv:"...6....6.../....6..6..../.....66...../.5555555555./.5cccccc5a5./.5c7cccc555./.5cc7ccc5a5./.5cccccc555./.5cccccc585./.5555555555./..55....55../............",
+  star:".....aa...../.....aa...../....aaaa..../aaaaaaaaaaaa/.aaaaaaaaaa./..aaaaaaaa../...aaaaaa.../..aaaaaaaa../..aaa..aaa../.aaa....aaa./.aa......aa./............",
+  moon:"....aaaa..../..aaaa....../.aaaa.....7./.aaa......../aaaa...7..../aaaa......../aaaa......../.aaaa.....a./.aaaaa...aa./..aaaaaaaa../....aaaa..../............",
+  anvil:"............/............/66666666666./.5666666666./..56666666../....5666..../....5666..../....5666..../...566666.../..56666666../..55555555../............",
+  bowl:"............/....9.b.8.../..8.a.9.c.b./...b.8.a.9../.7777777777./c7777777777c/cccccccccccc/.cccccccccc./.dccccccccd./..dccccccd../...dddddd.../............",
+  juicebox:".......77.../......7...../.....7....../..eeeeeeee../..e8888888../..e8888888../..e88aa888../..e8aaaa88../..e8aaaa88../..e88aa888../..e8888888../..22222222..",
+  bolt:".......aaa../......aaa.../.....aaa..../....aaa...../...aaaaaaa../..aaaaaaa.../.....aaa..../....aaa...../...aaa....../..aaa......./..aa......../..a.........",
+  robot:".....88...../.....66...../..66666666../.6666666666./.6cc6666cc6./.6cc6666cc6./.6666666666./.6655555566./.6657575766./.6655555566./..66666666../...66..66...",
+  splat:"....bb...b../.b..bbb...../...bbbbb.bb./.bbbbbbbbbb./bbbb7bbbbbb./.bbb7bbbbbbb/.bbbbbbbbbb./..bbbbbbbb../.bbbb.bbb.../.bb...bb..b./......b...../............",
+  sakura:".....ee...../....eeee..../.ee.eeee.ee./eeee.ee.eeee/eeeeeaaeeeee/.eeeaaaaeee./...eaaaae.../..eee..eee../.eeee..eeee./.eeee..eeee./..ee....ee../............",
+  fish:"............/............/...cccc...c./..cccccc.cc./.c7ccccccccc/.c0cccccccc./.cccccccccc./..cccccc.cc./...cccc...c./............/.7....7...../............",
+  palm:"..bbb.bbb.../.bbbbbbbbb../bb.bbbbb.bb./b..b3b3b..b./...b.4.b..../.....4....../.....4....../....44....../....4......./...44......./..9999999.../.999999999..",
+  camcorder:"............/............/.666666...../.6ddddd6..6./.6d555d6.66./.6d575d6666./.6d555d6666./.6ddddd6.66./.666666...6./..6..6....../.66..66...../............",
+  bat:"............/.d........d./.dd......dd./.ddd.dd.ddd./.dddddddddd./dddddddddddd/dddd8dd8dddd/.dddddddddd./.dd.dddd.dd./.d...dd...d./............/............",
+  cloud:"........aa../......a.aa.a/.......aaaa./....77.aaaaa/..77777aaaa./.7777777aa../7777777777../7777777777../.77777777.../............/..c..c..c.../.c..c..c....",
+  rocket:".....77...../....7777..../....7cc7..../....7cc7..../....7777..../...877778.../..88777788../..8.7777.8../....9aa9..../.....aa...../.....9....../............",
+  note:"....aaaaaaa./....aaaaaaa./....a.....a./....a.....a./....a.....a./....a.....a./....a.....a./..aaa...aaa./.aaaa..aaaa./.aaaa..aaaa./..aa....aa../............",
+  coin:"...aaaaaa.../..aaaaaaaa../.aaaa99aaaa./.aaa9999aaa./.aaa99aaaaa./.aaaa999aaa./.aaaaaa99aa./.aaa9999aaa./.aaaa99aaaa./..aaaaaaaa../...aaaaaa.../............",
+  pencil:".........ee./........eee./.......a6e../......aaa6../.....aaaa.../....aaaa..../...aaaa...../..aaaa....../.faaa......./.ffa......../.5f........./............",
+  radio:".........6../........6.../.......6..../.4444444444./.4666644444./.4655646664./.4666646a64./.4655646664./.4666644444./.4444444444./............/............",
+  boombox:"............/...666666.../...6....6.../.dddddddddd./.d666ddd666./.d6d6d8d6d6./.d666ddd666./.ddddccdddd./.dddddddddd./............/............/............",
+  couch:"............/............/.cccccccccc./.cccccccccc./.cccccccccc./ccc777777ccc/ccc777777ccc/cccccccccccc/cccccccccccc/.d........d./.d........d./............",
+  mug:"............/...6.6.6..../....6.6...../............/.77777777.../.7777777777./.77788777.7./.77788777.7./.7777777777./.77777777.../..777777..../............",
+  belt:"............/............/....aaaa..../...aaaaaa.../444a9aa9a444/444aa99aa444/444aa99aa444/444a9aa9a444/...aaaaaa.../....aaaa..../............/............",
+  mask:"...888888.../..88888888../.8888888888./.8778888778./.8707887078./.8778888778./.8888778888./.8888888888./.8887777888./..88777788../...888888.../............",
+  helmet:"...888888.../..88888888../.8888888888./.8888888888./.8000000008./.8077000008./.8800000088./.8888888888./.8866666688./..86666668../...888888.../............",
+  diamond:"............/..cccccccc../.c7ccccc7cc./cc7cccccc7cc/cccccccccccc/.cccccccccc./..cccccccc../...cccccc.../....cccc..../.....cc...../............/............",
+  globe:"...cccccc.../..ccbbbccc../.cbbbbbcccc./.cbbbbccbbc./ccbbbcccbbbc/cccbbcccbbcc/ccccbbccccbc/.cccbbbcccc./.ccccbbcccc./..ccccbccc../...cccccc.../............",
+  question:".aaaaaaaaaa./aaaaaaaaaaaa/aaa888888aaa/aa88aaaa88aa/aaaaaaaa88aa/aaaaaa888aaa/aaaaa88aaaaa/aaaaa88aaaaa/aaaaaaaaaaaa/aaaaa88aaaaa/aaaaaaaaaaaa/.aaaaaaaaaa.",
+  car:"............/............/...888888.../..8cc88cc8../.88cc88cc88./888888888888/8a88888888a8/888888888888/.5588888855./.55......55./............/............",
+  bars:"77aaccbbee88/77aaccbbee88/77aaccbbee88/77aaccbbee88/77aaccbbee88/77aaccbbee88/77aaccbbee88/77aaccbbee88/88556655cc77/88556655cc77/dd77dd555555/dd77dd555555",
+  fire:".....8....../....88....../....888..8../...8898.88../..88999888../..89999988../.8899a99988./.899aaa9998./.89aaaaa998./.899aaaa998./..899aa998../...888888...",
+  pumpkin:".....33...../.....3....../..99999999../.9999999999./999099990999/990009900099/999999999999/999909909999/990000000099/.9900000099./..99999999../............",
+  balloon:"...888888.../..88788888../.8878888888./.8878888888./.8888888888./.8888888888./..88888888../...888888.../....8888..../.....66...../....6......./.....6......",
+  leaf:".........bb./......bbbbb./....bbbbbbb./...bbbb3bbb./..bbbb3bbbb./..bbb3bbbb../.bbb3bbbbb../.bb3bbbbb.../.b3bbbbb..../.3bbbb....../3.........../............",
+  bird:"............/....cccc..../...cc0ccc.../.99cccccc.../...cccccccc./...ccccccccc/...7cccccc../...77cccc.../....7777..../.....9.9..../....99.99.../............",
+  sword:"..........77/.........767/........767./.......767../......767.../.a...767..../.aa.767...../..aa67....../..4aa......./.44.aa....../44...a....../4...........",
+  pine:".....33...../....3333..../....3b33..../...33bb33.../...3bb333.../..33bbb333../..3bbb3333../.33bbbb3333./.3bbbb33333./.....44...../.....44...../............",
+  hat:"............/............/...dddddd.../..dddddddd../..dddddddd../..88888888../..dddddddd../dddddddddddd/.dddddddddd./............/............/............",
+  ufo:"............/....cccc..../...c77ccc.../..cccccccc../.6666666666./666a66a66a66/.6666666666./..dddddddd../...b....b.../..b......b../.b........b./............",
+  tophat:"............/..77777777../..77777777../..77777777../..77777777../..77777777../..88888888../..77777777../777777777777/.7777777777./............/............",
+  shuriken:".....6....../.....66...../.....666..../6....666..../666.6666..../.6666556666./....6666.666/....666....6/....666...../.....66...../......6...../............",
+  dumbbell:"............/............/.ee......ee./.ee......ee./eeee....eeee/eeee6666eeee/eeee6666eeee/eeee....eeee/.ee......ee./.ee......ee./............/............",
+  phone:"............/.8888888888./888888888888/88.888888.88/88..8888..88/....8888..../...888888.../..88a88a88../..88888888../..88a88a88../..88888888../............",
+  gamepad:"............/............/.6666666666./666666666666/660666666866/600066668666/660666666666/666666666666/.666....666./.66......66./............/............",
+  joystick:".....88...../....8888..../....8888..../.....88...../.....66...../.....66...../.....66...../..ddd66ddd../.ddddddda8d./.dddddddddd./.dddddddddd./............",
+  popcorn:"..77.77.77../.7777777777./.7a77a777a7./.7777777777./.8787878787./.8787878787./.8787878787./..87878787../..87878787../..87878787../...878787.../............",
+  skateboard:"............/............/............/............/9..........9/.9999999999./..99999999../..6......6../.666....666./..6......6../............/............",
+  floppy:"............/.cccccccccc./.cc666666cc./.cc666656cc./.cc666656cc./.cccccccccc./.cccccccccc./.cc777777cc./.cc777777cc./.cc777777cc./.cccccccccc./............",
+  mic:"....6666..../...666666.../...656566.../...665656.../...656566.../...666666.../....6666..../.....dd...../.....dd...../.....dd...../...dddddd.../............",
+  book:"............/............/.cccc..cccc./c7777cc7777c/c7557cc7557c/c7777cc7777c/c7557cc7557c/c7777cc7777c/c7777cc7777c/cccccccccccc/.....cc...../............",
+  magnifier:"...6666...../..6cccc6..../.6cc7ccc6.../.6c7cccc6.../.6cccccc6.../.6cccccc6.../..6cccc6..../...666644.../.......444../........444./.........44./............",
+  cactus:".....bb...../.....bb...../.....bb..b../.b...bb..b../.b...bb..b../.b...bbbbb../.bbbbbb...../.....bb...../.....bb...../.....bb...../.9999999999./............",
+  trefoil:"...aaaaaa.../..a00aa00a../.a000aa000a./.a000aa000a./.aa00aa00aa./.aaaa00aaaa./.aaaa00aaaa./.aaa0000aaa./.aaa0000aaa./..aa0000aa../...aaaaaa.../............",
+  clipboard:"....6666..../..44666644../..47777774../..47555574../..47777774../..47555574../..47777774../..47557774../..47777774../..47777774../..44444444../............",
+  raygun:"............/............/..8........./.888888888a./8866666666aa/.888888888a./..8.888...../....888...../....88....../....88....../............/............",
+  eye:"............/............/...777777.../..77cccc77../.777c00c777./7777c00c7777/.777cccc777./..77777777../...777777.../............/............/............",
+  saturn:"............/....9999..../...999999.../..99999999../6.99999999.6/.6699999966./..96666669../..99999999../...999999.../....9999..../............/............",
+  ghost:"...777777.../..77777777../.7777777777./.7707777077./.7707777077./.7777777777./.7777777777./.7777777777./.7777777777./.7777777777./.77.777.777./.7...7...7..",
+  bus:"............/............/.aaaaaaaaaa./.acacacacaa./.acacacacaa./aaaaaaaaaaaa/a0000000000a/aaaaaaaaaa8a/.55aaaaaa55./.55......55./............/............",
+  chef:"...777777.../..77777777../.7777777777./.7777777777./.7777777777./..77777777../..77777777../..76767677../..77777777../..66666666../............/............",
+  speech:"............/.eeeeeeeeee./eeeeeeeeeeee/eeeeeeeeeeee/ee77e77e77ee/ee77e77e77ee/eeeeeeeeeeee/.eeeeeeeeee./...eee....../..ee......../.e........../............",
+  lava:"....6666..../....d88d..../...d8888d.../...de88ed.../...dee8ed.../..d8eee88d../..d88ee88d../..d888e88d../...d8888d.../...666666.../..66666666../............",
+  mask2:".aaaaaaaaaa./.aaaaaaaaaa./.a00aaaa00a./.a00aaaa00a./.aaaaaaaaaa./.a0aaaaaa0a./.a00aaaa00a./.aa000000aa./..aa0000aa../...aaaaaa.../....aaaa..../............",
+  owl:".44......44./.4444444444./.4777447774./.4707447074./.4777447774./.4444994444./.4444444444./.44f4f4f444./.444f4f4f44./..44444444../...99..99.../............",
+  reel:"...666666.../..66666666../.6605665066./.6055665506./.6666006666./.6666006666./.6055665506./.6605665066./..66666666../...666666.66/..........66/............",
+  grid:"............/aaaaaaaaaaaa/............/cc.777.77777/cc.777.77777/............/cc.77777.777/cc.77777.777/............/cc.77.777777/cc.77.777777/............",
+  bomb:"........a.9./.......6.a../......6...../....dddd..../...dddddd.../..dd7ddddd../..d7dddddd../..dddddddd../..dddddddd../...dddddd.../....dddd..../............",
+  checker:"777...777.../777...777.../777...777.../...777...777/...777...777/...777...777/777...777.../777...777.../777...777.../...777...777/...777...777/...777...777",
+  skull:"...777777.../..77777777../.7777777777./.7007777007./.7007777007./.7777007777./.7777777777./..77777777../..70707077../..77777777../............/............",
+  vhs:"............/............/666666666666/6dddddddddd6/6d07d77d70d6/6d00d77d00d6/6d07d77d70d6/6dddddddddd6/666666666666/............/............/............",
+  dish:"............/.......66.../.....6666.../....66666.8./...666666.../...66666..../...6666...../....66.d..../.....ddd..../....ddddd.../...ddddddd../............",
+  pie:"............/............/....7777..../..77777777../.7777777777./.7777777777./999999999999/.9999999999./..44444444../............/............/............",
+  badge:"............/....9999..../...999999.../..99a99a99../.9999aa9999./.99aaaaaa99./.999aaaa999./.99aa99aa99./..99999999../...999999.../....9999..../............",
+  guitar:".........66./........66../.......4..../......4...../.....4....../..9994....../.999949...../.99909999.../.999999999../..99999999../...999999.../............",
+  trophy:"............/.aaaaaaaaaa./a.aaaaaaaa.a/a.aaaaaaaa.a/.aaaaaaaaaa./..aaaaaaaa../...aaaaaa.../....aaaa..../.....aa...../.....aa...../...aaaaaa.../............"};
+/* channel id -> glyph, or [glyph, "ab" pairs to recolor: a becomes b] */
+const LOGO_OF={
+  "guide":"grid","void-prime":"star","after-hours":"moon","toon-time":"anvil","kids-club":"juicebox","action-block":"bolt","cartoon-2000s":"tv",
+  "slime-time":"splat","anime-04":"sakura","swim-uploads":"fish","night-glow":"palm","cable-access":"camcorder","creature-feature":"bat",
+  "weather":"cloud","mission-control":"rocket","cereal-hours":"bowl","video-hits":"guitar","commercial-break":"coin","homeroom":"pencil",
+  "smooth-fm":"radio","retro-fm":["radio","48"],"night-drive-fm":["radio","4d"],"boombox":"boombox","must-see":"couch","late-late":"mug",
+  "territory-days":"belt","morphin-hour":"helmet","shop-at-home":"diamond","action-news":"globe","game-show":"question","drive-in":"car",
+  "sign-off":"bars","yule-log":"fire","fright-night":"pumpkin","parade":"balloon","nature-hour":"leaf","bird-up":"bird","swim-action-05":"sword",
+  "happy-accidents":"pine","satellite":["robot","69c8"],"rerun-city":["tv","c6"],"midnight-noir":"hat","static-zone":"ufo","silent-hour":"tophat",
+  "kung-fu":"shuriken","monday-night":"mask","sweat-tape":"dumbbell","but-wait":"phone","game-den":"joystick","coming-attractions":"popcorn",
+  "session":"skateboard","big-orange-couch":["couch","c9d4"],"saturday-rewind":"vhs","saturday-04":"bomb","checkerboard-98":"checker",
+  "home-by-330":"bus","cartoon-express":"ghost","robot-hour":"robot","double-dog-dare":"trophy","story-time":"book","tape-trader":["vhs","6e"],
+  "first-run":"dish","warp-factor":"saturn","unsolved":"magnifier","daytime":"speech","two-drink":"mic","sketch-pad":"mask2","liquid-hours":"lava",
+  "i-want-my-tv":["note","ae"],"player-two":"gamepad","byte-size":"floppy","kitchen-tv":"chef","orientation-day":"clipboard","duck-and-cover":"trefoil",
+  "stakeout":"badge","the-unknown":"eye","rocket-serials":"raygun","dead-of-night":"skull","high-noon":"cactus","pie-fight":"pie","vacation-reel":"reel"};
+const CAT_OF={
+  "guide":"live","void-prime":"toons","after-hours":"toons","toon-time":"toons","kids-club":"toons","action-block":"anime","cartoon-2000s":"toons",
+  "slime-time":"toons","anime-04":"anime","swim-uploads":"toons","night-glow":"music","cable-access":"weird","creature-feature":"movies",
+  "weather":"live","mission-control":"learn","cereal-hours":"toons","video-hits":"music","commercial-break":"weird","homeroom":"learn",
+  "smooth-fm":"music","retro-fm":"music","night-drive-fm":"music","boombox":"music","must-see":"tv","late-late":"tv","territory-days":"sports",
+  "morphin-hour":"toons","shop-at-home":"weird","action-news":"tv","game-show":"tv","drive-in":"movies","sign-off":"weird","yule-log":"weird",
+  "fright-night":"toons","parade":"tv","nature-hour":"learn","bird-up":"weird","swim-action-05":"anime","happy-accidents":"learn","satellite":"movies",
+  "rerun-city":"tv","midnight-noir":"movies","static-zone":"movies","silent-hour":"movies","kung-fu":"movies","monday-night":"sports",
+  "sweat-tape":"sports","but-wait":"weird","game-den":"weird","coming-attractions":"movies","session":"sports","big-orange-couch":"toons",
+  "saturday-rewind":"toons","saturday-04":"toons","checkerboard-98":"toons","home-by-330":"toons","cartoon-express":"toons","robot-hour":"toons",
+  "double-dog-dare":"tv","story-time":"learn","tape-trader":"anime","first-run":"tv","warp-factor":"tv","unsolved":"tv","daytime":"tv",
+  "two-drink":"tv","sketch-pad":"tv","liquid-hours":"toons","i-want-my-tv":"music","player-two":"tv","byte-size":"learn","kitchen-tv":"learn",
+  "orientation-day":"weird","duck-and-cover":"learn","stakeout":"tv","the-unknown":"tv","rocket-serials":"movies","dead-of-night":"movies",
+  "high-noon":"movies","pie-fight":"movies","vacation-reel":"weird"};
+const CATS=[["all","ALL"],["fav","★ FAVES"],["new","NEW"],["toons","CARTOONS"],["anime","ANIME"],["tv","PRIME TIME"],["movies","MOVIES"],["music","MUSIC"],["weird","WEIRD"],["learn","LEARNING"],["sports","SPORTS"],["live","LIVE"]];
+const CAT_LABEL=Object.fromEntries(CATS);
+const NEW_IDS=new Set(["guide","big-orange-couch","saturday-rewind","saturday-04","checkerboard-98","home-by-330","cartoon-express","robot-hour","double-dog-dare",
+  "story-time","tape-trader","first-run","warp-factor","unsolved","daytime","two-drink","sketch-pad","liquid-hours","i-want-my-tv","player-two","byte-size","kitchen-tv",
+  "orientation-day","duck-and-cover","stakeout","the-unknown","rocket-serials","dead-of-night","high-noon","pie-fight","vacation-reel"]);
+
+/* ---- pixel logos: drawn once per channel on a 16x16 canvas, shown scaled up with hard pixels ---- */
+const logoCache=new Map();
+function logoURL(ch){
+  if(logoCache.has(ch.id))return logoCache.get(ch.id);
+  let spec=LOGO_OF[ch.id]||"tv", swap="";
+  if(Array.isArray(spec)){swap=spec[1]||"";spec=spec[0]}
+  let u="";
+  try{
+    const g=(GLYPHS[spec]||GLYPHS.tv).split("/"), cv=document.createElement("canvas");cv.width=cv.height=16;
+    const x=cv.getContext("2d");
+    x.fillStyle="#050322";x.fillRect(1,0,14,16);x.fillRect(0,1,16,14);
+    x.fillStyle=`hsl(${gfxHue(ch)},85%,60%)`;x.fillRect(2,1,12,14);x.fillRect(1,2,14,12);
+    x.fillStyle="#120a3e";x.fillRect(2,2,12,12);
+    g.forEach((row,y)=>{for(let k=0;k<12;k++){let c=row[k];if(!c||c===".")continue;
+      for(let s=0;s<swap.length;s+=2)if(swap[s]===c){c=swap[s+1];break}
+      x.fillStyle=PICO[c]||"#fff";x.fillRect(k+2,y+2,1,1)}});
+    u=cv.toDataURL("image/png");
+  }catch(e){}
+  logoCache.set(ch.id,u);return u;
+}
+const logoImg=ch=>`<img class="lg" alt="" width="16" height="16" src="${logoURL(ch)}">`;
+
+/* ---- cable box: LED channel readout, LAST channel, channel-change static ---- */
+let lastCh=-1, tunedOnce=false;
+function setLED(num){const el=$("barnum");el.textContent=num;el.dataset.ghost=String(num).replace(/[0-9]/g,"8")}
+$("lastBtn").onclick=()=>{if(lastCh>=0&&CHANNELS[lastCh])tune(lastCh);else toast("No last channel yet. Flip to another channel first.")};
+const sfx={ctx:null,on:store("voidcable.sfx")!=="0"};
+function sfxInit(){if(sfx.ctx||!sfx.on)return;try{const AC=window.AudioContext||window.webkitAudioContext;if(AC)sfx.ctx=new AC()}catch(e){}}
+function sfxZap(){
+  if(!sfx.on||!soundOn||!sfx.ctx)return;
+  try{
+    const c=sfx.ctx;if(c.state==="suspended")c.resume();
+    const n=Math.floor(c.sampleRate*.2), b=c.createBuffer(1,n,c.sampleRate), d=b.getChannelData(0);
+    for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
+    const s=c.createBufferSource(), g=c.createGain();g.gain.value=.06;s.buffer=b;s.connect(g);g.connect(c.destination);s.start();
+  }catch(e){}
+}
+
+/* ---- picture + cabinet settings (saved on this device) ---- */
+const look={crt:store("voidcable.crt")||"soft", skin:store("voidcable.skin")||"night"};
+function applyLook(){
+  document.body.dataset.crt=look.crt;document.body.dataset.skin=look.skin;
+  try{document.documentElement.style.background=getComputedStyle(document.body).getPropertyValue("--night-2").trim()||""}catch(e){}
+  document.querySelectorAll("#crtSeg .btn").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.crt===look.crt)));
+  document.querySelectorAll("#skinSeg .btn").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.skin===look.skin)));
+  document.querySelectorAll("#sfxSeg .btn").forEach(b=>b.setAttribute("aria-pressed",String((b.dataset.sfx==="1")===sfx.on)));
+}
+$("crtSeg").addEventListener("click",e=>{const b=e.target.closest("[data-crt]");if(!b)return;look.crt=b.dataset.crt;store("voidcable.crt",look.crt);applyLook()});
+$("skinSeg").addEventListener("click",e=>{const b=e.target.closest("[data-skin]");if(!b)return;look.skin=b.dataset.skin;store("voidcable.skin",look.skin);applyLook()});
+$("sfxSeg").addEventListener("click",e=>{const b=e.target.closest("[data-sfx]");if(!b)return;sfx.on=b.dataset.sfx==="1";store("voidcable.sfx",sfx.on?"1":"0");if(sfx.on&&soundOn)sfxInit();applyLook()});
+applyLook();
+$("menuBtn").onclick=()=>{$("menuModal").hidden=false;pollLoad()};
+$("menuClose").onclick=()=>{$("menuModal").hidden=true};
+$("menuNew").onclick=()=>{$("menuModal").hidden=true;openNew()};
+document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)m.hidden=true}));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")["menuModal","cardModal","newModal"].forEach(id=>{$(id).hidden=true})});
+
+/* ---- category chips over the channel list ---- */
+let catFilter="all";
+function catOk(c){return catFilter==="all"||(catFilter==="fav"?favs.has(c.id):catFilter==="new"?NEW_IDS.has(c.id):(CAT_OF[c.id]||"tv")===catFilter)}
+function renderChips(){
+  const used=new Set(CHANNELS.map(c=>CAT_OF[c.id]||"tv"));
+  $("chips").innerHTML=CATS.filter(([k])=>k==="all"||k==="fav"||k==="new"||used.has(k)).map(([k,l])=>`<button class="btn" type="button" data-cat="${k}" aria-pressed="${k===catFilter}">${l}</button>`).join("");
+}
+$("chips").addEventListener("click",e=>{const b=e.target.closest("[data-cat]");if(!b)return;catFilter=b.dataset.cat;renderChips();renderGuide()});
+
+/* ---- channel card: what a channel is, what's on now and next ---- */
+let cardI=-1;
+const isTape=c=>c.type==="archive"||c.type==="nasa"||c.type==="prime";
+function cardRows(c){
+  if(!isTape(c))return `<div class="row on"><time>ON NOW</time><span>${esc(guideNow(c)||c.blurb)}</span></div>`;
+  const sc=guideSched[c.id];
+  if(!sc)return gridFail.has(c.id)?`<div class="row"><time>--:--</time><span>Off the air right now. Try again in a few minutes.</span></div>`
+    :`<div class="row"><time>…</time><span>Loading the schedule…</span></div>`;
+  const w=whereNow(sc), out=[];let k=w.i, st=Date.now()-w.offset*1000, g=0;
+  while(out.length<5&&g++<sc.segs.length*2){const s=sc.segs[k];
+    if(!s.isBreak)out.push(`<div class="row${out.length?"":" on"}"><time>${out.length?fmtClock(new Date(st)):"ON NOW"}</time><span>${esc(s.title)}</span></div>`);
+    st+=s.dur*1000;k=(k+1)%sc.segs.length}
+  return out.join("");
+}
+function cardFill(){
+  const c=CHANNELS[cardI];if(!c)return;
+  $("ccList").innerHTML=cardRows(c);
+  $("ccFav").textContent=favs.has(c.id)?"★ FAVE":"☆ FAVE";
+  $("ccTune").textContent=cardI===cur?"WATCHING NOW":"TUNE IN";
+}
+function openCard(i){
+  const c=CHANNELS[i];if(!c)return;cardI=i;
+  $("ccLogo").src=logoURL(c);$("ccNum").textContent=`CH ${c.num}`;$("ccName").textContent=c.name;
+  $("ccCat").textContent=(CAT_LABEL[CAT_OF[c.id]]||"TELEVISION")+(NEW_IDS.has(c.id)?" · NEW":"")+(c.season?" · SEASONAL":"");
+  $("ccBlurb").textContent=c.blurb||"";
+  cardFill();$("cardModal").hidden=false;
+  const target=c.type==="prime"?primeTarget(primeBlock()):c;
+  if(isTape(c)&&!guideSched[c.id]&&target)
+    getSchedule(target).then(s=>{guideSched[c.id]=s}).catch(()=>markDead(c.id)).then(()=>{if(cardI===i&&!$("cardModal").hidden)cardFill();renderGuide()});
+}
+$("chicon").onclick=()=>openCard(cur);
+$("ccClose").onclick=()=>{$("cardModal").hidden=true};
+$("ccTune").onclick=()=>{$("cardModal").hidden=true;if(cardI!==cur&&cardI>=0)tune(cardI);screenEl.scrollIntoView({behavior:"smooth",block:"start"})};
+$("ccFav").onclick=()=>{const c=CHANNELS[cardI];if(!c)return;favs.has(c.id)?favs.delete(c.id):favs.add(c.id);store("voidcable.favs",JSON.stringify([...favs]));cardFill();renderGuide()};
+$("ccShare").onclick=async()=>{
+  const c=CHANNELS[cardI];if(!c)return;const url=location.origin+"/#"+c.id, text=`CH ${c.num} ${c.name} on VOID CABLE`;
+  if(navigator.share){try{await navigator.share({title:"VOID CABLE",text,url});return}catch(e){if(e&&e.name==="AbortError")return}}
+  try{await navigator.clipboard.writeText(url);toast("🔗 Link copied: "+url)}catch(e){toast("🔗 "+url)}
+};
+
+/* ---- what's new: shown once per update, and from the menu ---- */
+const WHATS_NEW="2026-11-11";
+function openNew(){
+  const list=CHANNELS.map((c,i)=>[c,i]).filter(([c])=>NEW_IDS.has(c.id));
+  $("newLead").textContent=`${list.length} new channels just landed, plus pixel logos, a CRT picture, and listings that scroll on CH 1. Tap one to tune in.`;
+  $("newList").innerHTML=list.map(([c,i])=>`<button class="newrow" type="button" data-i="${i}">${logoImg(c)}<span><b>${esc(c.num)} · ${esc(c.name)}</b><span>${esc(c.blurb)}</span></span></button>`).join("");
+  $("newModal").hidden=false;
+}
+$("newList").addEventListener("click",e=>{const b=e.target.closest("[data-i]");if(!b)return;$("newModal").hidden=true;tune(+b.dataset.i);screenEl.scrollIntoView({behavior:"smooth",block:"start"})});
+$("newClose").onclick=()=>{$("newModal").hidden=true};
+$("newGo").onclick=()=>{$("newModal").hidden=true;const i=byId("guide");if(i>=0)tune(i);screenEl.scrollIntoView({behavior:"smooth",block:"start"})};
+
+/* ---- poll (Netlify Function): one vote per device, change it any time ---- */
+const POLL={id:"next-channel-1", q:"WHICH CHANNEL SHOULD WE BUILD NEXT?",
+  opts:["SOAP DISH · 80s daytime soaps","SPORTS REPLAY · classic games with the ads","BRITCOM NIGHT · British comedy off PBS","THE DOCKET · People's Court and Judge Wapner","TRUCK STOP · monster trucks and motorsports"]};
+const poll={data:null,busy:false};
+function pollShow(){
+  const d=poll.data, counts=d&&Array.isArray(d.counts)?d.counts:[], total=counts.reduce((a,b)=>a+(+b||0),0), mine=d&&Number.isInteger(d.mine)?d.mine:-1;
+  $("pollQ").textContent=POLL.q;
+  $("pollOpts").innerHTML=POLL.opts.map((o,i)=>{const n=+counts[i]||0, pct=total?Math.round(n/total*100):0;
+    return `<button class="poll-opt${i===mine?" mine":""}" type="button" data-opt="${i}"><i style="width:${d?pct:0}%"></i><span>${esc(o)}</span><b>${d?(i===mine?"✓ ":"")+pct+"%":""}</b></button>`}).join("");
+  $("pollNote").textContent=!d?"Loading votes…":d.off?"Voting is offline right now. Try again later.":mine>=0?`${total} vote${total===1?"":"s"} so far. Tap another to change yours.`:`${total} vote${total===1?"":"s"} so far. Tap one to vote.`;
+}
+async function pollLoad(){
+  pollShow();
+  if(location.protocol==="file:")return;
+  try{
+    const r=await fetch(`/api/poll?poll=${POLL.id}&id=${encodeURIComponent(clientId)}`,{cache:"no-store"});
+    if(!r.ok||!/json/.test(r.headers.get("content-type")||""))throw 0;
+    poll.data=await r.json();
+  }catch(e){poll.data={off:true,counts:[]}}
+  pollShow();
+}
+$("pollOpts").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-opt]");if(!b||poll.busy||(poll.data&&poll.data.off))return;
+  poll.busy=true;
+  try{
+    const r=await fetch("/api/poll",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({poll:POLL.id,opt:+b.dataset.opt,id:clientId})});
+    if(!r.ok)throw 0;poll.data=await r.json();pollShow();toast("Vote counted. Thanks!");
+  }catch(err){toast("Couldn't count that vote. Try again in a moment.")}
+  finally{poll.busy=false}
+});
+
+/* ---- CH 1, VOID GUIDE: listings for every channel scroll by on their own, with music. Tap a row to tune in. ---- */
+const pv={raf:0,y:0,last:0,h:0,speed:.016,timer:null,rendered:0,nSched:-1,promoK:-1};
+function pvCells(c,t0,t1){
+  if(c.type==="youtube")return [{s:t0,e:t1,title:ytTitles[c.id]||c.blurb}];
+  if(isTape(c)&&c.type!=="prime"&&gridFail.has(c.id)&&!guideSched[c.id])return [{s:t0,e:t1,title:"Off the air right now",dim:true}];
+  return cellsFor(c,t0,t1)||[{s:t0,e:t1,title:c.blurb||"",dim:true}];
+}
+function pvRender(){
+  const tn=Date.now(), t0=Math.floor(tn/1800000)*1800000, t1=t0+90*60000, pct=t=>Math.max(0,Math.min(100,(t-t0)/(t1-t0)*100));
+  $("pvHead").innerHTML=`<span>${esc(new Date().toLocaleDateString([], {weekday:"short"}).toUpperCase())}</span>`+[0,1,2].map(k=>`<span>${fmtClock(new Date(t0+k*1800000))}</span>`).join("");
+  const rows=CHANNELS.map((c,i)=>{
+    if(c.type==="guide")return "";
+    const cells=pvCells(c,t0,t1).map(k=>{const l=pct(k.s), r=pct(k.e);if(r-l<6)return "";
+      return `<span class="pv-cell${k.dim?" dim":""}" style="left:${l.toFixed(2)}%;width:calc(${(r-l).toFixed(2)}% - .5cqw)">${esc(k.title)}</span>`}).join("");
+    return `<button class="pv-row" type="button" data-i="${i}"><span class="pv-ch"><b>${esc(c.num)}</b>${esc(gfxShort(c))}</span><span class="pv-line">${cells}</span></button>`}).join("");
+  $("pvRows").innerHTML=rows+rows;   /* doubled, so the scroll loops without a seam */
+  pv.h=$("pvRows").scrollHeight/2;
+  const first=$("pvRows").firstElementChild;if(first&&first.offsetHeight)pv.speed=first.offsetHeight/2300;
+  pv.rendered=tn;pv.nSched=Object.keys(guideSched).length;
+}
+function pvPromo(){
+  const d=new Date(), h=d.getHours();
+  $("pvTime").textContent=`${h%12||12}:${String(d.getMinutes()).padStart(2,"0")}:${String(d.getSeconds()).padStart(2,"0")}`;
+  $("pvDate").textContent=d.toLocaleDateString([], {weekday:"long",month:"short",day:"numeric"}).toUpperCase();
+  const list=CHANNELS.filter(c=>c.type!=="guide"), k=Math.floor(Date.now()/8000)%list.length;
+  if(k===pv.promoK)return;pv.promoK=k;
+  const c=list[k];let on="";const sc=guideSched[c.id];
+  if(sc){const w=whereNow(sc);if(!w.seg.isBreak)on=w.seg.title}
+  $("pvLogo").src=logoURL(c);$("pvPNum").textContent=`ON CHANNEL ${c.num}`;$("pvPName").textContent=c.name;
+  $("pvPText").textContent=on?`Now: ${on}`:(c.blurb||"");
+}
+function pvFrame(ts){
+  if(mode!=="guide")return;
+  const dt=Math.min(100,ts-(pv.last||ts));pv.last=ts;
+  if(pv.h>0){pv.y+=dt*pv.speed;if(pv.y>=pv.h)pv.y-=pv.h;$("pvRows").style.transform=`translate3d(0,${(-pv.y).toFixed(1)}px,0)`}
+  pv.raf=requestAnimationFrame(pvFrame);
+}
+function pvStop(){cancelAnimationFrame(pv.raf);clearInterval(pv.timer);pv.timer=null}
+async function pvTune(ch,tk){
+  mode="guide";$("pvview").hidden=false;setSnow(false);hideMsg();
+  pv.promoK=-1;pvRender();pvPromo();pv.last=0;pvStop();pv.raf=requestAnimationFrame(pvFrame);
+  pv.timer=setInterval(()=>{
+    if(mode!=="guide")return;
+    pvPromo();
+    if(Date.now()-pv.rendered>30000||(Object.keys(guideSched).length!==pv.nSched&&Date.now()-pv.rendered>4000))pvRender();
+  },1000);
+  setNow({title:"What's on, on every channel", sub:"Listings scroll by on their own. Tap a row to tune in."});
+  if(!gridLoading)loadGridSchedules();
+  const wxCh=CHANNELS.find(c=>c.type==="weather");
+  if(wxCh&&wxCh.music)wxMusic(wxCh,tk);
+}
+$("pvRows").addEventListener("click",e=>{const b=e.target.closest("[data-i]");if(b)tune(+b.dataset.i)});
+/* === /lineup + look v2 === */
+
 /* start: remote link > link (#channel) > last channel you watched > AFTER HOURS */
 const byId=id=>CHANNELS.findIndex(c=>c.id===id);
 const remoteHash=location.hash.match(/^#remote-(\d{5})$/);
@@ -2310,8 +2976,11 @@ else{
   let start=byId(location.hash.slice(1));
   if(start<0)start=byId(store("voidcable.ch")||"");
   if(start<0)start=byId(DEFAULT_CH);
-  renderGuide();
+  $("tagline").textContent=`${CHANNELS.length} CHANNELS · ALWAYS ON`;
+  if(!gfx.calm()){screenEl.classList.add("booting");setTimeout(()=>screenEl.classList.remove("booting"),1300)}
+  renderChips();renderGuide();
   tune(start);
+  if(store("voidcable.new")!==WHATS_NEW)setTimeout(()=>{openNew();store("voidcable.new",WHATS_NEW)},1600);
   setTimeout(pollReacts,1500);
   remotePing();
   chatInit();
