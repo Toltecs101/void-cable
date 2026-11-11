@@ -1,7 +1,8 @@
 /* VOID CABLE service worker: caches only the app shell so the site opens offline-ish and installs as an app.
    "/" is network-first (updates are never stale). Video, archive.org, YouTube and /api/ are never touched. */
-const CACHE = "voidcable-shell-v1";
-const SHELL = ["/", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png"];
+const CACHE = "voidcable-shell-v2";
+const SHELL = ["/", "/manifest.webmanifest", "/icon-192.png", "/icon-512.png", "/apple-touch-icon.png",
+  "/fonts/vt323.woff2", "/fonts/jersey10.woff2", "/fonts/dseg7.woff2"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).catch(() => {}).then(() => self.skipWaiting()));
@@ -32,7 +33,7 @@ self.addEventListener("fetch", e => {
     return;
   }
 
-  // other shell files (manifest, icons): cache first, refresh in the background
+  // other shell files (manifest, icons, fonts): cache first, refresh in the background
   if (SHELL.includes(url.pathname)) {
     e.respondWith(caches.match(url.pathname).then(hit => {
       const net = fetch(req).then(res => {
