@@ -2807,6 +2807,7 @@ function sfxZap(){
 const look={crt:store("voidcable.crt")||"soft", skin:store("voidcable.skin")||"night"};
 function applyLook(){
   document.body.dataset.crt=look.crt;document.body.dataset.skin=look.skin;
+  try{document.documentElement.style.background=getComputedStyle(document.body).getPropertyValue("--night-2").trim()||""}catch(e){}
   document.querySelectorAll("#crtSeg .btn").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.crt===look.crt)));
   document.querySelectorAll("#skinSeg .btn").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.skin===look.skin)));
   document.querySelectorAll("#sfxSeg .btn").forEach(b=>b.setAttribute("aria-pressed",String((b.dataset.sfx==="1")===sfx.on)));
